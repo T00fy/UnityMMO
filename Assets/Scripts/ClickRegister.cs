@@ -34,6 +34,7 @@ public class ClickRegister : MonoBehaviour {
         loginButton = loginGameObj.GetComponent<Button>();
 
         regButton.onClick.AddListener(RegisterConnection);
+
         loginButton.onClick.AddListener(LoginConnection);
 
 
@@ -67,14 +68,12 @@ public class ClickRegister : MonoBehaviour {
         {
             CheckInputs();
             ip = Dns.GetHostAddresses("127.0.0.1");
-            byte[] buffer = Encoding.ASCII.GetBytes("register " + userName + " " + password);
-            
-            //socket.Connect(ip[0], 3425);
-            socket.BeginConnect(ip[0], 3425, new AsyncCallback(ConnectCallBack), null);
-            
-            socket.BeginSend(buffer, 0, buffer.Length, 0, new AsyncCallback(SendCallBack), socket);
 
-            socket.BeginReceive(receiveBuff, 0, receiveBuff.Length, SocketFlags.None, new AsyncCallback(ReceiveCallBack), socket);
+
+            //socket.Connect(ip[0], 3425);
+                socket.BeginConnect(ip[0], 3425, new AsyncCallback(ConnectCallBack), null);
+            
+            
         }
         catch (Exception e)
         {
@@ -83,27 +82,34 @@ public class ClickRegister : MonoBehaviour {
         }
 
     }
+    private void ConnectCallBack(IAsyncResult aSyncResult)
+    {
+        Socket connectSocket = (Socket)aSyncResult.AsyncState;
+        byte[] buffer = Encoding.ASCII.GetBytes("register " + userName + " " + password);
+        socket.BeginSend(buffer, 0, buffer.Length, 0, new AsyncCallback(SendCallBack), connectSocket);
+  //      connectSocket.EndConnect(aSyncResult);
+    }
+
+    private void SendCallBack(IAsyncResult aSyncResult)
+    {
+        Socket sendSocket = (Socket)aSyncResult.AsyncState;
+        Debug.Log("Gets here");
+        socket.BeginReceive(receiveBuff, 0, receiveBuff.Length, SocketFlags.None, new AsyncCallback(ReceiveCallBack), socket);
+    }
 
     private void ReceiveCallBack(IAsyncResult aSyncResult)
     {
-        Socket socket = (Socket)aSyncResult.AsyncState; //the callback socket
-        int received = socket.EndReceive(aSyncResult); //number of bytes received
+        Socket receiveSocket = (Socket)aSyncResult.AsyncState; //the callback socket
+        int received = receiveSocket.EndReceive(aSyncResult); //number of bytes received
         byte[] dataBuf = new byte[received];
         Array.Copy(receiveBuff, dataBuf, received);
 
         string text = Encoding.ASCII.GetString(dataBuf);
 
-        Debug.Log("Received status: ");
+        Debug.Log("Received status: " + text);
     }
 
-    private void ConnectCallBack(IAsyncResult aSyncResult)
-    {
-        Socket receiveSocket = (Socket)aSyncResult.AsyncState;
-        receiveSocket.EndConnect(aSyncResult);
-    }
 
-    private void SendCallBack(IAsyncResult aSyncResult)
-    {
-        Socket receiveSocket = (Socket)aSyncResult.AsyncState;
-    }
+
+
 }

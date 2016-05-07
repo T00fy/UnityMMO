@@ -94,8 +94,9 @@ namespace MMOServer
 
 
 
-            socket.BeginSend(dataToSend, 0, buffer.Length, SocketFlags.None, new AsyncCallback(SendCallBack), socket); //send data to client
-            socket.BeginReceive(buffer, 0, buffer.Length, SocketFlags.None, new AsyncCallback(SendCallBack), socket); //begin receiving again
+            socket.BeginSend(dataToSend, 0, dataToSend.Length, SocketFlags.None, new AsyncCallback(SendCallBack), socket); //send data to client
+            socket.BeginReceive(buffer, 0, buffer.Length, SocketFlags.None, new AsyncCallback(SendCallBack), socket);
+            //begin receiving again
 
 
         }
@@ -105,7 +106,6 @@ namespace MMOServer
         //
         //Finish sending data to client
         //
-
         private static void SendCallBack(IAsyncResult aSyncResult)
         {
             Socket socket = (Socket)aSyncResult.AsyncState; //the callback socket
