@@ -6,6 +6,28 @@ using System.Collections;
 using System;
 using System.Runtime.Serialization;
 using System.Text;
+using System.Threading;
+
+
+
+//
+//
+//CLASS DOES NOT WORK TOO WELL, SOCKET TENDS TO GET STUCK IN AN INFINITE LOOP TRYING TO RECEIVE DATA
+//
+//
+
+
+public class StateObject
+{
+    // Client socket.
+    public Socket workSocket = null;
+    // Size of receive buffer.
+    public const int BufferSize = 256;
+    // Receive buffer.
+    public byte[] buffer = new byte[BufferSize];
+    // Received data string.
+    public StringBuilder sb = new StringBuilder();
+}
 
 public class ClickRegister : MonoBehaviour {
     private TextFieldHandler usernameEntryHandler;
@@ -14,9 +36,14 @@ public class ClickRegister : MonoBehaviour {
     private Button loginButton;
     private string userName;
     private string password;
-    private Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
     private IPAddress[] ip;
-    private static byte[] receiveBuff = new byte[512];
+    private static String response = String.Empty;
+    private static ManualResetEvent connectDone =
+    new ManualResetEvent(false);
+    private static ManualResetEvent sendDone =
+        new ManualResetEvent(false);
+    private static ManualResetEvent receiveDone =
+        new ManualResetEvent(false);
 
 
 
@@ -68,45 +95,122 @@ public class ClickRegister : MonoBehaviour {
         {
             CheckInputs();
             ip = Dns.GetHostAddresses("127.0.0.1");
-
+            Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
             //socket.Connect(ip[0], 3425);
-                socket.BeginConnect(ip[0], 3425, new AsyncCallback(ConnectCallBack), null);
-            
-            
+            socket.BeginConnect(ip[0], 3425, new AsyncCallback(ConnectCallBack), socket);
+            connectDone.WaitOne();
+
+            String cmd = "register " + userName + " " + password;
+            Send(socket, cmd);
+            sendDone.WaitOne();
+
+            Receive(socket);
+            receiveDone.WaitOne();
+
+
+            socket.Shutdown(SocketShutdown.Both);
+            socket.Close();
+
+
         }
         catch (Exception e)
         {
-            var error = e.Message;
-            Debug.Log(error);
+            Debug.Log(e.ToString());
         }
 
     }
-    private void ConnectCallBack(IAsyncResult aSyncResult)
+
+    private static void Send(Socket client, String data)
     {
-        Socket connectSocket = (Socket)aSyncResult.AsyncState;
-        byte[] buffer = Encoding.ASCII.GetBytes("register " + userName + " " + password);
-        socket.BeginSend(buffer, 0, buffer.Length, 0, new AsyncCallback(SendCallBack), connectSocket);
-  //      connectSocket.EndConnect(aSyncResult);
+        // Convert the string data to byte data using ASCII encoding.
+        byte[] byteData = Encoding.ASCII.GetBytes(data);
+
+        // Begin sending the data to the remote device.
+        client.BeginSend(byteData, 0, byteData.Length, 0,
+            new AsyncCallback(SendCallBack), client);
     }
 
-    private void SendCallBack(IAsyncResult aSyncResult)
+    private static void SendCallBack(IAsyncResult aSyncResult)
     {
-        Socket sendSocket = (Socket)aSyncResult.AsyncState;
-        Debug.Log("Gets here");
-        socket.BeginReceive(receiveBuff, 0, receiveBuff.Length, SocketFlags.None, new AsyncCallback(ReceiveCallBack), socket);
+        Socket socket = (Socket)aSyncResult.AsyncState;
+        int bytesSent = socket.EndSend(aSyncResult);
+
+
+        
+
+        sendDone.Set();
     }
 
-    private void ReceiveCallBack(IAsyncResult aSyncResult)
+    private static void Receive(Socket client)
     {
-        Socket receiveSocket = (Socket)aSyncResult.AsyncState; //the callback socket
-        int received = receiveSocket.EndReceive(aSyncResult); //number of bytes received
-        byte[] dataBuf = new byte[received];
-        Array.Copy(receiveBuff, dataBuf, received);
+        try
+        {
+            // Create the state object.
+            StateObject state = new StateObject();
+            state.workSocket = client;
 
-        string text = Encoding.ASCII.GetString(dataBuf);
+            // Begin receiving the data from the remote device.
+            client.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0,
+                new AsyncCallback(ReceiveCallBack), state);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.ToString());
+        }
+    }
 
-        Debug.Log("Received status: " + text);
+    private static void ReceiveCallBack(IAsyncResult aSyncResult)
+    {
+        try {
+            Debug.Log("Receiving");
+            StateObject state = (StateObject)aSyncResult.AsyncState;
+            Socket socket = state.workSocket; //the callback socket
+            int received = socket.EndReceive(aSyncResult); //number of bytes received
+
+            if (received > 0)
+            {
+                // There might be more data, so store the data received so far.
+                state.sb.Append(Encoding.ASCII.GetString(state.buffer, 0, received));
+
+                // Get the rest of the data.
+                socket.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0,
+                    new AsyncCallback(ReceiveCallBack), state);
+            }
+            else {
+                // All the data has arrived; put it in response.
+                if (state.sb.Length > 1)
+                {
+                    response = state.sb.ToString();
+                    Debug.Log("Received status: " + response);
+                }
+                // Signal that all bytes have been received.
+                receiveDone.Set();
+            }
+        }
+        catch(Exception e) {
+            Debug.Log(e.ToString());
+        }
+
+
+        
+    }
+
+    private static void ConnectCallBack(IAsyncResult aSyncResult)
+    {
+        try
+        {
+            Socket socket = (Socket)aSyncResult.AsyncState;
+            socket.EndConnect(aSyncResult);
+
+
+            connectDone.Set();
+        }
+        catch (Exception e) {
+            Debug.Log(e.ToString());
+        }
+
+        //      connectSocket.EndConnect(aSyncResult);
     }
 
 
