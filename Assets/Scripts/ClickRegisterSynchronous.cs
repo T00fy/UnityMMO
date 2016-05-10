@@ -32,6 +32,8 @@ public class ClickRegisterSynchronous : MonoBehaviour {
 
         loginButton.onClick.AddListener(LoginConnection);
 
+        
+
 
 
 

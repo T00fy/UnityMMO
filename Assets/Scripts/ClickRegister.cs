@@ -10,11 +10,14 @@ using System.Threading;
 
 
 
-//
-//
-//CLASS DOES NOT WORK TOO WELL, SOCKET TENDS TO GET STUCK IN AN INFINITE LOOP TRYING TO RECEIVE DATA
-//
-//
+/*
+resolution: use the sync Connect method instead.
+
+Not sure why but it works like this. the MSDN doc does state that to connect again after a 
+disconnection that it must be connected to a different endpoint (on the same thread...which it is). It's an underlaying limitation (winsock).
+
+
+*/
 
 
 public class StateObject
@@ -96,10 +99,15 @@ public class ClickRegister : MonoBehaviour {
             CheckInputs();
             ip = Dns.GetHostAddresses("127.0.0.1");
             Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            var cond = SocketConnected(socket);
+            Debug.Log(cond);
+            if (!cond) {
+                socket.BeginConnect(ip[0], 3425, new AsyncCallback(ConnectCallBack), socket);
+                connectDone.WaitOne();
+            }
 
             //socket.Connect(ip[0], 3425);
-            socket.BeginConnect(ip[0], 3425, new AsyncCallback(ConnectCallBack), socket);
-            connectDone.WaitOne();
+
 
             String cmd = "register " + userName + " " + password;
             Send(socket, cmd);
@@ -108,11 +116,9 @@ public class ClickRegister : MonoBehaviour {
             Receive(socket);
             receiveDone.WaitOne();
 
-
             socket.Shutdown(SocketShutdown.Both);
             socket.Close();
-
-
+            
         }
         catch (Exception e)
         {
@@ -129,6 +135,19 @@ public class ClickRegister : MonoBehaviour {
         // Begin sending the data to the remote device.
         client.BeginSend(byteData, 0, byteData.Length, 0,
             new AsyncCallback(SendCallBack), client);
+    }
+
+    bool SocketConnected(Socket s)
+    {
+        bool part1 = s.Poll(1000, SelectMode.SelectRead);
+        bool part2 = (s.Available == 0);
+        if ((part1 && part2) || !s.Connected)
+        {
+            return false;
+        }
+        else {
+            return true;
+        }
     }
 
     private static void SendCallBack(IAsyncResult aSyncResult)
