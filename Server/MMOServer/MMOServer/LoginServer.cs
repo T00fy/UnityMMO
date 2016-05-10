@@ -38,23 +38,7 @@ namespace MMOServer
         }
 
 
-        private static void ConnectToDb()
-        {
-            var connection = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString.ToString();
-            conn = new MySqlConnection(connection);
-            try {
-                Console.WriteLine("Connecting to MYSQL server...");
-                conn.Open();
 
-
-            }
-            catch(Exception e)
-            {
-                Console.WriteLine(e.ToString());
-
-            }
-            Console.WriteLine("Connected");
-        }
 
         public static void StartListening()
         {
@@ -140,27 +124,7 @@ namespace MMOServer
                     // Check for end-of-file tag. If it is not there, read 
                     // more data.
                     var cmdList = state.sb.ToString().Split(' ');
-
-                    if (cmdList[0] == "register")
-                    {
-                        Console.WriteLine("Received register request from user: " + cmdList[1] + " pwd: " + cmdList[2]);
-                        var succeeded = AddUserToDb(cmdList[1], cmdList[2]);
-                        if (succeeded)
-                        {
-                            Send(handler, "SUCCESS");
-                        }
-                        else {
-                            Send(handler, "FAILED");
-
-                        }
-                        
-                    }
-                    if (cmdList[0] == "login")
-                    {
-                        Send(handler, "SUCCESS");
-                    }
-
-
+                    CommandResponse(handler, cmdList);
                 }
                 else {
                     //client has sent 0 bytes shutdown ack
@@ -169,31 +133,39 @@ namespace MMOServer
                 }  
            }
                 // Not all data received. Get more.
-           //     else {
+                //to be implemented later if bugs found
                     
             catch (Exception e) {
                 Console.WriteLine(e.ToString());
             }
         }
 
-        private static bool AddUserToDb(string userName, string password)
+        private static void CommandResponse(Socket handler, string[] cmdList)
         {
-            try
+            if (cmdList[0] == "register")
             {
-                MySqlCommand command = conn.CreateCommand();
-                command.CommandText = "INSERT INTO account(username, password) VALUES(@user, @pass)";
-                command.Parameters.AddWithValue("@user", userName);
-                command.Parameters.AddWithValue("@pass", password);
-                command.ExecuteNonQuery();
-                return true;
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.ToString());
-                return false;
+                Console.WriteLine("Received register request from user: " + cmdList[1] + " pwd: " + cmdList[2]);
+                var succeeded = AddUserToDb(cmdList[1], cmdList[2]);
+                if (succeeded)
+                {
+                    Send(handler, "SUCCESS");
+                }
+                else
+                {
+                    Send(handler, "FAILED");
+
+                }
 
             }
+            if (cmdList[0] == "login")
+            {
+                Send(handler, "SUCCESS");
+            }
 
+            else
+            {
+                Send(handler, "FAILED");
+            }
         }
 
         private static void Send(Socket handler, String data)
@@ -225,6 +197,62 @@ namespace MMOServer
             {
                 Console.WriteLine(e.ToString());
             }
+        }
+
+
+
+
+        /*
+         *
+         *
+         *DB METHODS
+         *
+         *
+         *  
+        */
+
+        private static bool AddUserToDb(string userName, string password)
+        {
+            try
+            {
+                MySqlCommand command = conn.CreateCommand();
+                command.CommandText = "INSERT INTO account(username, password) VALUES(@user, @pass)";
+                command.Parameters.AddWithValue("@user", userName);
+                command.Parameters.AddWithValue("@pass", password);
+                command.ExecuteNonQuery();
+                return true;
+            }
+            catch (MySqlException e)
+            {
+                Console.WriteLine("Duplicate username attempted to be regsitered");
+                return false;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.ToString());
+                return false;
+
+            }
+
+        }
+
+        private static void ConnectToDb()
+        {
+            var connection = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString.ToString();
+            conn = new MySqlConnection(connection);
+            try
+            {
+                Console.WriteLine("Connecting to MYSQL server...");
+                conn.Open();
+
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.ToString());
+
+            }
+            Console.WriteLine("Connected");
         }
     }
 }

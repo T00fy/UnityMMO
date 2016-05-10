@@ -6,6 +6,9 @@ using System.Net.Sockets;
 using System.Net;
 using System.Text;
 
+
+//might need to setup coroutines
+
 public class ClickRegisterSynchronous : MonoBehaviour {
     private TextFieldHandler usernameEntryHandler;
     private TextFieldHandler passwordEntryHandler;
@@ -16,10 +19,10 @@ public class ClickRegisterSynchronous : MonoBehaviour {
     // Use this for initialization
     void Start()
     {
-        GameObject passwordGameObj = GameObject.FindWithTag("PasswordEntry");
+        GameObject passwordGameObj = GameObject.Find("PasswordEntry");
         passwordEntryHandler = passwordGameObj.GetComponent<TextFieldHandler>();
 
-        GameObject userGameObj = GameObject.FindWithTag("UsernameEntry");
+        GameObject userGameObj = GameObject.Find("UsernameEntry");
         usernameEntryHandler = userGameObj.GetComponent<TextFieldHandler>();
 
         GameObject regButtonGameObj = GameObject.Find("Register");
@@ -31,12 +34,6 @@ public class ClickRegisterSynchronous : MonoBehaviour {
         regButton.onClick.AddListener(RegisterConnection);
 
         loginButton.onClick.AddListener(LoginConnection);
-
-        
-
-
-
-
     }
 
     private void LoginConnection()
@@ -74,7 +71,7 @@ public class ClickRegisterSynchronous : MonoBehaviour {
             socket.Connect(ip[0], 3425);
             byte[] sendCmd = Encoding.ASCII.GetBytes("register " + userName + " " + password);
 
-            int bytesSent = socket.Send(sendCmd);
+            socket.Send(sendCmd);
 
 
            int totalBytes = socket.Receive(bytesReceived);

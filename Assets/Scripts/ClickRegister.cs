@@ -11,11 +11,12 @@ using System.Threading;
 
 
 /*
-resolution: use the sync Connect method instead.
+resolution: use the syncronous Connect method instead.
 
 Not sure why but it works like this. the MSDN doc does state that to connect again after a 
 disconnection that it must be connected to a different endpoint (on the same thread...which it is). It's an underlaying limitation (winsock).
 
+    use sync in tandem with unity coroutine instead
 
 */
 
@@ -51,10 +52,10 @@ public class ClickRegister : MonoBehaviour {
 
 
     void Start() {
-        GameObject passwordGameObj = GameObject.FindWithTag("PasswordEntry");
+        GameObject passwordGameObj = GameObject.Find("PasswordEntry");
         passwordEntryHandler = passwordGameObj.GetComponent<TextFieldHandler>();
 
-        GameObject userGameObj = GameObject.FindWithTag("UsernameEntry");
+        GameObject userGameObj = GameObject.Find("UsernameEntry");
         usernameEntryHandler = userGameObj.GetComponent<TextFieldHandler>();
 
         GameObject regButtonGameObj = GameObject.Find("Register");
@@ -94,6 +95,7 @@ public class ClickRegister : MonoBehaviour {
     private void RegisterConnection() {
         password = passwordEntryHandler.GetInput();
         userName = usernameEntryHandler.GetInput();
+        
         try
         {
             CheckInputs();
@@ -127,6 +129,8 @@ public class ClickRegister : MonoBehaviour {
 
     }
 
+
+
     private static void Send(Socket client, String data)
     {
         // Convert the string data to byte data using ASCII encoding.
@@ -153,7 +157,7 @@ public class ClickRegister : MonoBehaviour {
     private static void SendCallBack(IAsyncResult aSyncResult)
     {
         Socket socket = (Socket)aSyncResult.AsyncState;
-        int bytesSent = socket.EndSend(aSyncResult);
+        socket.EndSend(aSyncResult);
 
 
         
