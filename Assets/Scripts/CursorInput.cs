@@ -38,10 +38,10 @@ public class CursorInput : MonoBehaviour {
             {
                 counter = counter + direction;
                 next = menuObjects[counter].transform.position.y;
-                if (!sameYPositions(next, current)) {
-                    
+                //        if (!sameYPositions(next, current)) {
+                Debug.Log("Counter" + counter);
                     cursor.transform.position = new Vector3(GetCursorXPosition(menuObjects[counter]), next);
-                }
+       //         }
             }
             catch (IndexOutOfRangeException)
             {
@@ -90,14 +90,16 @@ public class CursorInput : MonoBehaviour {
     {
         RectTransform rt = selected.GetComponent<RectTransform>();
         float x = selected.transform.position.x/scaleOfCanvas;
-        Debug.Log("0. " + x);
-        float cursorPos = x +( rt.rect.width / 2.0f);
-        Debug.Log("1. " + cursorPos);
-        cursorPos = cursorPos + 40.0f;
+        Debug.Log("1. " + x);
+        float cursorPos = x -( rt.rect.width / 2.0f);
         Debug.Log("2. " + cursorPos);
-        cursorPos = cursorPos * -1;
+        cursorPos = cursorPos - 40.0f;
+        Debug.Log("3. " + cursorPos);
+     //   cursorPos = cursorPos * -1;
+        Debug.Log("4. " + cursorPos);
         //have to multiply by the scale set in canvas
         cursorPos = cursorPos * scaleOfCanvas;
+
         
         return cursorPos;
     }
