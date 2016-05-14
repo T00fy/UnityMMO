@@ -3,7 +3,7 @@ using System.Collections;
 
 public class MenuLink : MonoBehaviour {
     public GameObject linkedMenuItem;
-    public State current;
+    public State state;
     // Use this for initialization
 
     public enum State
@@ -12,7 +12,7 @@ public class MenuLink : MonoBehaviour {
     }
 
     public State GetState() {
-        return current;
+        return state;
     }
     public GameObject GetMenuItem () {
         return linkedMenuItem;

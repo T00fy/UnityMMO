@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System;
+using UnityEngine.UI;
 
 public class CursorInput : MonoBehaviour {
 
@@ -41,6 +42,8 @@ public class CursorInput : MonoBehaviour {
                 enterMenu.SetActive(true);
             }
             if (type == "inputfield") {
+                InputField inputField = ml.GetComponent<InputField>();
+                inputField.Select();
 
             }
 
