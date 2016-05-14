@@ -20,49 +20,19 @@ public class CursorInput : MonoBehaviour {
 
     }
 	
-	// Update is called once per frame
 	void Update () {
-        //check y positions of the previous, current and next elements in menuobjects array
-        //if previous and current have different y, allow only vertical
-        //if previous and current have same y, allow only horizontal
-        //if current and next have different y, allow only vertical
-        //if current and next have same y, allow only horizontal
 
         if (Input.GetButtonDown("Vertical")) {
-            var direction = getDirection();
-            //-1 is up
-            // 1 is down
-            float current = menuObjects[counter].transform.position.y;
-            float next = 0.0f;
-            try
-            {
-                counter = counter + direction;
-                next = menuObjects[counter].transform.position.y;
-                //        if (!sameYPositions(next, current)) {
-                Debug.Log("Counter" + counter);
-                    cursor.transform.position = new Vector3(GetCursorXPosition(menuObjects[counter]), next);
-       //         }
-            }
-            catch (IndexOutOfRangeException)
-            {
-                //stay in current position, no valid input
-                next = current;
-
-                if (counter < 0)
-                {
-                    counter = 0;
-                }
-                else {
-                    counter = menuObjects.Length - 1;
-                }
-                return;
-            }
-            selectedOption = menuObjects[counter];
-
+            DoVerticalInputs();
             
         }
+        if (Input.GetButtonDown("Horizontal"))
+        {
+            DoHorizontalInputs();
 
-        if (Input.GetButtonDown("Fire1")) {
+        }
+
+            if (Input.GetButtonDown("Fire1")) {
             MenuLink ml = selectedOption.GetComponent<MenuLink>();
             string type = ml.GetState().ToString();
             if (type == "menu") {
@@ -78,6 +48,97 @@ public class CursorInput : MonoBehaviour {
 
 	}
 
+    private void DoHorizontalInputs()
+    {
+        var direction = getDirection();
+        //-1 is right
+        // 1 is left
+        float current = menuObjects[counter].transform.position.y;
+        float next = 0.0f;
+        try
+        {
+            next = menuObjects[counter + direction].transform.position.y;
+
+            if (!sameYPositions(next, current))
+            { //hack to stop further execution of block
+                throw new IndexOutOfRangeException();
+            }
+            counter = counter + direction;
+
+            if (sameYPositions(next, current))
+            {
+
+                cursor.transform.position = new Vector3(GetCursorXPosition(menuObjects[counter]), menuObjects[counter].transform.position.y);
+            }
+        }
+        catch (IndexOutOfRangeException)
+        {
+            //stay in current position, no valid input
+            next = current;
+
+            if (counter < 0)
+            {
+                counter = 0;
+            }
+            if (counter > menuObjects.Length - 1)
+            {
+                counter = menuObjects.Length;
+            }
+            return;
+        }
+        selectedOption = menuObjects[counter];
+    }
+
+    private void DoVerticalInputs()
+    {
+        var direction = getDirection();
+        //-1 is up
+        // 1 is down
+        float current = menuObjects[counter].transform.position.y;
+        float next = 0.0f;
+        try
+        {
+            next = menuObjects[counter + direction].transform.position.y;
+
+            if (sameYPositions(next, current))
+            {
+                counter = GetNextVerticalSelection(direction, current);
+                cursor.transform.position = new Vector3(GetCursorXPosition(menuObjects[counter]), menuObjects[counter].transform.position.y);
+            }
+            else {
+                counter = counter + direction;
+                cursor.transform.position = new Vector3(GetCursorXPosition(menuObjects[counter]), menuObjects[counter].transform.position.y);
+            }
+        }
+        catch (IndexOutOfRangeException)
+        {
+            //stay in current position, no valid input
+            next = current;
+
+            if (counter < 0)
+            {
+                counter = 0;
+            }
+            if (counter > menuObjects.Length - 1)
+            {
+                counter = menuObjects.Length - 1;
+            }
+            return;
+        }
+        selectedOption = menuObjects[counter];
+    }
+
+    private int GetNextVerticalSelection(int direction, float current)
+    {
+        for (int i = counter; i < menuObjects.Length; i = i + direction) {
+                if (!sameYPositions(current, menuObjects[i].transform.position.y))
+                {
+                    return i;
+                }
+        }
+        throw new IndexOutOfRangeException();
+    }
+
     private bool sameYPositions(float pos1, float pos2)
     {
         if (Mathf.Approximately(pos1, pos2)) {
@@ -90,13 +151,9 @@ public class CursorInput : MonoBehaviour {
     {
         RectTransform rt = selected.GetComponent<RectTransform>();
         float x = selected.transform.position.x/scaleOfCanvas;
-        Debug.Log("1. " + x);
         float cursorPos = x -( rt.rect.width / 2.0f);
-        Debug.Log("2. " + cursorPos);
         cursorPos = cursorPos - 40.0f;
-        Debug.Log("3. " + cursorPos);
-     //   cursorPos = cursorPos * -1;
-        Debug.Log("4. " + cursorPos);
+
         //have to multiply by the scale set in canvas
         cursorPos = cursorPos * scaleOfCanvas;
 
@@ -114,6 +171,14 @@ public class CursorInput : MonoBehaviour {
         {
             return 1;
         }
-        return 0;
+        if (Input.GetAxis("Horizontal") > 0)
+        {
+            return 1;
+        }
+        if (Input.GetAxis("Horizontal") < 0)
+        {
+            return -1;
+        }
+        return 1;
     }
 }
