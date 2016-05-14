@@ -1,7 +1,5 @@
 ﻿using UnityEngine;
-using System.Collections;
 using System;
-using System.Collections.Generic;
 
 public class CursorInput : MonoBehaviour {
 
@@ -9,13 +7,14 @@ public class CursorInput : MonoBehaviour {
     public GameObject[] menuObjects;
 
     private GameObject cursor;
-    private GameObject mainMenu;
+    private GameObject currentMenu ;
     private int counter;
     private float scaleOfCanvas;
 	// Use this for initialization
 	void Awake () {
         cursor = GameObject.Find("Cursor");
-        mainMenu = GameObject.Find("Title");
+        string parent = cursor.transform.parent.name;
+        currentMenu = GameObject.Find(parent);
         scaleOfCanvas = GameObject.Find("MainMenu").transform.localScale.x;
         counter = 0;
 
@@ -37,14 +36,12 @@ public class CursorInput : MonoBehaviour {
             float next = 0.0f;
             try
             {
-                
                 counter = counter + direction;
                 next = menuObjects[counter].transform.position.y;
                 if (!sameYPositions(next, current)) {
+                    
                     cursor.transform.position = new Vector3(GetCursorXPosition(menuObjects[counter]), next);
                 }
-
-                
             }
             catch (IndexOutOfRangeException)
             {
@@ -66,8 +63,16 @@ public class CursorInput : MonoBehaviour {
         }
 
         if (Input.GetButtonDown("Fire1")) {
-            mainMenu.SetActive(false);
+            MenuLink ml = selectedOption.GetComponent<MenuLink>();
+            string type = ml.GetState().ToString();
+            if (type == "menu") {
+                GameObject enterMenu = ml.GetMenuItem();
+                currentMenu.SetActive(false);
+                enterMenu.SetActive(true);
+            }
+            if (type == "inputfield") {
 
+            }
 
         }
 
@@ -84,13 +89,16 @@ public class CursorInput : MonoBehaviour {
     private float GetCursorXPosition(GameObject selected)
     {
         RectTransform rt = selected.GetComponent<RectTransform>();
-        float cursorPos = rt.rect.width / 2.0f;
+        float x = selected.transform.position.x/scaleOfCanvas;
+        Debug.Log("0. " + x);
+        float cursorPos = x +( rt.rect.width / 2.0f);
+        Debug.Log("1. " + cursorPos);
+        cursorPos = cursorPos + 40.0f;
+        Debug.Log("2. " + cursorPos);
         cursorPos = cursorPos * -1;
-        cursorPos = cursorPos - 40.0f;
-
         //have to multiply by the scale set in canvas
         cursorPos = cursorPos * scaleOfCanvas;
-
+        
         return cursorPos;
     }
 
