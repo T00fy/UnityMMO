@@ -6,16 +6,17 @@ public class CursorInput : MonoBehaviour {
 
     public GameObject selectedOption;
     public GameObject[] menuObjects;
+    public MenuHandler previousMenu;
 
     private GameObject cursor;
-    private GameObject currentMenu ;
+    private GameObject activeMenu;
     private int counter;
     private float scaleOfCanvas;
 	// Use this for initialization
 	void Awake () {
         cursor = GameObject.Find("Cursor");
         string parent = cursor.transform.parent.name;
-        currentMenu = GameObject.Find(parent);
+        activeMenu = GameObject.Find(parent);
         scaleOfCanvas = GameObject.Find("MainMenu").transform.localScale.x;
         counter = 0;
 
@@ -33,17 +34,32 @@ public class CursorInput : MonoBehaviour {
 
         }
 
-            if (Input.GetButtonDown("Fire1")) {
+        if (Input.GetButtonDown("Fire1")) {
             MenuLink ml = selectedOption.GetComponent<MenuLink>();
+            
             string type = ml.GetState().ToString();
             if (type == "menu") {
+                previousMenu.SetPrevious(activeMenu);
                 GameObject enterMenu = ml.GetMenuItem();
-                currentMenu.SetActive(false);
+                
+                activeMenu.SetActive(false);
                 enterMenu.SetActive(true);
             }
             if (type == "inputfield") {
                 InputField inputField = ml.GetComponent<InputField>();
                 inputField.Select();
+
+            }
+
+        }
+
+        if (Input.GetButtonDown("Fire2")) {
+            
+        //    enterMenu.SetActive(true);
+            if(previousMenu.GetPrevious() != null)
+            {
+                activeMenu.SetActive(false);
+                previousMenu.GetPrevious().SetActive(true);
 
             }
 
