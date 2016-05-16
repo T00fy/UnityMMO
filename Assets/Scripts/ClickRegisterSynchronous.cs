@@ -11,11 +11,15 @@ using System.Text;
 
 public class ClickRegisterSynchronous : MonoBehaviour {
     public GameObject statusBox;
+    public Text statusText;
 
     private InputField usernameInput;
     private InputField passwordInput;
     private Button submit;
     private bool submitted;
+    private Text tempText;
+    private Canvas canvas;
+    
     // Use this for initialization
 
     public void StartConnection()
@@ -26,10 +30,15 @@ public class ClickRegisterSynchronous : MonoBehaviour {
         GameObject userGameObj = GameObject.Find("UsernameRegister");
         usernameInput = userGameObj.GetComponent<InputField>();
 
-        Instantiate(statusBox, new Vector3(0, 0, 0), Quaternion.identity);
-        RegisterConnection();
+        GameObject canvObj = GameObject.Find("MainMenu");
+        canvas = canvObj.GetComponent<Canvas>();
 
-        
+        Instantiate(statusBox, new Vector3(0, 0, 0), Quaternion.identity);
+        tempText = Instantiate(statusText, new Vector3(0, 0, 0), Quaternion.identity) as Text;
+        tempText.transform.SetParent(canvas.transform, false);
+        StartCoroutine(RegisterConnection());
+
+
     }
 
     private void CheckInputs(string userName, string password)
@@ -48,8 +57,10 @@ public class ClickRegisterSynchronous : MonoBehaviour {
         }
     }
 
-    private void RegisterConnection()
+    private IEnumerator RegisterConnection()
     {
+        yield return null;
+        tempText.text = "Status: Connecting...";
         string password = passwordInput.text;
         string userName = usernameInput.text;
         byte[] bytesReceived = new byte[1024];
@@ -61,18 +72,19 @@ public class ClickRegisterSynchronous : MonoBehaviour {
 
             socket.Connect(ip[0], 3425);
             byte[] sendCmd = Encoding.ASCII.GetBytes("register " + userName + " " + password);
-
+            tempText.text = "Status: Sending...";
             socket.Send(sendCmd);
 
 
            int totalBytes = socket.Receive(bytesReceived);
 
             Debug.Log("RESPONSE: " + Encoding.ASCII.GetString(bytesReceived, 0, totalBytes));
-
-
+            tempText.text = "Status: Connecting...";
+            tempText.text = "Status: " + Encoding.ASCII.GetString(bytesReceived, 0, totalBytes);
         }
         catch (Exception e) {
             Debug.Log(e.ToString());
+            tempText.text = "Status: " + e.ToString();
         }
     }
 }
