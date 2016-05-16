@@ -10,38 +10,29 @@ using System.Text;
 //might need to setup coroutines
 
 public class ClickRegisterSynchronous : MonoBehaviour {
-    private TextFieldHandler usernameEntryHandler;
-    private TextFieldHandler passwordEntryHandler;
-    private Button regButton;
-    private Button loginButton;
-    private string userName;
-    private string password;
+    public GameObject statusBox;
+
+    private InputField usernameInput;
+    private InputField passwordInput;
+    private Button submit;
+    private bool submitted;
     // Use this for initialization
-    void Start()
+
+    public void StartConnection()
     {
-        GameObject passwordGameObj = GameObject.Find("PasswordEntry");
-        passwordEntryHandler = passwordGameObj.GetComponent<TextFieldHandler>();
+        GameObject passwordGameObj = GameObject.Find("PasswordRegister");
+        passwordInput = passwordGameObj.GetComponent<InputField>();
 
-        GameObject userGameObj = GameObject.Find("UsernameEntry");
-        usernameEntryHandler = userGameObj.GetComponent<TextFieldHandler>();
+        GameObject userGameObj = GameObject.Find("UsernameRegister");
+        usernameInput = userGameObj.GetComponent<InputField>();
 
-        GameObject regButtonGameObj = GameObject.Find("Register");
-        regButton = regButtonGameObj.GetComponent<Button>();
+        Instantiate(statusBox, new Vector3(0, 0, 0), Quaternion.identity);
+        RegisterConnection();
 
-        GameObject loginGameObj = GameObject.Find("Login");
-        loginButton = loginGameObj.GetComponent<Button>();
-
-        regButton.onClick.AddListener(RegisterConnection);
-
-        loginButton.onClick.AddListener(LoginConnection);
+        
     }
 
-    private void LoginConnection()
-    {
-        throw new NotImplementedException();
-    }
-
-    private void CheckInputs()
+    private void CheckInputs(string userName, string password)
     {
         if (password.Contains(" ") || userName.Contains(" "))
         {
@@ -59,12 +50,12 @@ public class ClickRegisterSynchronous : MonoBehaviour {
 
     private void RegisterConnection()
     {
-        password = passwordEntryHandler.GetInput();
-        userName = usernameEntryHandler.GetInput();
+        string password = passwordInput.text;
+        string userName = usernameInput.text;
         byte[] bytesReceived = new byte[1024];
         try
         {
-            CheckInputs();
+            CheckInputs(userName, password);
             IPAddress[] ip = Dns.GetHostAddresses("127.0.0.1");
             Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 

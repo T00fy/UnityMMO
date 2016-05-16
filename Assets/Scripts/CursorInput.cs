@@ -12,6 +12,7 @@ public class CursorInput : MonoBehaviour {
     private GameObject activeMenu;
     private int counter;
     private float scaleOfCanvas;
+    private bool enteringText;
 	// Use this for initialization
 	void Awake () {
         cursor = GameObject.Find("Cursor");
@@ -23,47 +24,70 @@ public class CursorInput : MonoBehaviour {
     }
 	
 	void Update () {
-
-        if (Input.GetButtonDown("Vertical")) {
+        if (Input.GetButtonDown("Vertical"))
+        {
+            enteringText = false;
             DoVerticalInputs();
-            
+
         }
         if (Input.GetButtonDown("Horizontal"))
         {
+            enteringText = false;
             DoHorizontalInputs();
-
         }
 
-        if (Input.GetButtonDown("Fire1")) {
-            MenuLink ml = selectedOption.GetComponent<MenuLink>();
-            
-            string type = ml.GetState().ToString();
-            if (type == "menu") {
-                previousMenu.SetPrevious(activeMenu);
-                GameObject enterMenu = ml.GetMenuItem();
-                
-                activeMenu.SetActive(false);
-                enterMenu.SetActive(true);
-            }
-            if (type == "inputfield") {
-                InputField inputField = ml.GetComponent<InputField>();
-                inputField.Select();
-
-            }
-
+        string type = "";
+        MenuLink ml = selectedOption.GetComponent<MenuLink>();
+        if (ml != null) {
+            type = ml.GetState().ToString();
+        }   
+        
+        if (type == "inputfield")
+        {
+            InputField inputField = ml.GetComponent<InputField>();
+            enteringText = true;
+            inputField.Select();
         }
 
-        if (Input.GetButtonDown("Fire2")) {
-            
-        //    enterMenu.SetActive(true);
-            if(previousMenu.GetPrevious() != null)
+        if (!enteringText) {
+
+            if (Input.GetButtonDown("Fire1"))
             {
-                activeMenu.SetActive(false);
-                previousMenu.GetPrevious().SetActive(true);
+
+
+                if (type == "menu")
+                {
+                    previousMenu.SetPrevious(activeMenu);
+                    GameObject enterMenu = ml.GetMenuItem();
+
+                    activeMenu.SetActive(false);
+                    enterMenu.SetActive(true);
+                }
+
+                if (type == "register")
+                {
+                    GameObject submit = ml.GetMenuItem();
+                    var register = submit.GetComponent<ClickRegisterSynchronous>();
+                    register.StartConnection();
+
+                }
 
             }
 
+            if (Input.GetButtonDown("Fire2"))
+            {
+
+                //    enterMenu.SetActive(true);
+                if (previousMenu.GetPrevious() != null)
+                {
+                    activeMenu.SetActive(false);
+                    previousMenu.GetPrevious().SetActive(true);
+
+                }
+
+            }
         }
+
 
 	}
 
