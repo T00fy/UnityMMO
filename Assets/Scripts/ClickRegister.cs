@@ -2,23 +2,9 @@
 using UnityEngine.UI;
 using System.Net;
 using System.Net.Sockets;
-using System.Collections;
 using System;
-using System.Runtime.Serialization;
 using System.Text;
 using System.Threading;
-
-
-
-/*
-resolution: use the syncronous Connect method instead.
-
-Not sure why but it works like this. the MSDN doc does state that to connect again after a 
-disconnection that it must be connected to a different endpoint (on the same thread...which it is). It's an underlaying limitation (winsock).
-
-    use sync in tandem with unity coroutine instead
-
-*/
 
 
 public class StateObject
@@ -34,14 +20,16 @@ public class StateObject
 }
 
 public class ClickRegister : MonoBehaviour {
-    private TextFieldHandler usernameEntryHandler;
-    private TextFieldHandler passwordEntryHandler;
-    private Button regButton;
-    private Button loginButton;
+    public GameObject statusBox;
+
+    private Text statusTextObj;
+    private string statusText;
+    private bool submitted;
     private string userName;
     private string password;
     private IPAddress[] ip;
-    private static String response = String.Empty;
+    private static string response = string.Empty;
+
     private static ManualResetEvent connectDone =
     new ManualResetEvent(false);
     private static ManualResetEvent sendDone =
@@ -50,32 +38,25 @@ public class ClickRegister : MonoBehaviour {
         new ManualResetEvent(false);
 
 
+    
+    public void StartConnection() {
+        statusText = "";
+        GameObject passwordGameObj = GameObject.Find("PasswordRegister");
+        InputField passwordInput = passwordGameObj.GetComponent<InputField>();
 
-    void Start() {
-        GameObject passwordGameObj = GameObject.Find("PasswordEntry");
-        passwordEntryHandler = passwordGameObj.GetComponent<TextFieldHandler>();
+        GameObject userGameObj = GameObject.Find("UsernameRegister");
+        InputField usernameInput = userGameObj.GetComponent<InputField>();
+        password = passwordInput.text;
+        userName = usernameInput.text;
 
-        GameObject userGameObj = GameObject.Find("UsernameEntry");
-        usernameEntryHandler = userGameObj.GetComponent<TextFieldHandler>();
-
-        GameObject regButtonGameObj = GameObject.Find("Register");
-        regButton = regButtonGameObj.GetComponent<Button>();
-
-        GameObject loginGameObj = GameObject.Find("Login");
-        loginButton = loginGameObj.GetComponent<Button>();
-
-        regButton.onClick.AddListener(RegisterConnection);
-
-        loginButton.onClick.AddListener(LoginConnection);
-
+        //       canvas = statusBox.GetComponentInParent<Canvas>();
+        statusTextObj = statusBox.GetComponentInChildren<Text>();
+        Instantiate(statusBox, new Vector3(0, 0, 0), Quaternion.identity);
+        //      tempText.transform.SetParent(canvas.transform, false);
+        RegisterConnection();
 
 
 
-    }
-
-    private void LoginConnection()
-    {
-        throw new NotImplementedException();
     }
 
     private void CheckInputs()
@@ -93,25 +74,20 @@ public class ClickRegister : MonoBehaviour {
     }
 
     private void RegisterConnection() {
-        password = passwordEntryHandler.GetInput();
-        userName = usernameEntryHandler.GetInput();
         
         try
         {
             CheckInputs();
             ip = Dns.GetHostAddresses("127.0.0.1");
             Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            var cond = SocketConnected(socket);
-            Debug.Log(cond);
-            if (!cond) {
-                socket.BeginConnect(ip[0], 3425, new AsyncCallback(ConnectCallBack), socket);
-                connectDone.WaitOne();
-            }
+            
+            statusText = "Connecting...";
+            //      socket.Connect(ip[0], 3425);
+            IPEndPoint remoteEP = new IPEndPoint(ip[0],3425);
+            socket.BeginConnect(remoteEP, new AsyncCallback(ConnectCallBack), socket);
+            connectDone.WaitOne();
 
-            //socket.Connect(ip[0], 3425);
-
-
-            String cmd = "register " + userName + " " + password;
+            string cmd = "register " + userName + " " + password;
             Send(socket, cmd);
             sendDone.WaitOne();
 
@@ -120,6 +96,12 @@ public class ClickRegister : MonoBehaviour {
 
             socket.Shutdown(SocketShutdown.Both);
             socket.Close();
+
+
+            //Need these otherwise the resetevent is always set to true in the callbacks and so will never allow reusing a connection.
+            sendDone.Reset();
+            receiveDone.Reset();
+            connectDone.Reset();
             
         }
         catch (Exception e)
@@ -127,6 +109,24 @@ public class ClickRegister : MonoBehaviour {
             Debug.Log(e.ToString());
         }
 
+    }
+
+    private static void ConnectCallBack(IAsyncResult aSyncResult)
+    {
+        try
+        {
+            Socket socket = (Socket)aSyncResult.AsyncState;
+            socket.EndConnect(aSyncResult);
+
+
+            connectDone.Set();
+        }
+        catch (Exception e)
+        {
+            Debug.Log(e.ToString());
+        }
+
+        //      connectSocket.EndConnect(aSyncResult);
     }
 
 
@@ -141,29 +141,15 @@ public class ClickRegister : MonoBehaviour {
             new AsyncCallback(SendCallBack), client);
     }
 
-    bool SocketConnected(Socket s)
-    {
-        bool part1 = s.Poll(1000, SelectMode.SelectRead);
-        bool part2 = (s.Available == 0);
-        if ((part1 && part2) || !s.Connected)
-        {
-            return false;
-        }
-        else {
-            return true;
-        }
-    }
-
     private static void SendCallBack(IAsyncResult aSyncResult)
     {
         Socket socket = (Socket)aSyncResult.AsyncState;
         socket.EndSend(aSyncResult);
-
-
         
-
         sendDone.Set();
     }
+
+
 
     private static void Receive(Socket client)
     {
@@ -217,23 +203,6 @@ public class ClickRegister : MonoBehaviour {
 
 
         
-    }
-
-    private static void ConnectCallBack(IAsyncResult aSyncResult)
-    {
-        try
-        {
-            Socket socket = (Socket)aSyncResult.AsyncState;
-            socket.EndConnect(aSyncResult);
-
-
-            connectDone.Set();
-        }
-        catch (Exception e) {
-            Debug.Log(e.ToString());
-        }
-
-        //      connectSocket.EndConnect(aSyncResult);
     }
 
 

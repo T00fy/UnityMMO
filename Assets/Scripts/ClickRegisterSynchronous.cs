@@ -11,31 +11,30 @@ using System.Text;
 
 public class ClickRegisterSynchronous : MonoBehaviour {
     public GameObject statusBox;
-    public Text statusText;
 
-    private InputField usernameInput;
-    private InputField passwordInput;
-    private Button submit;
+    private Text statusTextObj;
+    private string statusText;
     private bool submitted;
-    private Text tempText;
-    private Canvas canvas;
+    private string userName;
+    private string password;
     
     // Use this for initialization
 
     public void StartConnection()
     {
+        statusText = "";
         GameObject passwordGameObj = GameObject.Find("PasswordRegister");
-        passwordInput = passwordGameObj.GetComponent<InputField>();
+        InputField passwordInput = passwordGameObj.GetComponent<InputField>();
 
         GameObject userGameObj = GameObject.Find("UsernameRegister");
-        usernameInput = userGameObj.GetComponent<InputField>();
+        InputField usernameInput = userGameObj.GetComponent<InputField>();
+        password = passwordInput.text;
+        userName = usernameInput.text;
 
-        GameObject canvObj = GameObject.Find("MainMenu");
-        canvas = canvObj.GetComponent<Canvas>();
-
+        //       canvas = statusBox.GetComponentInParent<Canvas>();
+        statusTextObj = statusBox.GetComponentInChildren<Text>();
         Instantiate(statusBox, new Vector3(0, 0, 0), Quaternion.identity);
-        tempText = Instantiate(statusText, new Vector3(0, 0, 0), Quaternion.identity) as Text;
-        tempText.transform.SetParent(canvas.transform, false);
+  //      tempText.transform.SetParent(canvas.transform, false);
         StartCoroutine(RegisterConnection());
 
 
@@ -57,34 +56,38 @@ public class ClickRegisterSynchronous : MonoBehaviour {
         }
     }
 
+    void Update() {
+        if (statusTextObj != null) {
+            statusTextObj.text = "Status: " + statusText;
+        }
+        
+    }
+
     private IEnumerator RegisterConnection()
     {
         yield return null;
-        tempText.text = "Status: Connecting...";
-        string password = passwordInput.text;
-        string userName = usernameInput.text;
         byte[] bytesReceived = new byte[1024];
         try
         {
             CheckInputs(userName, password);
             IPAddress[] ip = Dns.GetHostAddresses("127.0.0.1");
+            statusText = "FTP...";
             Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
             socket.Connect(ip[0], 3425);
             byte[] sendCmd = Encoding.ASCII.GetBytes("register " + userName + " " + password);
-            tempText.text = "Status: Sending...";
             socket.Send(sendCmd);
 
 
            int totalBytes = socket.Receive(bytesReceived);
 
             Debug.Log("RESPONSE: " + Encoding.ASCII.GetString(bytesReceived, 0, totalBytes));
-            tempText.text = "Status: Connecting...";
-            tempText.text = "Status: " + Encoding.ASCII.GetString(bytesReceived, 0, totalBytes);
+            statusText =  Encoding.ASCII.GetString(bytesReceived, 0, totalBytes);
         }
-        catch (Exception e) {
+        catch (SocketException e) {
             Debug.Log(e.ToString());
-            tempText.text = "Status: " + e.ToString();
+            statusText = "Could not connect";
+            yield break;
         }
     }
 }

@@ -67,7 +67,7 @@ public class CursorInput : MonoBehaviour {
                 if (type == "register")
                 {
                     GameObject submit = ml.GetMenuItem();
-                    var register = submit.GetComponent<ClickRegisterSynchronous>();
+                    var register = submit.GetComponent<ClickRegister>();
                     register.StartConnection();
 
                 }

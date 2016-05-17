@@ -129,7 +129,7 @@ namespace MMOServer
                 else {
                     //client has sent 0 bytes shutdown ack
                     handler.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0, new AsyncCallback(ReceiveCallBack), state);
-                    //      handler.Close();
+                    handler.Close();
                 }  
            }
                 // Not all data received. Get more.
@@ -157,15 +157,18 @@ namespace MMOServer
                 }
 
             }
-            if (cmdList[0] == "login")
-            {
-                Send(handler, "SUCCESS");
+            else {
+                if (cmdList[0] == "login")
+                {
+                    Send(handler, "SUCCESS");
+                }
+
+                else
+                {
+                    Send(handler, "FAILED");
+                }
             }
 
-            else
-            {
-                Send(handler, "FAILED");
-            }
         }
 
         private static void Send(Socket handler, String data)
@@ -222,7 +225,7 @@ namespace MMOServer
                 command.ExecuteNonQuery();
                 return true;
             }
-            catch (MySqlException e)
+            catch (MySqlException)
             {
                 Console.WriteLine("Duplicate username attempted to be regsitered");
                 return false;
@@ -252,7 +255,7 @@ namespace MMOServer
                 Console.WriteLine(e.ToString());
 
             }
-            Console.WriteLine("Connected");
+            Console.WriteLine("Connected to DB");
         }
     }
 }
