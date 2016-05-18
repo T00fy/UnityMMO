@@ -25,8 +25,8 @@ public class ClickRegister : MonoBehaviour {
     private Text statusTextObj;
     private string statusText;
     private bool submitted;
-    private string userName;
-    private string password;
+    private static string userName;
+    private static string password;
     private IPAddress[] ip;
     private static string response = string.Empty;
 
@@ -73,56 +73,75 @@ public class ClickRegister : MonoBehaviour {
         }
     }
 
+    bool SocketConnected(Socket s)
+    {
+        bool part1 = s.Poll(1000, SelectMode.SelectRead);
+        bool part2 = (s.Available == 0);
+        if ((part1 && part2) || !s.Connected)
+            return false;
+        else
+            return true;
+    }
+
     private void RegisterConnection() {
-        
+        Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         try
         {
             CheckInputs();
             ip = Dns.GetHostAddresses("127.0.0.1");
-            Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            
             
             statusText = "Connecting...";
             //      socket.Connect(ip[0], 3425);
             IPEndPoint remoteEP = new IPEndPoint(ip[0],3425);
             socket.BeginConnect(remoteEP, new AsyncCallback(ConnectCallBack), socket);
-            connectDone.WaitOne();
+            bool connected = SocketConnected(socket);
+            if (!connected)
+            {
+                throw new Exception("Could not connect");
 
-            string cmd = "register " + userName + " " + password;
-            Send(socket, cmd);
-            sendDone.WaitOne();
+            }
+            //     connectDone.WaitOne();
+            
+     //       sendDone.WaitOne();
 
-            Receive(socket);
-            receiveDone.WaitOne();
+            
+     //       receiveDone.WaitOne();
 
-            socket.Shutdown(SocketShutdown.Both);
-            socket.Close();
+
 
 
             //Need these otherwise the resetevent is always set to true in the callbacks and so will never allow reusing a connection.
-            sendDone.Reset();
-            receiveDone.Reset();
-            connectDone.Reset();
+  //          sendDone.Reset();
+ //           receiveDone.Reset();
+    //        connectDone.Reset();
             
         }
         catch (Exception e)
         {
-            Debug.Log(e.ToString());
+     //       socket.Shutdown(SocketShutdown.Both);
+  //          socket.Close();
+            Debug.Log(e.Message);
         }
 
     }
 
     private static void ConnectCallBack(IAsyncResult aSyncResult)
     {
+        Socket socket = (Socket)aSyncResult.AsyncState;
         try
         {
-            Socket socket = (Socket)aSyncResult.AsyncState;
+            
             socket.EndConnect(aSyncResult);
 
-
             connectDone.Set();
+            string cmd = "register " + userName + " " + password;
+            Send(socket, cmd);
         }
         catch (Exception e)
         {
+            socket.Shutdown(SocketShutdown.Both);
+            socket.Close();
             Debug.Log(e.ToString());
         }
 
@@ -131,7 +150,7 @@ public class ClickRegister : MonoBehaviour {
 
 
 
-    private static void Send(Socket client, String data)
+    private static void Send(Socket client, string data)
     {
         // Convert the string data to byte data using ASCII encoding.
         byte[] byteData = Encoding.ASCII.GetBytes(data);
@@ -147,12 +166,14 @@ public class ClickRegister : MonoBehaviour {
         socket.EndSend(aSyncResult);
         
         sendDone.Set();
+        Receive(socket);
     }
 
 
 
     private static void Receive(Socket client)
     {
+
         try
         {
             // Create the state object.
@@ -165,16 +186,19 @@ public class ClickRegister : MonoBehaviour {
         }
         catch (Exception e)
         {
+            client.Shutdown(SocketShutdown.Both);
+            client.Close();
             Console.WriteLine(e.ToString());
         }
     }
 
     private static void ReceiveCallBack(IAsyncResult aSyncResult)
     {
+        StateObject state = (StateObject)aSyncResult.AsyncState;
+        Socket socket = state.workSocket; //the callback socket
         try {
             Debug.Log("Receiving");
-            StateObject state = (StateObject)aSyncResult.AsyncState;
-            Socket socket = state.workSocket; //the callback socket
+
             int received = socket.EndReceive(aSyncResult); //number of bytes received
 
             if (received > 0)
@@ -194,10 +218,13 @@ public class ClickRegister : MonoBehaviour {
                     Debug.Log("Received status: " + response);
                 }
                 // Signal that all bytes have been received.
-                receiveDone.Set();
+                CloseSocket(socket);
+     //           receiveDone.Set();
             }
         }
         catch(Exception e) {
+            socket.Shutdown(SocketShutdown.Both);
+            socket.Close();
             Debug.Log(e.ToString());
         }
 
@@ -205,7 +232,9 @@ public class ClickRegister : MonoBehaviour {
         
     }
 
-
-
-
+    private static void CloseSocket(Socket socket)
+    {
+        socket.Shutdown(SocketShutdown.Both);
+        socket.Close();
+    }
 }

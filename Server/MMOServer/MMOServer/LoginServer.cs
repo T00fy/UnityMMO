@@ -97,9 +97,9 @@ namespace MMOServer
             // Create the state object.
             StateObject state = new StateObject();
             state.workSocket = handler;
-                handler.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0,
-    new AsyncCallback(ReceiveCallBack), state);
-                listener.BeginAccept(new AsyncCallback(AcceptCallback), listener);
+            handler.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0, new AsyncCallback(ReceiveCallBack), state);
+            listener.BeginAccept(new AsyncCallback(AcceptCallback), listener);
+
 
         }
 
