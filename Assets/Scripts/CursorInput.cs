@@ -13,6 +13,7 @@ public class CursorInput : MonoBehaviour {
     private int counter;
     private float scaleOfCanvas;
     private bool enteringText;
+    private InputField inputField;
 	// Use this for initialization
 	void Awake () {
         cursor = GameObject.Find("Cursor");
@@ -38,15 +39,25 @@ public class CursorInput : MonoBehaviour {
 
         string type = "";
         MenuLink ml = selectedOption.GetComponent<MenuLink>();
+
         if (ml != null) {
             type = ml.GetState().ToString();
-        }   
-        
+        }
+
         if (type == "inputfield")
         {
-            InputField inputField = ml.GetComponent<InputField>();
+            inputField = ml.GetComponent<InputField>();
+            
             enteringText = true;
-            inputField.Select();
+            inputField.enabled = true;
+            inputField.ActivateInputField();
+
+        }
+        else {
+            if (inputField != null) {
+                inputField.enabled = false;
+            }
+            
         }
 
         if (!enteringText) {
@@ -57,6 +68,7 @@ public class CursorInput : MonoBehaviour {
 
                 if (type == "menu")
                 {
+                    
                     previousMenu.SetPrevious(activeMenu);
                     GameObject enterMenu = ml.GetMenuItem();
 

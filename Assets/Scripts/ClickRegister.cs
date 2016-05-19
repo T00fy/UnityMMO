@@ -20,15 +20,18 @@ public class StateObject
 }
 
 public class ClickRegister : MonoBehaviour {
-    public GameObject statusBox;
+    public GameObject statusBoxPrefab;
 
     private Text statusTextObj;
     private string statusText;
-    private bool submitted;
+    private GameObject cursor;
     private static string userName;
     private static string password;
     private IPAddress[] ip;
     private static string response = string.Empty;
+    private bool boxOpened;
+    private static StatusBoxHandler statusHandler;
+    private GameObject status;
 
     private static ManualResetEvent connectDone =
     new ManualResetEvent(false);
@@ -46,16 +49,48 @@ public class ClickRegister : MonoBehaviour {
 
         GameObject userGameObj = GameObject.Find("UsernameRegister");
         InputField usernameInput = userGameObj.GetComponent<InputField>();
+
+        
+
+        cursor = GameObject.Find("Cursor");
         password = passwordInput.text;
         userName = usernameInput.text;
 
         //       canvas = statusBox.GetComponentInParent<Canvas>();
-        statusTextObj = statusBox.GetComponentInChildren<Text>();
-        Instantiate(statusBox, new Vector3(0, 0, 0), Quaternion.identity);
+        ActivateCursorOnRegister(false);
+        status = Instantiate(statusBoxPrefab, new Vector3(0, 0, 0), Quaternion.identity) as GameObject;
+        boxOpened = true;
+        statusHandler = status.GetComponentInChildren<StatusBoxHandler>();
+
+        statusTextObj = status.GetComponentInChildren<Text>();
+        
         //      tempText.transform.SetParent(canvas.transform, false);
         RegisterConnection();
 
 
+
+
+
+    }
+
+    public void ActivateCursorOnRegister(bool enable)
+    {
+        cursor.SetActive(enable);
+        
+    }
+
+    void Update()
+    {
+        if (statusTextObj != null)
+        {
+            statusTextObj.text = "Status: " + statusText + ".";
+            statusTextObj.text = "Status: " + statusText + "..";
+            statusTextObj.text = "Status: " + statusText + "...";
+        }
+        if (boxOpened && status == null) {
+            ActivateCursorOnRegister(true);
+
+        }
 
     }
 
@@ -92,7 +127,7 @@ public class ClickRegister : MonoBehaviour {
             
             
             statusText = "Connecting...";
-            //      socket.Connect(ip[0], 3425);
+
             IPEndPoint remoteEP = new IPEndPoint(ip[0],3425);
             socket.BeginConnect(remoteEP, new AsyncCallback(ConnectCallBack), socket);
             bool connected = SocketConnected(socket);
@@ -101,26 +136,12 @@ public class ClickRegister : MonoBehaviour {
                 throw new Exception("Could not connect");
 
             }
-            //     connectDone.WaitOne();
-            
-     //       sendDone.WaitOne();
-
-            
-     //       receiveDone.WaitOne();
-
-
-
-
-            //Need these otherwise the resetevent is always set to true in the callbacks and so will never allow reusing a connection.
-  //          sendDone.Reset();
- //           receiveDone.Reset();
-    //        connectDone.Reset();
             
         }
         catch (Exception e)
         {
-     //       socket.Shutdown(SocketShutdown.Both);
-  //          socket.Close();
+            statusHandler.SetFinished(true);
+            statusText = e.Message;
             Debug.Log(e.Message);
         }
 
@@ -140,12 +161,13 @@ public class ClickRegister : MonoBehaviour {
         }
         catch (Exception e)
         {
+            statusHandler.SetFinished(true);
             socket.Shutdown(SocketShutdown.Both);
             socket.Close();
             Debug.Log(e.ToString());
         }
 
-        //      connectSocket.EndConnect(aSyncResult);
+
     }
 
 
@@ -186,6 +208,7 @@ public class ClickRegister : MonoBehaviour {
         }
         catch (Exception e)
         {
+            statusHandler.SetFinished(true);
             client.Shutdown(SocketShutdown.Both);
             client.Close();
             Console.WriteLine(e.ToString());
@@ -214,6 +237,7 @@ public class ClickRegister : MonoBehaviour {
                 // All the data has arrived; put it in response.
                 if (state.sb.Length > 1)
                 {
+                    statusHandler.SetFinished(true);
                     response = state.sb.ToString();
                     Debug.Log("Received status: " + response);
                 }
@@ -223,6 +247,7 @@ public class ClickRegister : MonoBehaviour {
             }
         }
         catch(Exception e) {
+            statusHandler.SetFinished(true);
             socket.Shutdown(SocketShutdown.Both);
             socket.Close();
             Debug.Log(e.ToString());
@@ -234,6 +259,7 @@ public class ClickRegister : MonoBehaviour {
 
     private static void CloseSocket(Socket socket)
     {
+        statusHandler.SetFinished(true);
         socket.Shutdown(SocketShutdown.Both);
         socket.Close();
     }
