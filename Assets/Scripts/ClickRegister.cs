@@ -23,7 +23,7 @@ public class ClickRegister : MonoBehaviour {
     public GameObject statusBoxPrefab;
 
     private Text statusTextObj;
-    private string statusText;
+    private static string statusText;
     private GameObject cursor;
     private static string userName;
     private static string password;
@@ -83,9 +83,7 @@ public class ClickRegister : MonoBehaviour {
     {
         if (statusTextObj != null)
         {
-            statusTextObj.text = "Status: " + statusText + ".";
-            statusTextObj.text = "Status: " + statusText + "..";
-            statusTextObj.text = "Status: " + statusText + "...";
+            statusTextObj.text = "Status: " + statusText;
         }
         if (boxOpened && status == null) {
             ActivateCursorOnRegister(true);
@@ -154,7 +152,7 @@ public class ClickRegister : MonoBehaviour {
         {
             
             socket.EndConnect(aSyncResult);
-
+            statusText = "Connected!";
             connectDone.Set();
             string cmd = "register " + userName + " " + password;
             Send(socket, cmd);
@@ -220,7 +218,6 @@ public class ClickRegister : MonoBehaviour {
         StateObject state = (StateObject)aSyncResult.AsyncState;
         Socket socket = state.workSocket; //the callback socket
         try {
-            Debug.Log("Receiving");
 
             int received = socket.EndReceive(aSyncResult); //number of bytes received
 
@@ -239,7 +236,8 @@ public class ClickRegister : MonoBehaviour {
                 {
                     statusHandler.SetFinished(true);
                     response = state.sb.ToString();
-                    Debug.Log("Received status: " + response);
+                    statusText = response;
+                    //                  Debug.Log("Received status: " + response);
                 }
                 // Signal that all bytes have been received.
                 CloseSocket(socket);
