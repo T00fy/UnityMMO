@@ -78,9 +78,37 @@ public class CursorInput : MonoBehaviour {
 
                 if (type == "register")
                 {
+                    GameObject passwordGameObj = GameObject.Find("PasswordRegister");
+                    InputField passwordInput = passwordGameObj.GetComponent<InputField>();
+
+                    GameObject userGameObj = GameObject.Find("UsernameRegister");
+                    InputField usernameInput = userGameObj.GetComponent<InputField>();
+
                     GameObject submit = ml.GetMenuItem();
                     var register = submit.GetComponent<ClickRegister>();
-                    register.StartConnection();
+                    string password = passwordInput.text;
+                    string userName = usernameInput.text;
+                    string cmd = "register " + userName + " " + password;
+
+                    register.StartConnection(cmd, userName, password);
+
+                }
+
+                if (type == "login")
+                {
+                    GameObject passwordGameObj = GameObject.Find("PasswordLogin");
+                    InputField passwordInput = passwordGameObj.GetComponent<InputField>();
+
+                    GameObject userGameObj = GameObject.Find("UsernameLogin");
+                    InputField usernameInput = userGameObj.GetComponent<InputField>();
+
+                    GameObject submit = ml.GetMenuItem();
+                    var login = submit.GetComponent<ClickRegister>();
+                    string password = passwordInput.text;
+                    string userName = usernameInput.text;
+                    string cmd = "login " + userName + " " + password;
+
+                    login.StartConnection(cmd, userName, password);
 
                 }
 

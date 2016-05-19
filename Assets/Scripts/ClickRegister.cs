@@ -24,39 +24,28 @@ public class ClickRegister : MonoBehaviour {
 
     private Text statusTextObj;
     private static string statusText;
+    private string userName;
+    private string password;
     private GameObject cursor;
-    private static string userName;
-    private static string password;
     private IPAddress[] ip;
     private static string response = string.Empty;
     private bool boxOpened;
     private static StatusBoxHandler statusHandler;
     private GameObject status;
-
-    private static ManualResetEvent connectDone =
-    new ManualResetEvent(false);
-    private static ManualResetEvent sendDone =
-        new ManualResetEvent(false);
-    private static ManualResetEvent receiveDone =
-        new ManualResetEvent(false);
+    private static string cmd;
 
 
     
-    public void StartConnection() {
+    public void StartConnection(string cmd1, string userName, string password) {
         statusText = "";
-        GameObject passwordGameObj = GameObject.Find("PasswordRegister");
-        InputField passwordInput = passwordGameObj.GetComponent<InputField>();
 
-        GameObject userGameObj = GameObject.Find("UsernameRegister");
-        InputField usernameInput = userGameObj.GetComponent<InputField>();
-
-        
+        cmd = cmd1;
+        this.userName = userName;
+        this.password = password;
 
         cursor = GameObject.Find("Cursor");
-        password = passwordInput.text;
-        userName = usernameInput.text;
 
-        //       canvas = statusBox.GetComponentInParent<Canvas>();
+
         ActivateCursorOnRegister(false);
         status = Instantiate(statusBoxPrefab, new Vector3(0, 0, 0), Quaternion.identity) as GameObject;
         boxOpened = true;
@@ -64,7 +53,7 @@ public class ClickRegister : MonoBehaviour {
 
         statusTextObj = status.GetComponentInChildren<Text>();
         
-        //      tempText.transform.SetParent(canvas.transform, false);
+
         RegisterConnection();
 
 
@@ -153,8 +142,7 @@ public class ClickRegister : MonoBehaviour {
             
             socket.EndConnect(aSyncResult);
             statusText = "Connected!";
-            connectDone.Set();
-            string cmd = "register " + userName + " " + password;
+            
             Send(socket, cmd);
         }
         catch (Exception e)
@@ -185,7 +173,7 @@ public class ClickRegister : MonoBehaviour {
         Socket socket = (Socket)aSyncResult.AsyncState;
         socket.EndSend(aSyncResult);
         
-        sendDone.Set();
+
         Receive(socket);
     }
 
@@ -209,7 +197,7 @@ public class ClickRegister : MonoBehaviour {
             statusHandler.SetFinished(true);
             client.Shutdown(SocketShutdown.Both);
             client.Close();
-            Console.WriteLine(e.ToString());
+            Debug.Log(e.ToString());
         }
     }
 

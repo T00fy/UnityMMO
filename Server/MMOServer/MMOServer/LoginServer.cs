@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Collections;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
-using System.Threading.Tasks;
 using CryptSharp;
 using System.Threading;
 using MySql.Data.MySqlClient;
@@ -157,16 +156,30 @@ namespace MMOServer
                 }
 
             }
-            else {
-                if (cmdList[0] == "login")
-                {
-                    Send(handler, "SUCCESS");
-                }
+            if (cmdList[0] == "login")
+            { 
+                Console.WriteLine("Received Login request for: " + cmdList[1] + " pwd: " + cmdList[2]);
+                ArrayList list = CheckUserInDb(cmdList[1], cmdList[2]);
+                if (list != null) {
+                    if (list.Count == 2)
+                    {
+                        Send(handler, "SUCCESS");
+                    }
+                    if (list.Count == 1)
+                    {
+                        Send(handler, "Incorrect password");
+                    }
+                    if (list.Count == 0)
+                    {
+                        Send(handler, "Account not found");
+                    }
 
+                }
                 else
                 {
-                    Send(handler, "FAILED");
+                    Send(handler, "Account not found");
                 }
+                
             }
 
         }
@@ -225,8 +238,9 @@ namespace MMOServer
                 command.ExecuteNonQuery();
                 return true;
             }
-            catch (MySqlException)
+            catch (MySqlException e)
             {
+                Console.WriteLine(e.ToString());
                 Console.WriteLine("Duplicate username attempted to be regsitered");
                 return false;
             }
@@ -238,6 +252,41 @@ namespace MMOServer
             }
 
         }
+
+        private static ArrayList CheckUserInDb(string userName, string password)
+        {
+            ArrayList list = new ArrayList();
+            try
+            {
+                MySqlCommand command = conn.CreateCommand();
+                command.CommandText = "SELECT `username`, `password` FROM `account` WHERE `username`=@user";
+                command.Parameters.AddWithValue("@user", userName);
+                MySqlDataReader rdr = command.ExecuteReader();
+                if (rdr.HasRows)
+                {
+                    while (rdr.Read())
+                    {
+                        list.Add(rdr.GetString(0));
+                        list.Add(rdr.GetString(1));
+                    }
+                }
+                rdr.Close();
+                return list;
+
+            }
+            catch (MySqlException)
+            {
+                Console.WriteLine("MySQL error");
+                return list;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.ToString());
+                return list;
+
+            }
+        }
+
 
         private static void ConnectToDb()
         {
