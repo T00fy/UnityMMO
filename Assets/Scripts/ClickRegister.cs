@@ -20,38 +20,30 @@ public class StateObject
 }
 
 public class ClickRegister : MonoBehaviour {
-    public GameObject statusBoxPrefab;
+    public GameObject menuHandlerObj;
 
-    private Text statusTextObj;
-    private static string statusText;
+
     private string userName;
     private string password;
     private GameObject cursor;
     private IPAddress[] ip;
     private static string response = string.Empty;
-    private bool boxOpened;
-    private static StatusBoxHandler statusHandler;
-    private GameObject status;
+   
     private static string cmd;
+    private static MenuHandler menuHandler;
 
 
     
     public void StartConnection(string cmd1, string userName, string password) {
-        statusText = "";
-
+        menuHandler = menuHandlerObj.GetComponent<MenuHandler>();
         cmd = cmd1;
         this.userName = userName;
         this.password = password;
 
         cursor = GameObject.Find("Cursor");
-
-
-        ActivateCursorOnRegister(false);
-        status = Instantiate(statusBoxPrefab, new Vector3(0, 0, 0), Quaternion.identity) as GameObject;
-        boxOpened = true;
-        statusHandler = status.GetComponentInChildren<StatusBoxHandler>();
-
-        statusTextObj = status.GetComponentInChildren<Text>();
+        menuHandler.SetCursor(cursor);
+        menuHandler.ToggleCursor(false);
+        menuHandler.OpenStatusBox();
         
 
         RegisterConnection();
@@ -62,24 +54,9 @@ public class ClickRegister : MonoBehaviour {
 
     }
 
-    public void ActivateCursorOnRegister(bool enable)
-    {
-        cursor.SetActive(enable);
-        
-    }
 
-    void Update()
-    {
-        if (statusTextObj != null)
-        {
-            statusTextObj.text = "Status: " + statusText;
-        }
-        if (boxOpened && status == null) {
-            ActivateCursorOnRegister(true);
 
-        }
 
-    }
 
     private void CheckInputs()
     {
@@ -113,22 +90,16 @@ public class ClickRegister : MonoBehaviour {
             ip = Dns.GetHostAddresses("127.0.0.1");
             
             
-            statusText = "Connecting...";
+            menuHandler.SetStatusText("Connecting...");
 
             IPEndPoint remoteEP = new IPEndPoint(ip[0],3425);
             socket.BeginConnect(remoteEP, new AsyncCallback(ConnectCallBack), socket);
-            bool connected = SocketConnected(socket);
-            if (!connected)
-            {
-                throw new Exception("Could not connect");
-
-            }
             
         }
         catch (Exception e)
         {
-            statusHandler.SetFinished(true);
-            statusText = e.Message;
+            menuHandler.DestroyStatusBox();
+            menuHandler.SetStatusText(e.Message);
             Debug.Log(e.Message);
         }
 
@@ -141,16 +112,16 @@ public class ClickRegister : MonoBehaviour {
         {
             
             socket.EndConnect(aSyncResult);
-            statusText = "Connected!";
+            menuHandler.SetStatusText("Connected!");
             
             Send(socket, cmd);
         }
         catch (Exception e)
         {
-            statusHandler.SetFinished(true);
+            menuHandler.DestroyStatusBox();
+            menuHandler.SetStatusText(e.Message);
             socket.Shutdown(SocketShutdown.Both);
             socket.Close();
-            Debug.Log(e.ToString());
         }
 
 
@@ -194,10 +165,10 @@ public class ClickRegister : MonoBehaviour {
         }
         catch (Exception e)
         {
-            statusHandler.SetFinished(true);
+            menuHandler.DestroyStatusBox();
+            menuHandler.SetStatusText(e.Message);
             client.Shutdown(SocketShutdown.Both);
             client.Close();
-            Debug.Log(e.ToString());
         }
     }
 
@@ -222,10 +193,17 @@ public class ClickRegister : MonoBehaviour {
                 // All the data has arrived; put it in response.
                 if (state.sb.Length > 1)
                 {
-                    statusHandler.SetFinished(true);
+                    menuHandler.DestroyStatusBox();
                     response = state.sb.ToString();
-                    statusText = response;
-                    //                  Debug.Log("Received status: " + response);
+                    menuHandler.SetStatusText(response);
+
+                    if (response == "Login successful") {
+                        //set some boolean to true
+                        //deactivate all other game objects
+                        //Show character selection screen
+                        //create a character server that has all character options
+
+                    }
                 }
                 // Signal that all bytes have been received.
                 CloseSocket(socket);
@@ -233,7 +211,7 @@ public class ClickRegister : MonoBehaviour {
             }
         }
         catch(Exception e) {
-            statusHandler.SetFinished(true);
+            menuHandler.DestroyStatusBox();
             socket.Shutdown(SocketShutdown.Both);
             socket.Close();
             Debug.Log(e.ToString());
@@ -245,7 +223,7 @@ public class ClickRegister : MonoBehaviour {
 
     private static void CloseSocket(Socket socket)
     {
-        statusHandler.SetFinished(true);
+        menuHandler.DestroyStatusBox();
         socket.Shutdown(SocketShutdown.Both);
         socket.Close();
     }
