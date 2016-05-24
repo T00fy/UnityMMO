@@ -163,6 +163,7 @@ namespace MMOServer
                 if (list != null) {
                     if (list.Count == 2)
                     {
+                        //try and open connection to character server
                         Send(handler, "Login Successful");
                         //connect and send socket to Char server here
                         

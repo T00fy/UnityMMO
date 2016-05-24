@@ -16,7 +16,7 @@ public class CursorInput : MonoBehaviour {
     private InputField inputField;
 	// Use this for initialization
 	void Awake () {
-        cursor = GameObject.Find("Cursor");
+        cursor = gameObject;
         string parent = cursor.transform.parent.name;
         activeMenu = GameObject.Find(parent);
         scaleOfCanvas = GameObject.Find("MainMenu").transform.localScale.x;
@@ -137,38 +137,9 @@ public class CursorInput : MonoBehaviour {
         //-1 is right
         // 1 is left
         float current = menuObjects[counter].transform.position.y;
-        float next = 0.0f;
-        try
-        {
-            next = menuObjects[counter + direction].transform.position.y;
 
-            if (!sameYPositions(next, current))
-            { //hack to stop further execution of block
-                throw new IndexOutOfRangeException();
-            }
-            counter = counter + direction;
-
-            if (sameYPositions(next, current))
-            {
-
-                cursor.transform.position = new Vector3(GetCursorXPosition(menuObjects[counter]), menuObjects[counter].transform.position.y);
-            }
-        }
-        catch (IndexOutOfRangeException)
-        {
-            //stay in current position, no valid input
-            next = current;
-
-            if (counter < 0)
-            {
-                counter = 0;
-            }
-            if (counter > menuObjects.Length - 1)
-            {
-                counter = menuObjects.Length;
-            }
-            return;
-        }
+        counter = GetClosestHorizontalSelection(direction);
+        cursor.transform.position = new Vector3(GetCursorXPosition(menuObjects[counter]), menuObjects[counter].transform.position.y);
         selectedOption = menuObjects[counter];
     }
 
@@ -178,51 +149,91 @@ public class CursorInput : MonoBehaviour {
         //-1 is up
         // 1 is down
         float current = menuObjects[counter].transform.position.y;
-        float next = 0.0f;
-        try
-        {
-            next = menuObjects[counter + direction].transform.position.y;
 
-            if (sameYPositions(next, current))
-            {
-                counter = GetNextVerticalSelection(direction, current);
-                cursor.transform.position = new Vector3(GetCursorXPosition(menuObjects[counter]), menuObjects[counter].transform.position.y);
-            }
-            else {
-                counter = counter + direction;
-                cursor.transform.position = new Vector3(GetCursorXPosition(menuObjects[counter]), menuObjects[counter].transform.position.y);
-            }
-        }
-        catch (IndexOutOfRangeException)
-        {
-            //stay in current position, no valid input
-            next = current;
-
-            if (counter < 0)
-            {
-                counter = 0;
-            }
-            if (counter > menuObjects.Length - 1)
-            {
-                counter = menuObjects.Length - 1;
-            }
-            return;
-        }
+            counter = GetClosestVerticalSelection(direction);
+            cursor.transform.position = new Vector3(GetCursorXPosition(menuObjects[counter]), menuObjects[counter].transform.position.y);
         selectedOption = menuObjects[counter];
     }
 
-    private int GetNextVerticalSelection(int direction, float current)
+
+
+
+    private int GetClosestVerticalSelection(int direction)
     {
-        for (int i = counter; i < menuObjects.Length; i = i + direction) {
-                if (!sameYPositions(current, menuObjects[i].transform.position.y))
+        var curr = menuObjects[counter].transform.position;
+        curr.x = curr.x - 2.0f;
+        float smallestDistance = 9999999999999f;
+        
+        int pointer = -1;
+        for (int i = 0; i < menuObjects.Length; i++) {
+            if (!samePositions(curr.y, menuObjects[i].transform.position.y)) {
+
+                var midVector = menuObjects[i].transform.position - curr;
+                var directionOfMid = 0;
+                if (midVector.normalized.y < 0)
                 {
-                    return i;
+                    directionOfMid = -1;
                 }
+                else {
+                    directionOfMid = 1;
+                }
+                if (Vector2.Distance(curr, menuObjects[i].transform.position) <= smallestDistance && directionOfMid == direction) {
+                    //and if the vector between a and b normalized in y direction is same as direction
+                    smallestDistance = Vector2.Distance(curr, menuObjects[i].transform.position);
+                    pointer = i;
+                }
+            }
+            
         }
-        throw new IndexOutOfRangeException();
+        if (pointer == -1) {
+            return counter;
+        }
+        return pointer;
     }
 
-    private bool sameYPositions(float pos1, float pos2)
+    private int GetClosestHorizontalSelection(int direction)
+    {
+        var curr = menuObjects[counter].transform.position;
+        curr.x = curr.x - 2.0f;
+        float smallestDistance = 9999999999999f;
+
+        int pointer = -1;
+        for (int i = 0; i < menuObjects.Length; i++)
+        {
+            if (!samePositions(curr.x, menuObjects[i].transform.position.x))
+            {
+                
+                //to fix: pushing down twice at length of array will cause the cursor to go up
+                var midVector = menuObjects[i].transform.position - curr;
+                var directionOfMid = 0;
+                if (midVector.normalized.x < 0)
+                {
+                    directionOfMid = -1;
+                }
+                else {
+                    directionOfMid = 1;
+                }
+                Debug.Log("d" +directionOfMid);
+                Debug.Log("de" + direction);
+                if (Vector2.Distance(curr, menuObjects[i].transform.position) <= smallestDistance && directionOfMid == direction)
+                {
+                    //and if the vector between a and b normalized in y direction is same as direction
+                    smallestDistance = Vector2.Distance(curr, menuObjects[i].transform.position);
+                    pointer = i;
+                }
+            }
+            Debug.Log(pointer);
+
+        }
+        if (pointer == -1)
+        {
+            return counter;
+        }
+        return pointer;
+    }
+
+
+    private bool samePositions(float pos1, float pos2)
     {
         if (Mathf.Approximately(pos1, pos2)) {
             return true;
@@ -248,11 +259,11 @@ public class CursorInput : MonoBehaviour {
     {
         if (Input.GetAxis("Vertical") > 0)
         {
-            return -1;
+            return 1;
         }
         if (Input.GetAxis("Vertical") < 0)
         {
-            return 1;
+            return -1;
         }
         if (Input.GetAxis("Horizontal") > 0)
         {
