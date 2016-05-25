@@ -21,20 +21,29 @@ public class CursorInput : MonoBehaviour {
         activeMenu = GameObject.Find(parent);
         scaleOfCanvas = GameObject.Find("MainMenu").transform.localScale.x;
         counter = 0;
-
     }
 	
 	void Update () {
+              
         if (Input.GetButtonDown("Vertical"))
         {
+            var direction = getDirection();
             enteringText = false;
-            DoVerticalInputs();
+            counter = GetClosestVerticalSelection(direction);
+
+            cursor.transform.position = new Vector2(GetCursorXPosition(menuObjects[counter]), menuObjects[counter].transform.position.y);
+            selectedOption = menuObjects[counter];
 
         }
+
         if (Input.GetButtonDown("Horizontal"))
         {
+            var direction = getDirection();
             enteringText = false;
-            DoHorizontalInputs();
+
+            counter = GetClosestHorizontalSelection(direction);
+            cursor.transform.position = new Vector2(GetCursorXPosition(menuObjects[counter]), menuObjects[counter].transform.position.y);
+            selectedOption = menuObjects[counter];
         }
 
         string type = "";
@@ -62,56 +71,31 @@ public class CursorInput : MonoBehaviour {
 
         if (!enteringText) {
 
+
             if (Input.GetButtonDown("Fire1"))
             {
 
+                switch (type) {
 
-                if (type == "menu")
-                {
-                    
-                    previousMenu.SetPrevious(activeMenu);
-                    GameObject enterMenu = ml.GetMenuItem();
+                    case "menu":
+                        previousMenu.SetPrevious(activeMenu);
+                        GameObject enterMenu = ml.GetMenuItem();
+                        activeMenu.SetActive(false);
+                        enterMenu.SetActive(true);
+                        break;
 
-                    activeMenu.SetActive(false);
-                    enterMenu.SetActive(true);
-                }
+                    case "register":
+                        LoginOrRegister("UsernameRegister", "PasswordRegister", "register", ml);
+                        break;
 
-                if (type == "register")
-                {
-                    GameObject passwordGameObj = GameObject.Find("PasswordRegister");
-                    InputField passwordInput = passwordGameObj.GetComponent<InputField>();
+                    case "login":
+                        LoginOrRegister("UsernameLogin", "PasswordLogin", "register", ml);
+                        break;
 
-                    GameObject userGameObj = GameObject.Find("UsernameRegister");
-                    InputField usernameInput = userGameObj.GetComponent<InputField>();
-
-                    GameObject submit = ml.GetMenuItem();
-                    var register = submit.GetComponent<ClickRegister>();
-                    string password = passwordInput.text;
-                    string userName = usernameInput.text;
-                    string cmd = "register " + userName + " " + password;
-
-                    register.StartConnection(cmd, userName, password);
+                    default:
+                        break;
 
                 }
-
-                if (type == "login")
-                {
-                    GameObject passwordGameObj = GameObject.Find("PasswordLogin");
-                    InputField passwordInput = passwordGameObj.GetComponent<InputField>();
-
-                    GameObject userGameObj = GameObject.Find("UsernameLogin");
-                    InputField usernameInput = userGameObj.GetComponent<InputField>();
-
-                    GameObject submit = ml.GetMenuItem();
-                    var login = submit.GetComponent<ClickRegister>();
-                    string password = passwordInput.text;
-                    string userName = usernameInput.text;
-                    string cmd = "login " + userName + " " + password;
-
-                    login.StartConnection(cmd, userName, password);
-
-                }
-
             }
 
             if (Input.GetButtonDown("Fire2"))
@@ -131,34 +115,24 @@ public class CursorInput : MonoBehaviour {
 
 	}
 
-    private void DoHorizontalInputs()
+    private void LoginOrRegister(string findUser, string findPass, string cmdString, MenuLink ml)
     {
-        var direction = getDirection();
-        //-1 is right
-        // 1 is left
-        float current = menuObjects[counter].transform.position.y;
+        GameObject passwordGameObj = GameObject.Find(findPass);
+        InputField passwordInput = passwordGameObj.GetComponent<InputField>();
 
-        counter = GetClosestHorizontalSelection(direction);
-        cursor.transform.position = new Vector3(GetCursorXPosition(menuObjects[counter]), menuObjects[counter].transform.position.y);
-        selectedOption = menuObjects[counter];
+        GameObject userGameObj = GameObject.Find(findUser);
+        InputField usernameInput = userGameObj.GetComponent<InputField>();
+
+        GameObject submit = ml.GetMenuItem();
+        var menuEnter = submit.GetComponent<ClickRegister>();
+        string password = passwordInput.text;
+        string userName = usernameInput.text;
+        string cmd = cmdString + " " + userName + " " + password;
+
+        menuEnter.StartConnection(cmd, userName, password);
     }
 
-    private void DoVerticalInputs()
-    {
-        var direction = getDirection();
-        //-1 is up
-        // 1 is down
-        float current = menuObjects[counter].transform.position.y;
-
-            counter = GetClosestVerticalSelection(direction);
-            cursor.transform.position = new Vector3(GetCursorXPosition(menuObjects[counter]), menuObjects[counter].transform.position.y);
-        selectedOption = menuObjects[counter];
-    }
-
-
-
-
-    private int GetClosestVerticalSelection(int direction)
+    private int GetClosestVerticalSelection(Vector2 direction)
     {
         var curr = menuObjects[counter].transform.position;
         curr.x = curr.x - 2.0f;
@@ -167,17 +141,17 @@ public class CursorInput : MonoBehaviour {
         int pointer = -1;
         for (int i = 0; i < menuObjects.Length; i++) {
             if (!samePositions(curr.y, menuObjects[i].transform.position.y)) {
-
-                var midVector = menuObjects[i].transform.position - curr;
-                var directionOfMid = 0;
+                Vector2 midVector = menuObjects[i].transform.position - curr;
+                Vector2 directionOfMid = new Vector2(0,0);
                 if (midVector.normalized.y < 0)
                 {
-                    directionOfMid = -1;
+                    directionOfMid = new Vector2(0,-1);
                 }
-                else {
-                    directionOfMid = 1;
+                else
+                {
+                    directionOfMid = new Vector2(0,1);
                 }
-                if (Vector2.Distance(curr, menuObjects[i].transform.position) <= smallestDistance && directionOfMid == direction) {
+                if (Vector2.Distance(curr, menuObjects[i].transform.position) < smallestDistance && directionOfMid.normalized.y == direction.normalized.y && !menuObjects[counter].Equals(menuObjects[i])) {
                     //and if the vector between a and b normalized in y direction is same as direction
                     smallestDistance = Vector2.Distance(curr, menuObjects[i].transform.position);
                     pointer = i;
@@ -191,12 +165,13 @@ public class CursorInput : MonoBehaviour {
         return pointer;
     }
 
-    private int GetClosestHorizontalSelection(int direction)
+
+    private int GetClosestHorizontalSelection(Vector2 direction)
     {
         var curr = menuObjects[counter].transform.position;
         curr.x = curr.x - 2.0f;
         float smallestDistance = 9999999999999f;
-
+        Debug.Log(direction);
         int pointer = -1;
         for (int i = 0; i < menuObjects.Length; i++)
         {
@@ -204,16 +179,19 @@ public class CursorInput : MonoBehaviour {
             {
                 
                 //to fix: pushing down twice at length of array will cause the cursor to go up
-                var midVector = menuObjects[i].transform.position - curr;
-                var directionOfMid = 0;
+                Vector2 midVector = menuObjects[i].transform.position - curr;
+                Debug.Log("horizontal mid: " + midVector);
+                Debug.Log("horizontal dir: " + direction);
+          /*      Vector2 directionOfMid = new Vector2(0,0);
                 if (midVector.normalized.x < 0)
                 {
-                    directionOfMid = -1;
+                    directionOfMid = new Vector2(-1, 0);
                 }
-                else {
-                    directionOfMid = 1;
-                }
-                if (Vector2.Distance(curr, menuObjects[i].transform.position) <= smallestDistance && directionOfMid == direction && !menuObjects[counter].Equals(menuObjects[i]))
+                else
+                {
+                    directionOfMid = new Vector2(1, 0);
+                }*/
+                if (Vector2.Distance(curr, menuObjects[i].transform.position) < smallestDistance && midVector.normalized == direction.normalized && !menuObjects[counter].Equals(menuObjects[i]))
                 {
                     //and if the vector between a and b normalized in y direction is same as direction
                     smallestDistance = Vector2.Distance(curr, menuObjects[i].transform.position);
@@ -253,24 +231,25 @@ public class CursorInput : MonoBehaviour {
         return cursorPos;
     }
 
-    private int getDirection()
+    private Vector2 getDirection()
     {
-        if (Input.GetAxis("Vertical") > 0)
+        //problem is if a diagonal input is entered, axis will average both results of a vertical/horizontal axis call
+        if (Input.GetAxis("Vertical") > 0) //up
         {
-            return 1;
+            return Vector2.up;
         }
-        if (Input.GetAxis("Vertical") < 0)
+        if (Input.GetAxis("Vertical") < 0) // down
         {
-            return -1;
+            return Vector2.down;
         }
-        if (Input.GetAxis("Horizontal") > 0)
+        if (Input.GetAxis("Horizontal") > 0) //right
         {
-            return 1;
+            return Vector2.right;
         }
-        if (Input.GetAxis("Horizontal") < 0)
+        if (Input.GetAxis("Horizontal") < 0) //left
         {
-            return -1;
+            return Vector2.left;
         }
-        return 1;
+        return new Vector2(0,0);
     }
 }

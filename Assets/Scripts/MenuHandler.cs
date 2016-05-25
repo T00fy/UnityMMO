@@ -15,7 +15,6 @@ public class MenuHandler : MonoBehaviour
     private bool boxOpened;
     private GameObject cursor;
     private bool finishedConnection;
-    private GameObject statusParent;
 
     public void SetPrevious(GameObject activeMenu) {
         previousMenu = activeMenu;

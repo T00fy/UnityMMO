@@ -55,9 +55,6 @@ public class ClickRegister : MonoBehaviour {
     }
 
 
-
-
-
     private void CheckInputs()
     {
         if (password.Contains(" ") || userName.Contains(" "))
@@ -67,8 +64,8 @@ public class ClickRegister : MonoBehaviour {
         if (password == null && userName == null) {
             throw new Exception("Empty username or password");
         }
-        if (password.Length < 4) {
-            throw new Exception("Password length must be greater than 4 characters");
+        if (password.Length < 4 || userName.Length < 3) {
+            throw new Exception("Password and Username length must be greater than 4 characters");
         }
     }
 
