@@ -200,7 +200,7 @@ public class CursorInput : MonoBehaviour {
         int pointer = -1;
         for (int i = 0; i < menuObjects.Length; i++)
         {
-            if (!samePositions(curr.x, menuObjects[i].transform.position.x))
+            if (samePositions(curr.y, menuObjects[i].transform.position.y))
             {
                 
                 //to fix: pushing down twice at length of array will cause the cursor to go up
@@ -213,16 +213,14 @@ public class CursorInput : MonoBehaviour {
                 else {
                     directionOfMid = 1;
                 }
-                Debug.Log("d" +directionOfMid);
-                Debug.Log("de" + direction);
-                if (Vector2.Distance(curr, menuObjects[i].transform.position) <= smallestDistance && directionOfMid == direction)
+                if (Vector2.Distance(curr, menuObjects[i].transform.position) <= smallestDistance && directionOfMid == direction && !menuObjects[counter].Equals(menuObjects[i]))
                 {
                     //and if the vector between a and b normalized in y direction is same as direction
                     smallestDistance = Vector2.Distance(curr, menuObjects[i].transform.position);
                     pointer = i;
+                    
                 }
             }
-            Debug.Log(pointer);
 
         }
         if (pointer == -1)
