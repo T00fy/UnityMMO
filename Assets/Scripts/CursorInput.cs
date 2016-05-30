@@ -87,6 +87,7 @@ public class CursorInput : MonoBehaviour {
                         LoginOrRegister("UsernameLogin", "PasswordLogin", "login", ml);
                         break;
 
+
                     default:
                         break;
 

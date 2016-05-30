@@ -165,8 +165,9 @@ namespace MMOServer
                     {
                         //try and open connection to character server
                         Send(handler, "Login Successful");
+                  //      handler.DuplicateAndClose()
                         //connect and send socket to Char server here
-                        
+
                     }
                     if (list.Count == 1)
                     {
@@ -299,7 +300,7 @@ namespace MMOServer
             {
                 Console.WriteLine("Connecting to MYSQL server...");
                 conn.Open();
-
+                Console.WriteLine("Connected to DB");
 
             }
             catch (Exception e)
@@ -307,7 +308,7 @@ namespace MMOServer
                 Console.WriteLine(e.ToString());
 
             }
-            Console.WriteLine("Connected to DB");
+            
         }
     }
 }

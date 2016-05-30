@@ -54,15 +54,12 @@ public class CursorMover : MonoBehaviour {
         {
             if (samePositions(curr.y, menuObjects[i].transform.position.y))
             {
-
-                //to fix: pushing down twice at length of array will cause the cursor to go up
                 Vector2 midVector = menuObjects[i].transform.position - curr;
-                Debug.Log("horizontal mid: " + midVector);
-                Debug.Log("horizontal dir: " + direction);
+  //              Debug.Log("horizontal mid: " + midVector);
+   //             Debug.Log("horizontal dir: " + direction);
                 if (Vector2.Distance(curr, menuObjects[i].transform.position) < smallestDistance &&
                     midVector.normalized.x == direction.normalized.x && menuObjects[i] != selectedOption)
                 {
-                    //and if the vector between a and b normalized in y direction is same as direction
                     smallestDistance = Vector2.Distance(curr, menuObjects[i].transform.position);
                     pointer = i;
 
@@ -99,7 +96,6 @@ public class CursorMover : MonoBehaviour {
                 if (Vector2.Distance(curr, menuObjects[i].transform.position) < smallestDistance && 
                     directionOfMid.normalized.y == direction.normalized.y && menuObjects[i] != selectedOption)
                 {
-                    //and if the vector between a and b normalized in y direction is same as direction
                     smallestDistance = Vector2.Distance(curr, menuObjects[i].transform.position);
                     pointer = i;
                 }

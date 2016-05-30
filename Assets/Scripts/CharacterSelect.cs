@@ -3,11 +3,11 @@ using UnityEngine.UI;
 
 public class CharacterSelect : MonoBehaviour {
     public GameObject cursor;
-
+    public GameObject selectedCharacter;
     private GameObject selectedGameObject;
     private Text selectedText;
     private CursorMover cm;
-    private GameObject selectedCharacter;
+    
 
     void Start()
     {
