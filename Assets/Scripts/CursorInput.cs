@@ -31,7 +31,7 @@ public class CursorInput : MonoBehaviour {
             direction = direction + getDirection();
             enteringText = false;
             inputPressed = true;
-            Debug.Log("DirectoinV: " + direction);
+      //      Debug.Log("DirectoinV: " + direction);
 
         }
 

@@ -70,6 +70,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CharServer.cs" />
+    <Compile Include="PacketController.cs" />
+    <Compile Include="PacketTypes.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="LoginServer.cs" />
   </ItemGroup>

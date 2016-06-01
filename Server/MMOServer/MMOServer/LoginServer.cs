@@ -28,6 +28,7 @@ namespace MMOServer
         private static List<Socket> clientSockets = new List<Socket>();
         public static ManualResetEvent allDone = new ManualResetEvent(false);
         private static MySqlConnection conn;
+        public static PacketTypes packetType;
 
         public static void Main(String[] args)
         {
@@ -42,7 +43,7 @@ namespace MMOServer
         public static void StartListening()
         {
             // Data buffer for incoming data.
-            byte[] bytes = new Byte[1024];
+            byte[] bytes = new byte[1024];
 
             // Establish the local endpoint for the socket.
             // The DNS name of the computer
@@ -105,6 +106,8 @@ namespace MMOServer
         public static void ReceiveCallBack(IAsyncResult ar)
         {
 
+            //need to setup buffer of length PacketController 
+
             // Retrieve the state object and the handler socket
             // from the asynchronous state object.
             StateObject state = (StateObject)ar.AsyncState;
@@ -117,7 +120,7 @@ namespace MMOServer
                 if (bytesRead > 0)
                 {
                     // There  might be more data, so store the data received so far.
-                    state.sb.Append(Encoding.ASCII.GetString(
+                    state.sb.Append(Encoding.Unicode.GetString(
                         state.buffer, 0, bytesRead));
 
                     // Check for end-of-file tag. If it is not there, read 
@@ -165,7 +168,8 @@ namespace MMOServer
                     {
                         //try and open connection to character server
                         Send(handler, "Login Successful");
-                  //      handler.DuplicateAndClose()
+                        Send(handler, "test");
+                        //      handler.DuplicateAndClose()
                         //connect and send socket to Char server here
 
                     }
@@ -188,10 +192,10 @@ namespace MMOServer
 
         }
 
-        private static void Send(Socket handler, String data)
+        private static void Send(Socket handler, string data)
         {
             // Convert the string data to byte data using ASCII encoding.
-            byte[] byteData = Encoding.ASCII.GetBytes(data);
+            byte[] byteData = Encoding.Unicode.GetBytes(data);
 
             // Begin sending the data to the remote device.
             handler.BeginSend(byteData, 0, byteData.Length, 0,

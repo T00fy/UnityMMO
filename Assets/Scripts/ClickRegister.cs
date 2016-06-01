@@ -6,6 +6,8 @@ using System;
 using System.Text;
 using System.Threading;
 
+//TODO: REFACTOR THIS SO IT'S A GENERIC CONNECTION CLASS
+//PASS IN DELEGATES AS PARAMETERS FOR THE CALLBACKS
 
 public class StateObject
 {
@@ -129,7 +131,7 @@ public class ClickRegister : MonoBehaviour {
     private static void Send(Socket client, string data)
     {
         // Convert the string data to byte data using ASCII encoding.
-        byte[] byteData = Encoding.ASCII.GetBytes(data);
+        byte[] byteData = Encoding.Unicode.GetBytes(data);
 
         // Begin sending the data to the remote device.
         client.BeginSend(byteData, 0, byteData.Length, 0,
@@ -180,7 +182,7 @@ public class ClickRegister : MonoBehaviour {
             if (received > 0)
             {
                 // There might be more data, so store the data received so far.
-                state.sb.Append(Encoding.ASCII.GetString(state.buffer, 0, received));
+                state.sb.Append(Encoding.Unicode.GetString(state.buffer, 0, received));
 
                 // Get the rest of the data.
                 socket.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0,
@@ -193,14 +195,30 @@ public class ClickRegister : MonoBehaviour {
                     menuHandler.DestroyStatusBox();
                     response = state.sb.ToString();
                     menuHandler.SetStatusText(response);
-
-                    if (response == "Login successful") {
+                    Debug.Log(response);
+                    if (response == "Login Successful") {
+                        
+                        Debug.Log("success got through");
                         //set some boolean to true
                         //deactivate all other game objects
                         //Show character selection screen
                         //create a character server that has all character options
 
                     }
+                    if (response == "test")
+                    {
+                        Debug.Log("Test got through");
+                    }
+
+                    /*
+                     * 
+                     * TODO: Object disposed error when sending twice( (probably can just eliminate this by only ever calling begin send once with a working packet protocol)
+                     * 
+                     */
+
+
+
+
                 }
                 // Signal that all bytes have been received.
                 CloseSocket(socket);
