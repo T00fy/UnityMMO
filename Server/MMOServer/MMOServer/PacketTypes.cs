@@ -8,7 +8,7 @@ namespace MMOServer
 {
     public enum PacketTypes
     {
-        Status,DBQuery,Command
+        Message,DBQuery,Command,Status
 
 
     }

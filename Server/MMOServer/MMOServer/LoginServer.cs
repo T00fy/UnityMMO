@@ -28,7 +28,6 @@ namespace MMOServer
         private static List<Socket> clientSockets = new List<Socket>();
         public static ManualResetEvent allDone = new ManualResetEvent(false);
         private static MySqlConnection conn;
-        public static PacketTypes packetType;
 
         public static void Main(String[] args)
         {
@@ -197,9 +196,12 @@ namespace MMOServer
             // Convert the string data to byte data using ASCII encoding.
             byte[] byteData = Encoding.Unicode.GetBytes(data);
 
-            // Begin sending the data to the remote device.
             handler.BeginSend(byteData, 0, byteData.Length, 0,
                 new AsyncCallback(SendCallback), handler);
+            
+
+            // Begin sending the data to the remote device.
+
         }
 
         private static void SendCallback(IAsyncResult ar)
