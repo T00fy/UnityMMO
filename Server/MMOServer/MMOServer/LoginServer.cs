@@ -4,43 +4,34 @@ using System.Collections;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
-using CryptSharp;
 using System.Threading;
 using MySql.Data.MySqlClient;
 using System.Configuration;
 
 namespace MMOServer
 {
-    public class StateObject
+    /*   public class StateObject
+       {
+           // Client  socket.
+           public Socket workSocket = null;
+           // Size of receive buffer.
+           public const int BufferSize = 1024;
+           // Receive buffer.
+           public byte[] buffer = new byte[BufferSize];
+           // Received data string.
+           public StringBuilder sb = new StringBuilder();
+       }*/
+
+
+    public class LoginServer
     {
-        // Client  socket.
-        public Socket workSocket = null;
-        // Size of receive buffer.
-        public const int BufferSize = 1024;
-        // Receive buffer.
-        public byte[] buffer = new byte[BufferSize];
-        // Received data string.
-        public StringBuilder sb = new StringBuilder();
-    }
-        
-
-    public class LoginServer {
-        private static List<Socket> clientSockets = new List<Socket>();
+        private static List<ClientConnection> mConnectionList = new List<ClientConnection>();
         public static ManualResetEvent allDone = new ManualResetEvent(false);
-        private static MySqlConnection conn;
-        public static PacketTypes packetType;
+        public const int BUFFER_SIZE = 65535;
+        private Socket listener;
+        private PacketProcessor packetProcessor;
 
-        public static void Main(String[] args)
-        {
-            Console.WriteLine("Setting up server...");
-            ConnectToDb();
-            StartListening();
-        }
-
-
-
-
-        public static void StartListening()
+        public void StartListening()
         {
             // Data buffer for incoming data.
             byte[] bytes = new byte[1024];
@@ -50,14 +41,14 @@ namespace MMOServer
             // running the listener is "host.contoso.com".
 
             // Create a TCP/IP socket.
-            Socket listener = new Socket(AddressFamily.InterNetwork,
+            listener = new Socket(AddressFamily.InterNetwork,
                 SocketType.Stream, ProtocolType.Tcp);
 
             // Bind the socket to the local endpoint and listen for incoming connections.
             try
             {
                 listener.Bind(new IPEndPoint(IPAddress.Any, 3425));
-                listener.Listen(500);
+                listener.Listen(100);
 
                 while (true)
                 {
@@ -84,235 +75,165 @@ namespace MMOServer
 
         }
 
-        public static void AcceptCallback(IAsyncResult ar)
+        private void AcceptCallback(IAsyncResult ar)
         {
-            // Signal the main thread to continue.
-            allDone.Set();
+            ClientConnection client = null;
 
-            // Get the socket that handles the client request.
-            Socket listener = (Socket)ar.AsyncState;
-            Socket handler = listener.EndAccept(ar);
-            clientSockets.Add(handler);
-            Console.WriteLine("Client connected.");
-            // Create the state object.
-            StateObject state = new StateObject();
-            state.workSocket = handler;
-            handler.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0, new AsyncCallback(ReceiveCallBack), state);
-            listener.BeginAccept(new AsyncCallback(AcceptCallback), listener);
+
+            try
+            {
+                listener = (Socket)ar.AsyncState;
+                client = new ClientConnection();
+                client.socket = listener.EndAccept(ar);
+                client.buffer = new byte[BUFFER_SIZE];
+                lock (mConnectionList)
+                {
+                    mConnectionList.Add(client);
+                }
+                //queue up incoming receive data connection
+                client.socket.BeginReceive(client.buffer, 0, client.buffer.Length, SocketFlags.None, new AsyncCallback(ReceiveCallBack), client);
+                //start accepting connections again
+                listener.BeginAccept(new AsyncCallback(AcceptCallback), listener);
+                Console.WriteLine(string.Format("Connection {0}:{1} has connected.", (client.socket.RemoteEndPoint as IPEndPoint).Address, (client.socket.RemoteEndPoint as IPEndPoint).Port));
+            }
+
+
+            catch (Exception)
+            {
+                if (client.socket == null)
+                {
+                    client.socket.Close();
+                    lock (mConnectionList)
+                    {
+                        mConnectionList.Remove(client);
+                    }
+                }
+                listener.BeginAccept(new AsyncCallback(AcceptCallback), listener);
+            }
 
 
         }
 
-        public static void ReceiveCallBack(IAsyncResult ar)
+        private void ReceiveCallBack(IAsyncResult ar)
         {
 
             //need to setup buffer of length PacketController 
 
             // Retrieve the state object and the handler socket
             // from the asynchronous state object.
-            StateObject state = (StateObject)ar.AsyncState;
-            Socket handler = state.workSocket;
+            ClientConnection client = (ClientConnection)ar.AsyncState;
 
-            // Read data from the client socket. 
-            int bytesRead = handler.EndReceive(ar);
             try
             {
+                int bytesRead = client.socket.EndReceive(ar);
+                //allows to pause traffic and restart for debugging purposes.
+                bytesRead += client.lastPartialSize;
                 if (bytesRead > 0)
                 {
-                    // There  might be more data, so store the data received so far.
-                    state.sb.Append(Encoding.Unicode.GetString(
-                        state.buffer, 0, bytesRead));
+                    int offset = 0;
 
-                    // Check for end-of-file tag. If it is not there, read 
-                    // more data.
-                    var cmdList = state.sb.ToString().Split(' ');
-                    CommandResponse(handler, cmdList);
-                }
-                else {
-                    //client has sent 0 bytes shutdown ack
-                    handler.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0, new AsyncCallback(ReceiveCallBack), state);
-                    handler.Close();
-                }  
-           }
-                // Not all data received. Get more.
-                //to be implemented later if bugs found
-                    
-            catch (Exception e) {
-                Console.WriteLine(e.ToString());
-            }
-        }
+                    //build/compile packets until can no longer or data is finished
+                    while (true)
+                    {
+                        BasePacket basePacket = BuildPacket(ref offset, client.buffer, bytesRead);
+                        if (basePacket == null)
+                        {
+                            break;
+                        }
+                        else
+                        {
+                            packetProcessor.ProcessPacket(client, basePacket);
+                        }
 
-        private static void CommandResponse(Socket handler, string[] cmdList)
-        {
-            if (cmdList[0] == "register")
-            {
-                Console.WriteLine("Received register request from user: " + cmdList[1] + " pwd: " + cmdList[2]);
-                var succeeded = AddUserToDb(cmdList[1], cmdList[2]);
-                if (succeeded)
-                {
-                    Send(handler, "SUCCESS");
+                    }
+                    //Not all bytes consumed, transfer leftover to beginning
+                    if (offset < bytesRead)
+                    {
+                        Array.Copy(client.buffer, offset, client.buffer, 0, bytesRead - offset);
+                    }
+
+                    Array.Clear(client.buffer, bytesRead - offset, client.buffer.Length - (bytesRead - offset));
+
+                    //allows to pause traffic and restart for debugging purposes.
+                    client.lastPartialSize = bytesRead - offset;
+
+                    //Build any queued subpackets into basepackets and send
+                    client.FlushQueuedSendPackets();
+
+                    if (offset < bytesRead)
+                    //need offset since not all bytes consumed
+                    {
+                        client.socket.BeginReceive(client.buffer, bytesRead - offset, client.buffer.Length - (bytesRead - offset), SocketFlags.None, new AsyncCallback(ReceiveCallBack), client);
+                    }
+                    else
+                    {
+                        client.socket.BeginReceive(client.buffer, 0, client.buffer.Length, SocketFlags.None, new AsyncCallback(ReceiveCallBack), client);
+                    }
                 }
                 else
                 {
-                    Send(handler, "FAILED");
+                    Console.WriteLine("Client at {0} has disconnected", client.GetAddress());
 
+                    lock (mConnectionList)
+                    {
+                        client.Disconnect();
+                        mConnectionList.Remove(client);
+                    }
                 }
+
 
             }
-            if (cmdList[0] == "login")
-            { 
-                Console.WriteLine("Received Login request for: " + cmdList[1] + " pwd: " + cmdList[2]);
-                ArrayList list = CheckUserInDb(cmdList[1], cmdList[2]);
-                if (list != null) {
-                    if (list.Count == 2)
-                    {
-                        //try and open connection to character server
-                        Send(handler, "Login Successful");
-                        Send(handler, "test");
-                        //      handler.DuplicateAndClose()
-                        //connect and send socket to Char server here
-
-                    }
-                    if (list.Count == 1)
-                    {
-                        Send(handler, "Incorrect password");
-                    }
-                    if (list.Count == 0)
-                    {
-                        Send(handler, "Account not found");
-                    }
-
-                }
-                else
+            catch (SocketException)
+            {
+                if (client.socket != null)
                 {
-                    Send(handler, "Account not found");
-                }
-                
-            }
+                    Console.WriteLine("Client at {0} has disconnected", client.GetAddress());
 
-        }
-
-        private static void Send(Socket handler, string data)
-        {
-            // Convert the string data to byte data using ASCII encoding.
-            byte[] byteData = Encoding.Unicode.GetBytes(data);
-
-            // Begin sending the data to the remote device.
-            handler.BeginSend(byteData, 0, byteData.Length, 0,
-                new AsyncCallback(SendCallback), handler);
-        }
-
-        private static void SendCallback(IAsyncResult ar)
-        {
-            try
-            {
-                // Retrieve the socket from the state object.
-                Socket handler = (Socket)ar.AsyncState;
-
-                // Complete sending the data to the remote device.
-                int bytesSent = handler.EndSend(ar);
-                Console.WriteLine("Sent {0} bytes to client.", bytesSent);
-
-                handler.Shutdown(SocketShutdown.Both);
-                handler.Close();
-
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.ToString());
-            }
-        }
-
-
-
-
-        /*
-         *
-         *
-         *DB METHODS
-         *
-         *
-         *  
-        */
-
-        private static bool AddUserToDb(string userName, string password)
-        {
-            try
-            {
-                MySqlCommand command = conn.CreateCommand();
-                command.CommandText = "INSERT INTO account(username, password) VALUES(@user, @pass)";
-                command.Parameters.AddWithValue("@user", userName);
-                command.Parameters.AddWithValue("@pass", password);
-                command.ExecuteNonQuery();
-                return true;
-            }
-            catch (MySqlException e)
-            {
-                Console.WriteLine(e.ToString());
-                Console.WriteLine("Duplicate username attempted to be regsitered");
-                return false;
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.ToString());
-                return false;
-
-            }
-
-        }
-
-        private static ArrayList CheckUserInDb(string userName, string password)
-        {
-            ArrayList list = new ArrayList();
-            try
-            {
-                MySqlCommand command = conn.CreateCommand();
-                command.CommandText = "SELECT `username`, `password` FROM `account` WHERE `username`=@user";
-                command.Parameters.AddWithValue("@user", userName);
-                MySqlDataReader rdr = command.ExecuteReader();
-                if (rdr.HasRows)
-                {
-                    while (rdr.Read())
+                    lock (mConnectionList)
                     {
-                        list.Add(rdr.GetString(0));
-                        list.Add(rdr.GetString(1));
+                        mConnectionList.Remove(client);
                     }
                 }
-                rdr.Close();
-                return list;
+            }
 
-            }
-            catch (MySqlException)
-            {
-                Console.WriteLine("MySQL error");
-                return list;
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.ToString());
-                return list;
 
-            }
         }
 
 
-        private static void ConnectToDb()
+
+        /// <summary>
+        /// Builds a packet from the incoming buffer + offset. If a packet can be built, it is returned else null.
+        /// </summary>
+        /// <param name="offset">Current offset in buffer.</param>
+        /// <param name="buffer">Incoming buffer.</param>
+        /// <returns>Returns either a BasePacket or null if not enough data.</returns>
+        public BasePacket BuildPacket(ref int offset, byte[] buffer, int bytesRead)
         {
-            var connection = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString.ToString();
-            conn = new MySqlConnection(connection);
+            BasePacket newPacket = null;
+
+            //Too small to even get length
+            if (bytesRead <= offset)
+                return null;
+
+            ushort packetSize = BitConverter.ToUInt16(buffer, offset);
+
+            //Too small to whole packet
+            if (bytesRead < offset + packetSize)
+                return null;
+
+            if (buffer.Length < offset + packetSize)
+                return null;
+
             try
             {
-                Console.WriteLine("Connecting to MYSQL server...");
-                conn.Open();
-                Console.WriteLine("Connected to DB");
-
+                newPacket = new BasePacket(buffer, ref offset);
             }
-            catch (Exception e)
+            catch (OverflowException)
             {
-                Console.WriteLine(e.ToString());
-
+                return null;
             }
-            
+
+            return newPacket;
         }
     }
 }

@@ -6,10 +6,25 @@ using System.Threading.Tasks;
 
 namespace MMOServer
 {
-    public enum PacketTypes
+    public enum SubPacketTypes
     {
-        Status,DBQuery,Command
+        Account,GamePacket,DBQuery
 
 
+    }
+
+    public enum BasePacketConnectionTypes
+    {
+        Zone,Chat
+    }
+
+    public enum GamePacketOpCode
+    {
+        Error,Success
+    }
+
+    public enum ErrorCodes
+    {
+        NoAccount,WrongPassword,DuplicateAccount
     }
 }
