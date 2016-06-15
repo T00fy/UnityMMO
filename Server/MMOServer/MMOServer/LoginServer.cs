@@ -27,13 +27,9 @@ namespace MMOServer
     {
         private static List<ClientConnection> mConnectionList = new List<ClientConnection>();
         public static ManualResetEvent allDone = new ManualResetEvent(false);
-<<<<<<< HEAD
         public const int BUFFER_SIZE = 65535;
         private Socket listener;
         private PacketProcessor packetProcessor;
-=======
-        private static MySqlConnection conn;
->>>>>>> 8b7ca3fe56a25a9520475b7bda38660221709c97
 
         public void StartListening()
         {
@@ -176,29 +172,7 @@ namespace MMOServer
                 }
                 else
                 {
-<<<<<<< HEAD
                     Console.WriteLine("Client at {0} has disconnected", client.GetAddress());
-=======
-                    Send(handler, "Account not found");
-                }
-                
-            }
-
-        }
-
-        private static void Send(Socket handler, string data)
-        {
-            // Convert the string data to byte data using ASCII encoding.
-            byte[] byteData = Encoding.Unicode.GetBytes(data);
-
-            handler.BeginSend(byteData, 0, byteData.Length, 0,
-                new AsyncCallback(SendCallback), handler);
-            
-
-            // Begin sending the data to the remote device.
-
-        }
->>>>>>> 8b7ca3fe56a25a9520475b7bda38660221709c97
 
                     lock (mConnectionList)
                     {

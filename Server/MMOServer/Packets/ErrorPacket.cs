@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace MMOServer
 {
@@ -29,7 +28,7 @@ namespace MMOServer
 
             byte[] data = memStream.GetBuffer();
             memStream.Dispose();
-            binWriter.Dispose();
+            binWriter.Close();
             SubPacket subPacket = new SubPacket(GamePacketOpCode.Error, 0, 0, data, SubPacketTypes.GamePacket);
             return subPacket;
         }

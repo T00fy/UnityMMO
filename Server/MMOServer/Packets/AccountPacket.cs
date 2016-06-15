@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.IO;
 
 namespace MMOServer
@@ -47,10 +46,10 @@ namespace MMOServer
                     invalidPacket = true;
                 }
                 dataMem.Dispose();
-                binReaderData.Dispose();
+                binReaderData.Close();
             }
             mem.Dispose();
-            binReader.Dispose();
+            binReader.Close();
         }
     }
 }
