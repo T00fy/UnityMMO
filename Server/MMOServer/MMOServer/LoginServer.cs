@@ -29,7 +29,6 @@ namespace MMOServer
         public static ManualResetEvent allDone = new ManualResetEvent(false);
         public const int BUFFER_SIZE = 65535;
         private Socket listener;
-        private PacketProcessor packetProcessor;
 
         public void StartListening()
         {
@@ -122,7 +121,7 @@ namespace MMOServer
             // Retrieve the state object and the handler socket
             // from the asynchronous state object.
             ClientConnection client = (ClientConnection)ar.AsyncState;
-
+            PacketProcessor packetProcessor = new PacketProcessor();
             try
             {
                 int bytesRead = client.socket.EndReceive(ar);
@@ -142,6 +141,7 @@ namespace MMOServer
                         }
                         else
                         {
+                            
                             packetProcessor.ProcessPacket(client, basePacket);
                         }
 
