@@ -9,7 +9,7 @@ using System.Text;
 
 //might need to setup coroutines
 
-public class ClickRegisterSynchronous : MonoBehaviour {
+public class ClickSubmitSynchronous : MonoBehaviour {
     public GameObject statusBox;
 
     private Text statusTextObj;

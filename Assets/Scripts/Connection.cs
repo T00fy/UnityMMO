@@ -7,92 +7,40 @@ using System.Text;
 using MMOServer;
 using System.Threading;
 
-//TODO: REFACTOR THIS SO IT'S A GENERIC CONNECTION CLASS
-//PASS IN DELEGATES AS PARAMETERS FOR THE CALLBACKS
-
-public class StateObject
-{
-    // Client socket.
-    public Socket workSocket = null;
-    // Size of receive buffer.
-    public const int BufferSize = 256;
-    // Receive buffer.
-    public byte[] buffer = new byte[BufferSize];
-    // Received data string.
-    public StringBuilder sb = new StringBuilder();
-}
-
-public class ClickRegister : MonoBehaviour {
-    public GameObject menuHandlerObj;
-
-
-    private string userName;
-    private string password;
-    private GameObject cursor;
-    private IPAddress[] ip;
-    private static string response = string.Empty;
-   
-    private static string cmd;
+public class Connection : MonoBehaviour {
     private static MenuHandler menuHandler;
+    private BasePacket packetToSend;
+    private bool loggedIn;
+    private bool registering;
+    private bool loggingIn;
 
-
-    
-    public void StartConnection(string cmd1, string userName, string password) {
-        menuHandler = menuHandlerObj.GetComponent<MenuHandler>();
-        cmd = cmd1;
-        this.userName = userName;
-        this.password = password;
-
-        cursor = GameObject.Find("Cursor");
-        menuHandler.SetCursor(cursor);
-        menuHandler.ToggleCursor(false);
-        menuHandler.OpenStatusBox();
-        
-
-        RegisterConnection();
-
-
-
+    public Connection(BasePacket packetToSend, MenuHandler menuHandler, bool registering, bool loggingIn) {
+        this.packetToSend = packetToSend;
+        loggedIn = packetToSend.isAuthenticated();
+        this.registering = registering;
+        this.loggingIn = loggingIn;
     }
 
+        //one class should just establish connection (ie this one)
+        //another class will act as a means to just send using the selected socket, might have to get socket from this class and pass it
+        //get subpackets
+        //store into basepacket and send when ready
+        //
 
-    private void CheckInputs()
+    private void RegisterConnection()
     {
-        if (password.Contains(" ") || userName.Contains(" "))
-        {
-            throw new Exception("Invalid character in Username or Password");
-        }
-        if (password == null && userName == null) {
-            throw new Exception("Empty username or password");
-        }
-        if (password.Length < 4 || userName.Length < 3) {
-            throw new Exception("Password and Username length must be greater than 4 characters");
-        }
-    }
-
-    bool SocketConnected(Socket s)
-    {
-        bool part1 = s.Poll(1000, SelectMode.SelectRead);
-        bool part2 = (s.Available == 0);
-        if ((part1 && part2) || !s.Connected)
-            return false;
-        else
-            return true;
-    }
-
-    private void RegisterConnection() {
         Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         try
         {
             CheckInputs();
-            ip = Dns.GetHostAddresses("127.0.0.1");
-            
-            
+            IPAddress[] ip = Dns.GetHostAddresses("127.0.0.1");
+
+
             menuHandler.SetStatusText("Connecting...");
 
-            IPEndPoint remoteEP = new IPEndPoint(ip[0],3425);
+            IPEndPoint remoteEP = new IPEndPoint(ip[0], 3425);
             socket.BeginConnect(remoteEP, new AsyncCallback(ConnectCallBack), socket);
-            
+
         }
         catch (Exception e)
         {
@@ -108,11 +56,11 @@ public class ClickRegister : MonoBehaviour {
         Socket socket = (Socket)aSyncResult.AsyncState;
         try
         {
-            
+
             socket.EndConnect(aSyncResult);
-            menuHandler.SetStatusText("Connected!");
-            
-            Send(socket, cmd);
+            menuHandler.SetStatusText("Established Connection");
+
+            Send(socket, packetToSend);
         }
         catch (Exception e)
         {
@@ -126,11 +74,10 @@ public class ClickRegister : MonoBehaviour {
     }
 
 
-
-    private static void Send(Socket client, string data)
+    //redo this so it uses a separate class to queue sends
+    private static void Send(Socket client, BasePacket packetToSend)
     {
         // Convert the string data to byte data using ASCII encoding.
-        byte[] byteData = Encoding.Unicode.GetBytes(data);
 
         // Begin sending the data to the remote device.
         client.BeginSend(byteData, 0, byteData.Length, 0,
@@ -141,7 +88,7 @@ public class ClickRegister : MonoBehaviour {
     {
         Socket socket = (Socket)aSyncResult.AsyncState;
         socket.EndSend(aSyncResult);
-        
+
 
         Receive(socket);
     }
@@ -174,7 +121,8 @@ public class ClickRegister : MonoBehaviour {
     {
         StateObject state = (StateObject)aSyncResult.AsyncState;
         Socket socket = state.workSocket; //the callback socket
-        try {
+        try
+        {
 
             int received = socket.EndReceive(aSyncResult); //number of bytes received
 
@@ -195,8 +143,9 @@ public class ClickRegister : MonoBehaviour {
                     response = state.sb.ToString();
                     menuHandler.SetStatusText(response);
                     Debug.Log(response);
-                    if (response == "Login Successful") {
-                        
+                    if (response == "Login Successful")
+                    {
+
                         Debug.Log("success got through");
                         //set some boolean to true
                         //deactivate all other game objects
@@ -221,10 +170,11 @@ public class ClickRegister : MonoBehaviour {
                 }
                 // Signal that all bytes have been received.
                 CloseSocket(socket);
-     //           receiveDone.Set();
+                //           receiveDone.Set();
             }
         }
-        catch(Exception e) {
+        catch (Exception e)
+        {
             menuHandler.DestroyStatusBox();
             socket.Shutdown(SocketShutdown.Both);
             socket.Close();
@@ -232,7 +182,7 @@ public class ClickRegister : MonoBehaviour {
         }
 
 
-        
+
     }
 
     private static void CloseSocket(Socket socket)
@@ -240,5 +190,31 @@ public class ClickRegister : MonoBehaviour {
         menuHandler.DestroyStatusBox();
         socket.Shutdown(SocketShutdown.Both);
         socket.Close();
+    }
+
+    private void CheckInputs()
+    {
+        if (password.Contains(" ") || userName.Contains(" "))
+        {
+            throw new Exception("Invalid character in Username or Password");
+        }
+        if (password == null && userName == null)
+        {
+            throw new Exception("Empty username or password");
+        }
+        if (password.Length < 4 || userName.Length < 3)
+        {
+            throw new Exception("Password and Username length must be greater than 4 characters");
+        }
+    }
+
+    bool SocketConnected(Socket s)
+    {
+        bool part1 = s.Poll(1000, SelectMode.SelectRead);
+        bool part2 = (s.Available == 0);
+        if ((part1 && part2) || !s.Connected)
+            return false;
+        else
+            return true;
     }
 }

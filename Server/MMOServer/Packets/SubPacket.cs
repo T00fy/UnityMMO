@@ -110,7 +110,7 @@ namespace MMOServer
         }
 
         //Shorthand for SubPacket with account type
-   /*     public SubPacket(bool register, uint lengthOfUsername, uint lengthOfPassword, uint sourceId, uint targetId, byte[] data, SubPacketTypes spt)
+        public SubPacket(bool register, uint lengthOfUsername, uint lengthOfPassword, uint sourceId, uint targetId, byte[] data, SubPacketTypes spt)
         {
             header = new SubPacketHeader();
             accountHeader = new AccountHeader();
@@ -133,7 +133,7 @@ namespace MMOServer
             this.data = data;
 
             header.subpacketSize = (ushort)(SUBPACKET_SIZE + GAMEMESSAGE_SIZE + data.Length);
-        }*/
+        }
 
         public SubPacket(SubPacket original, uint newTargetId)
         {

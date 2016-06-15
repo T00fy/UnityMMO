@@ -11,37 +11,7 @@ namespace MMOServer
         public void ProcessPacket(ClientConnection client, BasePacket packet)
         {
 
-            /*
-             check if the base packet connection type is for login or registering or else
-             Create classes for each packet type using a BuildPacket method like the following
-        {
-            MemoryStream memStream = new MemoryStream(0x210);
-            BinaryWriter binWriter = new BinaryWriter(memStream);
-
-            binWriter.Write(sequence);
-            binWriter.Write(errorCode);
-            binWriter.Write(statusCode);
-            binWriter.Write(textId);
-            binWriter.Write(Encoding.ASCII.GetBytes(message));
-
-            byte[] data = memStream.GetBuffer();
-            binWriter.Dispose();
-            memStream.Dispose();
-            SubPacket subpacket = new SubPacket(OPCODE, 0xe0006868, 0xe0006868, data);
-            return subpacket;
-        } */
-
-
-      //      if (!packet.isAuthenticated() && )
-    //        {
-
-     //       }
-
             BasePacket.DecryptPacket(client.blowfish, ref packet);
-
-            //if basepacket header is a login or register request
-
-                //do stuff ProcessLoginPacket()
 
             //else
             packet.debugPrintPacket();
