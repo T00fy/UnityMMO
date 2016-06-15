@@ -7,7 +7,7 @@ using System.IO;
 
 namespace MMOServer
 {
-    class AccountPacket
+    public class AccountPacket
     {
         public bool invalidPacket = false;
         public bool register = false;

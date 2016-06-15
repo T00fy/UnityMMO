@@ -71,19 +71,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AccountPacket.cs" />
-    <Compile Include="BasePacket.cs" />
-    <Compile Include="Blowfish.cs" />
-    <Compile Include="CharServer.cs" />
     <Compile Include="ClientConnection.cs" />
     <Compile Include="Database.cs" />
-    <Compile Include="ErrorPacket.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="PacketProcessor.cs" />
-    <Compile Include="PacketTypes.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="LoginServer.cs" />
-    <Compile Include="SubPacket.cs" />
     <Compile Include="Utils.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -101,6 +94,12 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Packets\Packets.csproj">
+      <Project>{a6560a9e-9a19-4df8-9311-d894fd0ceb0a}</Project>
+      <Name>Packets</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

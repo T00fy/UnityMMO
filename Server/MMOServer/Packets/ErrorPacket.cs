@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace MMOServer
 {
-    class ErrorPacket
+    public class ErrorPacket
     {
         private string errorMessage;
         private uint errorId;
