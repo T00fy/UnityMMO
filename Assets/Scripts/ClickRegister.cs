@@ -4,6 +4,7 @@ using System.Net;
 using System.Net.Sockets;
 using System;
 using System.Text;
+using MMOServer;
 using System.Threading;
 
 //TODO: REFACTOR THIS SO IT'S A GENERIC CONNECTION CLASS
@@ -49,8 +50,6 @@ public class ClickRegister : MonoBehaviour {
         
 
         RegisterConnection();
-
-
 
 
 
