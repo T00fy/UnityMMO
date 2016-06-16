@@ -17,13 +17,13 @@ namespace MMOServer
 
 
 
-        public void ProcessIncoming(int bytesIn)
+  /*      public void ProcessIncoming(int bytesIn)
         {
             if (bytesIn == 0)
                 return;
 
             incomingStream.Put(buffer, 0, bytesIn);
-        }
+        }*/
 
         public void QueuePacket(BasePacket packet)
         {

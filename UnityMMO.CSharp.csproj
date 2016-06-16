@@ -77,13 +77,13 @@
     <Compile Include="Assets\Scripts\CharacterCreateHandler.cs" />
     <Compile Include="Assets\Scripts\CharacterSelect.cs" />
     <Compile Include="Assets\Scripts\ClickRegisterSynchronous.cs" />
-    <Compile Include="Assets\Scripts\ClickAccountSubmit.cs" />
     <Compile Include="Assets\Scripts\ClientConnect.cs" />
     <Compile Include="Assets\Scripts\EstablishConnection.cs" />
     <Compile Include="Assets\Scripts\CursorInput.cs" />
     <Compile Include="Assets\Scripts\CursorMover.cs" />
     <Compile Include="Assets\Scripts\MenuHandler.cs" />
     <Compile Include="Assets\Scripts\MenuLink.cs" />
+    <Compile Include="Assets\Scripts\PacketProcessor.cs" />
     <Compile Include="Assets\Scripts\TextFieldHandler.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\SyntaxTree\UnityVS\2015\UnityVS.CSharp.targets" />

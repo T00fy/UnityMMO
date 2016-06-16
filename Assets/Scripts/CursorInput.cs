@@ -142,11 +142,11 @@ public class CursorInput : MonoBehaviour {
         InputField usernameInput = userGameObj.GetComponent<InputField>();
 
         GameObject subObj = ml.GetMenuItem();
-        var submit = subObj.GetComponent<ClickAccountSubmit>();
+        var packetProcessor = subObj.GetComponent<PacketProcessor>();
         string password = passwordInput.text;
         string userName = usernameInput.text;
         string cmd = cmdString + " " + userName + " " + password;
 
-        submit.Start(cmd, userName, password);
+        packetProcessor.LoginOrRegister(userName, password);
     }
 }
