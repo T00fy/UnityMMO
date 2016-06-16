@@ -141,12 +141,12 @@ public class CursorInput : MonoBehaviour {
         GameObject userGameObj = GameObject.Find(findUser);
         InputField usernameInput = userGameObj.GetComponent<InputField>();
 
-        GameObject submit = ml.GetMenuItem();
-        var menuEnter = submit.GetComponent<ClickSubmit>();
+        GameObject subObj = ml.GetMenuItem();
+        var submit = subObj.GetComponent<ClickAccountSubmit>();
         string password = passwordInput.text;
         string userName = usernameInput.text;
         string cmd = cmdString + " " + userName + " " + password;
 
-        menuEnter.StartSubmit(cmd, userName, password);
+        submit.Start(cmd, userName, password);
     }
 }

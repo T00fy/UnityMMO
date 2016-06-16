@@ -7,27 +7,35 @@ using System.Text;
 using MMOServer;
 using System.Threading;
 
-public class Connection : MonoBehaviour {
-    private static MenuHandler menuHandler;
+public class EstablishConnection : MonoBehaviour {
+    public static Socket connectedSocket;
+
+    private MenuHandler menuHandler;
     private BasePacket packetToSend;
     private bool loggedIn;
-    private bool registering;
-    private bool loggingIn;
 
-    public Connection(BasePacket packetToSend, MenuHandler menuHandler, bool registering, bool loggingIn) {
+
+    //used mainly for logging in and registering, will display a statusbox with packet responses
+    public EstablishConnection(BasePacket packetToSend, MenuHandler menuHandler) {
         this.packetToSend = packetToSend;
         loggedIn = packetToSend.isAuthenticated();
-        this.registering = registering;
-        this.loggingIn = loggingIn;
+        this.menuHandler = menuHandler;
     }
 
-        //one class should just establish connection (ie this one)
-        //another class will act as a means to just send using the selected socket, might have to get socket from this class and pass it
-        //get subpackets
-        //store into basepacket and send when ready
-        //
+    public EstablishConnection(BasePacket packetToSend)
+    {
+        this.packetToSend = packetToSend;
+        loggedIn = packetToSend.isAuthenticated();
+    }
 
-    private void RegisterConnection()
+    //check that connection is already established
+    //if not establish connection
+    //send packet and then start receiving packets
+    //get subpackets
+    //store into basepacket and send when ready
+    //
+
+    public void Connect()
     {
         Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         try
@@ -44,30 +52,28 @@ public class Connection : MonoBehaviour {
         }
         catch (Exception e)
         {
-            menuHandler.DestroyStatusBox();
+            menuHandler.SetDestroyStatusBox();
             menuHandler.SetStatusText(e.Message);
             Debug.Log(e.Message);
         }
 
     }
 
-    private static void ConnectCallBack(IAsyncResult aSyncResult)
+    private void ConnectCallBack(IAsyncResult aSyncResult)
     {
-        Socket socket = (Socket)aSyncResult.AsyncState;
+        connectedSocket = (Socket)aSyncResult.AsyncState;
         try
         {
 
-            socket.EndConnect(aSyncResult);
+            connectedSocket.EndConnect(aSyncResult);
             menuHandler.SetStatusText("Established Connection");
-
-            Send(socket, packetToSend);
         }
         catch (Exception e)
         {
-            menuHandler.DestroyStatusBox();
+            menuHandler.SetDestroyStatusBox();
             menuHandler.SetStatusText(e.Message);
-            socket.Shutdown(SocketShutdown.Both);
-            socket.Close();
+            connectedSocket.Shutdown(SocketShutdown.Both);
+            connectedSocket.Close();
         }
 
 
@@ -75,49 +81,46 @@ public class Connection : MonoBehaviour {
 
 
     //redo this so it uses a separate class to queue sends
-    private static void Send(Socket client, BasePacket packetToSend)
+    public void Send()
     {
         // Convert the string data to byte data using ASCII encoding.
 
         // Begin sending the data to the remote device.
-        client.BeginSend(byteData, 0, byteData.Length, 0,
-            new AsyncCallback(SendCallBack), client);
+        connectedSocket.BeginSend(packetToSend.data, 0, packetToSend.data.Length, 0,
+            new AsyncCallback(SendCallBack), connectedSocket);
     }
 
-    private static void SendCallBack(IAsyncResult aSyncResult)
+    private void SendCallBack(IAsyncResult aSyncResult)
     {
-        Socket socket = (Socket)aSyncResult.AsyncState;
-        socket.EndSend(aSyncResult);
+        connectedSocket = (Socket)aSyncResult.AsyncState;
+        connectedSocket.EndSend(aSyncResult);
 
 
-        Receive(socket);
+        Receive(connectedSocket);
     }
 
 
 
-    private static void Receive(Socket client)
+    private void Receive(Socket connectedSocket)
     {
 
         try
         {
             // Create the state object.
-            StateObject state = new StateObject();
-            state.workSocket = client;
-
             // Begin receiving the data from the remote device.
-            client.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0,
-                new AsyncCallback(ReceiveCallBack), state);
+            connectedSocket.BeginReceive(, 0, 0xffff, 0,
+                new AsyncCallback(ReceiveCallBack), connectedSocket);
         }
         catch (Exception e)
         {
-            menuHandler.DestroyStatusBox();
+            menuHandler.SetDestroyStatusBox();
             menuHandler.SetStatusText(e.Message);
             client.Shutdown(SocketShutdown.Both);
             client.Close();
         }
     }
 
-    private static void ReceiveCallBack(IAsyncResult aSyncResult)
+    private void ReceiveCallBack(IAsyncResult aSyncResult)
     {
         StateObject state = (StateObject)aSyncResult.AsyncState;
         Socket socket = state.workSocket; //the callback socket

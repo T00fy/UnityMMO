@@ -34,7 +34,7 @@ public class MenuHandler : MonoBehaviour
         boxOpened = true;
     }
 
-    public void DestroyStatusBox() {
+    public void SetDestroyStatusBox() {
         finishedConnection = true;
 
     }
