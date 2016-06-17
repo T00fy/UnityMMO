@@ -7,15 +7,11 @@ using System.Text;
 using MMOServer;
 using System.Threading;
 
-public class PacketProcessor : MonoBehaviour {
-    public GameObject menuHandlerObj;
-  
-
+public class PacketProcessor {
     private string userName;
     private string password;
     private GameObject cursor;
     private IPAddress[] ip;
-    private MenuHandler menuHandler;
 
 
     //general case when receiving any packet and deciding what to do with it
@@ -24,46 +20,23 @@ public class PacketProcessor : MonoBehaviour {
 
     }
 
-    public void LoginOrRegister(string userName, string password) {
-        
-        this.userName = userName;
-        this.password = password;
+    public void LoginOrRegister(BasePacket packetToSend, MenuHandler statusBox) {
+        if (!packetToSend.isAuthenticated())
+        {
+            Connection connect = new Connection(statusBox);
+            connect.EstablishConnection(); //connection now established
+            connect.Send(packetToSend);
 
+        }
 
-
-        BasePacket packetToSend = GetBasePacketSomeHow(); //for logging in and registerin
-        EstablishConnection connect = new EstablishConnection();
-        connect.Connect();
-        connect.Send(packetToSend);
 
 
 
     }
 
-    private void CheckInputs()
-    {
-        if (password.Contains(" ") || userName.Contains(" "))
-        {
-            throw new Exception("Invalid character in Username or Password");
-        }
-        if (password == null && userName == null)
-        {
-            throw new Exception("Empty username or password");
-        }
-        if (password.Length < 4 || userName.Length < 3)
-        {
-            throw new Exception("Password and Username length must be greater than 4 characters");
-        }
-    }
 
 
-    private void OpenStatusBox()
-    {
-        menuHandler = menuHandlerObj.GetComponent<MenuHandler>();
-        cursor = GameObject.Find("Cursor");
-        menuHandler.SetCursor(cursor);
-        menuHandler.ToggleCursor(false);
-        menuHandler.OpenStatusBox();
-    }
+
+
 
 }

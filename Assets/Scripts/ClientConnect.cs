@@ -5,9 +5,10 @@ using MMOServer;
 using System.Net.Sockets;
 using System.Collections.Generic;
 
-public class ClientConnect : MonoBehaviour {
+public class ClientConnect {
     public Socket socket;
     public byte[] buffer = new byte[0xffff];
+    public bool isAuthenticated;
 //       public CircularBuffer<byte> incomingStream = new CircularBuffer<byte>(1024);
     public Queue<BasePacket> sendPacketQueue = new Queue<BasePacket>(100);
     public int lastPartialSize = 0;
@@ -22,10 +23,13 @@ public class ClientConnect : MonoBehaviour {
         sendPacketQueue.Enqueue(packet);
     }
 
-    public byte[] GetQueuedPacket()
+    public byte[] GetNextPacketInQueue()
     {
         if (!SocketConnected(socket))
+        {
             return null;
+        }
+            
 
         while (sendPacketQueue.Count > 0)
         {

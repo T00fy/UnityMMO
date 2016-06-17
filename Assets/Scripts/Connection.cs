@@ -7,7 +7,7 @@ using System.Text;
 using MMOServer;
 using System.Threading;
 
-public class EstablishConnection : MonoBehaviour {
+public class Connection {
     public static Socket socket;
     public const int BUFFER_SIZE = 65535;
 
@@ -19,17 +19,17 @@ public class EstablishConnection : MonoBehaviour {
 
     //used mainly for logging in and registering, will display a statusbox with packet 
 
-/*    public EstablishConnection(BasePacket packetToSend, MenuHandler menuHandler) {
-        this.packetToSend = packetToSend;
-        loggedIn = packetToSend.isAuthenticated();
-        this.menuHandler = menuHandler;
-    }
+    /*    public EstablishConnection(BasePacket packetToSend, MenuHandler menuHandler) {
+            this.packetToSend = packetToSend;
+            loggedIn = packetToSend.isAuthenticated();
+            this.menuHandler = menuHandler;
+        }
 
-    public EstablishConnection(BasePacket packetToSend)
-    {
-        this.packetToSend = packetToSend;
-        loggedIn = packetToSend.isAuthenticated();
-    }*/
+        public EstablishConnection(BasePacket packetToSend)
+        {
+            this.packetToSend = packetToSend;
+            loggedIn = packetToSend.isAuthenticated();
+        }*/
 
     //check that connection is already established
     //if not establish connection
@@ -38,8 +38,15 @@ public class EstablishConnection : MonoBehaviour {
     //store into basepacket and send when ready
     //
 
-    public void Connect()
+    public Connection(MenuHandler statusBox)
     {
+        menuHandler = statusBox;
+        clientConnection = new ClientConnect();
+    }
+
+    public void EstablishConnection()
+    {
+
         socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         try
         {
@@ -49,19 +56,24 @@ public class EstablishConnection : MonoBehaviour {
             menuHandler.SetStatusText("Connecting...");
 
             IPEndPoint remoteEP = new IPEndPoint(ip[0], 3425);
-            socket.BeginConnect(remoteEP, new AsyncCallback(ConnectCallBack), socket);
+         //   socket.Connect(remoteEP, new AsyncCallback(ConnectCallBack), socket);
+            socket.Connect(remoteEP);
+
+            clientConnection.socket = socket;
+            clientConnection.buffer = new byte[BUFFER_SIZE];
+            menuHandler.SetStatusText("Established Connection");
 
         }
         catch (Exception e)
         {
             menuHandler.SetDestroyStatusBox();
             menuHandler.SetStatusText(e.Message);
-            Debug.Log(e.Message);
+            Debug.Log(e);
         }
 
     }
 
-    private void ConnectCallBack(IAsyncResult aSyncResult)
+ /*   private void ConnectCallBack(IAsyncResult aSyncResult)
     {
         clientConnection = new ClientConnect();
         try
@@ -69,27 +81,23 @@ public class EstablishConnection : MonoBehaviour {
             socket = (Socket)aSyncResult.AsyncState;
             
             clientConnection.socket = socket.EndAccept(aSyncResult);
-            clientConnection.buffer = new byte[BUFFER_SIZE];
-            menuHandler.SetStatusText("Established Connection");
+
         }
         catch (Exception e)
         {
             menuHandler.SetDestroyStatusBox();
             menuHandler.SetStatusText(e.Message);
+            Debug.Log(e);
             clientConnection.socket.Shutdown(SocketShutdown.Both);
             clientConnection.socket.Close();
         }
 
 
-    }
+    }*/
 
-
-    //redo this so it uses a separate class to queue sends
     public void Send(BasePacket packetToSend)
     {
-        // Convert the string data to byte data using ASCII encoding.
 
-        // Begin sending the data to the remote device.
         clientConnection.socket.BeginSend(packetToSend.data, 0, packetToSend.data.Length, 0,
             new AsyncCallback(SendCallBack), clientConnection.socket);
     }
@@ -119,6 +127,7 @@ public class EstablishConnection : MonoBehaviour {
         {
             menuHandler.SetDestroyStatusBox();
             menuHandler.SetStatusText(e.Message);
+            Debug.Log(e);
             clientConnection.socket.Shutdown(SocketShutdown.Both);
             clientConnection.socket.Close();
         }

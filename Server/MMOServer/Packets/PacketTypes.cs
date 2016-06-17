@@ -8,8 +8,6 @@ namespace MMOServer
     public enum SubPacketTypes
     {
         Account,GamePacket,DBQuery
-
-
     }
 
     public enum BasePacketConnectionTypes

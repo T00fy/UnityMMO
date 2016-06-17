@@ -15,7 +15,7 @@ namespace MMOServer
 
             //else
             packet.debugPrintPacket();
-
+            Console.WriteLine("gets here");
             List<SubPacket> subPackets = packet.GetSubpackets();
             foreach (SubPacket subPacket in subPackets)
             {
@@ -31,7 +31,8 @@ namespace MMOServer
 
         private void ProcessAccountPacket(ClientConnection client, SubPacket packet)
         {
-            AccountPacket ap = new AccountPacket(packet.getHeaderBytes(), packet.data);
+            AccountPacket ap = new AccountPacket();
+            ap.Read(packet.getHeaderBytes(), packet.data);
             if (!ap.register)//if account is logging in
             {
                 Database db = new Database();

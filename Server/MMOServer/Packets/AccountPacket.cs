@@ -15,7 +15,7 @@ namespace MMOServer
         public string userName;
         public string passWord;
 
-        public AccountPacket(byte[] header, byte[] data)
+        public void Read(byte[] header, byte[] data)
         {
             MemoryStream mem = new MemoryStream(header);
             BinaryReader binReader = new BinaryReader(mem);
@@ -50,6 +50,32 @@ namespace MMOServer
             }
             mem.Dispose();
             binReader.Close();
+        }
+
+        public byte[] GetDataBytes(string userName, string passWord)
+        {
+            MemoryStream mem = new MemoryStream();
+            BinaryWriter bw = new BinaryWriter(mem);
+            byte[] data = new byte[2*(userName.Length + passWord.Length) + 10]; //2 bytes per character i believe plus some clearance space
+
+            try
+            {
+                bw.Write(userName);
+                bw.Write(passWord);
+                data = mem.GetBuffer();
+
+                mem.Dispose();
+                bw.Close();
+
+                return data;
+
+            }
+            catch (Exception)
+            {
+                Console.WriteLine("something went wrong in writing to account packet, check buffers");
+            }
+            throw new Exception("Error in GetDataBytes in Account Packet class, check buffers");
+
         }
     }
 }

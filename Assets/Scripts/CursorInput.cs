@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System;
 using UnityEngine.UI;
+using MMOServer;
 
 public class CursorInput : MonoBehaviour {
     
@@ -40,14 +41,14 @@ public class CursorInput : MonoBehaviour {
         }
 
         selectedOption = cm.GetSelectedOption();
-        string type = "";
+        string clientState = "";
         MenuLink ml = selectedOption.GetComponent<MenuLink>();
 
         if (ml != null) {
-            type = ml.GetState().ToString();
+            clientState = ml.GetState().ToString();
         }
 
-        if (type == "inputfield")
+        if (clientState == "inputfield")
         {
             inputField = ml.GetComponent<InputField>();
             
@@ -70,8 +71,8 @@ public class CursorInput : MonoBehaviour {
             if (Input.GetButtonDown("Fire1"))
             {
 
-                switch (type) {
-
+                switch (clientState) {
+                    
                     case "menu":
                         previousMenu.SetPrevious(activeMenu);
                         GameObject enterMenu = ml.GetMenuItem();
@@ -80,11 +81,11 @@ public class CursorInput : MonoBehaviour {
                         break;
 
                     case "register":
-                        LoginOrRegister("UsernameRegister", "PasswordRegister", "register", ml);
+                        SubmitAccount("UsernameRegister", "PasswordRegister", ml, true);
                         break;
 
                     case "login":
-                        LoginOrRegister("UsernameLogin", "PasswordLogin", "login", ml);
+                        SubmitAccount("UsernameLogin", "PasswordLogin", ml, false);
                         break;
 
 
@@ -133,8 +134,9 @@ public class CursorInput : MonoBehaviour {
 
     }
 
-    private void LoginOrRegister(string findUser, string findPass, string cmdString, MenuLink ml)
+    private void SubmitAccount(string findUser, string findPass, MenuLink ml, bool registering)
     {
+        
         GameObject passwordGameObj = GameObject.Find(findPass);
         InputField passwordInput = passwordGameObj.GetComponent<InputField>();
 
@@ -142,11 +144,61 @@ public class CursorInput : MonoBehaviour {
         InputField usernameInput = userGameObj.GetComponent<InputField>();
 
         GameObject subObj = ml.GetMenuItem();
-        var packetProcessor = subObj.GetComponent<PacketProcessor>();
+        PacketProcessor packetProcessor = new PacketProcessor();
         string password = passwordInput.text;
         string userName = usernameInput.text;
-        string cmd = cmdString + " " + userName + " " + password;
 
-        packetProcessor.LoginOrRegister(userName, password);
+        MenuHandler statusBox = OpenStatusBox();
+
+        try
+        {
+            CheckInputs(userName, password);
+            AccountPacket ap = new AccountPacket();
+            byte[] data = ap.GetDataBytes(userName, password);
+
+            //       bool register, uint lengthOfUsername, uint lengthOfPassword, uint sourceId, uint targetId, byte[] data, SubPacketTypes spt
+            SubPacket subPacket = new SubPacket(registering, (uint)userName.Length, (uint)password.Length, 0, 0, data, SubPacketTypes.Account);
+            BasePacket packetToSend = BasePacket.CreatePacket(subPacket, false, false);
+
+            packetProcessor.LoginOrRegister(packetToSend, statusBox);
+        }
+        catch (Exception e)
+        {
+            statusBox.SetStatusText(e.Message);
+            Debug.Log(e);
+            statusBox.SetDestroyStatusBox();
+        }
+
+
+
+        
+
+    }
+
+    private void CheckInputs(string userName, string password)
+    {
+        if (password.Contains(" ") || userName.Contains(" "))
+        {
+            throw new Exception("Invalid character in Username or Password");
+        }
+        if (password == null && userName == null)
+        {
+            throw new Exception("Empty username or password");
+        }
+        if (password.Length < 4 || userName.Length < 3)
+        {
+            throw new Exception("Password and Username length must be greater than 4 characters");
+        }
+    }
+
+    private MenuHandler OpenStatusBox()
+    {
+        GameObject menuHandlerObj = previousMenu.gameObject;
+        MenuHandler menuHandler = menuHandlerObj.GetComponent<MenuHandler>();
+        cursor = GameObject.Find("Cursor");
+        menuHandler.SetCursor(cursor);
+        menuHandler.ToggleCursor(false);
+        menuHandler.OpenStatusBox();
+        return menuHandler;
     }
 }
