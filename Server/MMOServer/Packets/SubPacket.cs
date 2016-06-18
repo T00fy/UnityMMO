@@ -19,14 +19,20 @@ namespace MMOServer
         public ushort opcode;
         public uint timestamp;
         public uint gamepacketMisc;
+        public uint gamepacketMisc2;
+        public ushort gamepacketMisc3;
     }
 
     [StructLayout(LayoutKind.Sequential)]
     public struct AccountHeader
     {
         public byte setForRegister;
-        public uint lengthOfUserName;
-        public uint lengthOfPassword;
+        public ushort lengthOfUserName;
+        public ushort lengthOfPassword;
+        public uint timeStamp;
+        public uint misc2;
+        public byte misc3;
+        public ushort misc4;
     }
 
     public class SubPacket
@@ -79,7 +85,7 @@ namespace MMOServer
                 data = new byte[header.subpacketSize - SUBPACKET_SIZE - ACCOUNTMESSAGE_SIZE];
                 Array.Copy(bytes, offset + SUBPACKET_SIZE + ACCOUNTMESSAGE_SIZE, data, 0, data.Length);
             }
-            else //else this is the payload
+            else //else no second header just data
             {
                 data = new byte[header.subpacketSize - SUBPACKET_SIZE];
                 Array.Copy(bytes, offset + SUBPACKET_SIZE, data, 0, data.Length);
@@ -103,6 +109,8 @@ namespace MMOServer
             header.type = (ushort)spt;
             header.subpacketMisc = 0x00;
             gameMessage.gamepacketMisc = 0x0;
+            gameMessage.gamepacketMisc2 = 0;
+            gameMessage.gamepacketMisc3 = 0;
 
             this.data = data;
 
@@ -110,7 +118,7 @@ namespace MMOServer
         }
 
         //Shorthand for SubPacket with account type
-        public SubPacket(bool register, uint lengthOfUsername, uint lengthOfPassword, uint sourceId, uint targetId, byte[] data, SubPacketTypes spt)
+        public SubPacket(bool register, ushort lengthOfUsername, ushort lengthOfPassword, uint sourceId, uint targetId, byte[] data, SubPacketTypes spt)
         {
             header = new SubPacketHeader();
             accountHeader = new AccountHeader();
@@ -124,6 +132,10 @@ namespace MMOServer
             }
             accountHeader.lengthOfUserName = lengthOfUsername;
             accountHeader.lengthOfPassword = lengthOfPassword;
+            accountHeader.timeStamp = Utils.UnixTimeStampUTC();
+            accountHeader.misc2 = 0;
+            accountHeader.misc3 = 0;
+            accountHeader.misc4 = 0;
             header.sourceId = sourceId;
             header.targetId = targetId;
 
@@ -131,8 +143,7 @@ namespace MMOServer
             header.subpacketMisc = 0x00;
 
             this.data = data;
-
-            header.subpacketSize = (ushort)(SUBPACKET_SIZE + GAMEMESSAGE_SIZE + data.Length);
+            header.subpacketSize = (ushort)(SUBPACKET_SIZE + ACCOUNTMESSAGE_SIZE + data.Length);
         }
 
         public SubPacket(SubPacket original, uint newTargetId)
@@ -158,6 +169,19 @@ namespace MMOServer
             return arr;
         }
 
+        public byte[] GetAccountHeaderBytes()
+        {
+            int size = Marshal.SizeOf(accountHeader);
+            byte[] arr = new byte[size];
+
+            IntPtr ptr = Marshal.AllocHGlobal(size);
+            Marshal.StructureToPtr(accountHeader, ptr, true);
+            Marshal.Copy(ptr, arr, 0, size);
+            Marshal.FreeHGlobal(ptr);
+            
+            return arr;
+        }
+
         public byte[] getGameMessageBytes()
         {
             int size = Marshal.SizeOf(gameMessage);
@@ -170,16 +194,28 @@ namespace MMOServer
             return arr;
         }
 
+        //returns all header + data bytes
         public byte[] getBytes()
         {
             byte[] outBytes = new byte[header.subpacketSize];
+            
             Array.Copy(getHeaderBytes(), 0, outBytes, 0, SUBPACKET_SIZE);
 
             if (header.type == (ushort)SubPacketTypes.GamePacket)
                 Array.Copy(getGameMessageBytes(), 0, outBytes, SUBPACKET_SIZE, GAMEMESSAGE_SIZE);
 
-            //if the header type field in the pcaket is the gamepacket, add GAMEMESSAGE_SIZE, otherwise add nothing)
-            Array.Copy(data, 0, outBytes, SUBPACKET_SIZE + (header.type == (ushort)SubPacketTypes.GamePacket ? GAMEMESSAGE_SIZE : 0), data.Length);
+            if (header.type == (ushort)SubPacketTypes.Account)
+            {
+                Array.Copy(GetAccountHeaderBytes(), 0, outBytes, SUBPACKET_SIZE, ACCOUNTMESSAGE_SIZE);
+            }
+
+                //if the header type field in the pcaket is the gamepacket, add GAMEMESSAGE_SIZE, otherwise add nothing)
+                Array.Copy(data, 0, outBytes, 
+                    SUBPACKET_SIZE + 
+                    (header.type == (ushort)SubPacketTypes.GamePacket ? GAMEMESSAGE_SIZE : 0) +
+                    (header.type == (ushort)SubPacketTypes.Account ? ACCOUNTMESSAGE_SIZE : 0),
+                    data.Length);
+            
             return outBytes;
         }
         
@@ -190,7 +226,9 @@ namespace MMOServer
             Console.WriteLine("Size: 0x{0:X}", header.subpacketSize);
             if (header.type == (ushort)SubPacketTypes.GamePacket)
                 Console.WriteLine("Opcode: 0x{0:X}", gameMessage.opcode);
-            Console.WriteLine("{0}", Utils.ByteArrayToHex(getHeaderBytes()));
+            if (header.type == (ushort)SubPacketTypes.Account)
+                Console.WriteLine("account header register: 0x{0:X}", accountHeader.setForRegister);
+            Console.WriteLine("raw header bytes: {0}", Utils.ByteArrayToHex(getHeaderBytes()));
             if (header.type == (ushort)SubPacketTypes.GamePacket)
                 Console.WriteLine("{0}", Utils.ByteArrayToHex(getGameMessageBytes()));
             Console.BackgroundColor = ConsoleColor.DarkMagenta;

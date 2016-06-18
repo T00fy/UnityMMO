@@ -11,7 +11,7 @@ namespace MMOServer
         public void ProcessPacket(ClientConnection client, BasePacket packet)
         {
 
-            BasePacket.DecryptPacket(client.blowfish, ref packet);
+    //        BasePacket.DecryptPacket(client.blowfish, ref packet);
 
             //else
             packet.debugPrintPacket();
@@ -32,11 +32,14 @@ namespace MMOServer
         private void ProcessAccountPacket(ClientConnection client, SubPacket packet)
         {
             AccountPacket ap = new AccountPacket();
-            ap.Read(packet.getHeaderBytes(), packet.data);
+            ap.Read(packet.GetAccountHeaderBytes(), packet.data);
+            Console.WriteLine("ACCOUNT PACKET REGISTER: " + ap.register);
+            Console.WriteLine("length of username" + ap.lengthOfUserName);
+            Console.WriteLine("length of pw" + ap.lengthOfPassword);
             if (!ap.register)//if account is logging in
             {
                 Database db = new Database();
-                List<string> account = db.CheckUserInDb(ap.userName, ap.passWord);
+                List<string> account = db.CheckUserInDb(ap.userName, ap.password);
                 switch (account.Count)
                 {
                     case 0:
@@ -65,10 +68,10 @@ namespace MMOServer
             else
             {
                 Database db = new Database();
-                var succeeded = db.AddUserToDb(ap.userName, ap.passWord);
+                var succeeded = db.AddUserToDb(ap.userName, ap.password);
                 if (succeeded)
                 {
-                    Console.WriteLine("Username: {0} Password: {1} has been registered successfully", ap.userName, ap.passWord);
+                    Console.WriteLine("Username: {0} Password: {1} has been registered successfully", ap.userName, ap.password);
                     SubPacket success = new SubPacket(GamePacketOpCode.Success, 0, 0, System.Text.Encoding.Unicode.GetBytes("Registration Successful"), SubPacketTypes.GamePacket);
                     BasePacket basePacket = BasePacket.CreatePacket(success, true, false);
                     client.QueuePacket(basePacket);

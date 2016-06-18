@@ -6,15 +6,20 @@ using System;
 using System.Text;
 using MMOServer;
 using System.Threading;
+using System.Collections.Generic;
 
 public class Connection {
-    public static Socket socket;
+    private Socket socket;
     public const int BUFFER_SIZE = 65535;
+    public byte[] buffer = new byte[0xffff];
+    public bool isAuthenticated;
+    //       public CircularBuffer<byte> incomingStream = new CircularBuffer<byte>(1024);
+    public Queue<BasePacket> sendPacketQueue = new Queue<BasePacket>(100);
+    public int lastPartialSize = 0;
 
     private MenuHandler menuHandler;
   //  private BasePacket packetToSend;
     private bool loggedIn;
-    private ClientConnect clientConnection;
 
 
     //used mainly for logging in and registering, will display a statusbox with packet 
@@ -41,7 +46,47 @@ public class Connection {
     public Connection(MenuHandler statusBox)
     {
         menuHandler = statusBox;
-        clientConnection = new ClientConnect();
+    }
+
+    public void Disconnect()
+    {
+        socket.Shutdown(SocketShutdown.Both);
+        socket.Disconnect(false);
+    }
+    public void QueuePacket(BasePacket packet)
+    {
+        sendPacketQueue.Enqueue(packet);
+    }
+
+    public byte[] GetNextPacketInQueue()
+    {
+        if (!SocketConnected(socket))
+        {
+            return null;
+        }
+
+
+        while (sendPacketQueue.Count > 0)
+        {
+            BasePacket packet = sendPacketQueue.Dequeue();
+            byte[] packetBytes = packet.GetPacketBytes();
+            byte[] buffer = new byte[0xffff];
+            Array.Copy(packetBytes, buffer, packetBytes.Length);
+            return buffer;
+        }
+        throw new Exception("Something happened in getting queued packet");
+
+    }
+
+
+    bool SocketConnected(Socket s)
+    {
+        bool part1 = s.Poll(1000, SelectMode.SelectRead);
+        bool part2 = (s.Available == 0);
+        if ((part1 && part2) || !s.Connected)
+            return false;
+        else
+            return true;
     }
 
     public void EstablishConnection()
@@ -59,8 +104,6 @@ public class Connection {
          //   socket.Connect(remoteEP, new AsyncCallback(ConnectCallBack), socket);
             socket.Connect(remoteEP);
 
-            clientConnection.socket = socket;
-            clientConnection.buffer = new byte[BUFFER_SIZE];
             menuHandler.SetStatusText("Established Connection");
 
         }
@@ -73,73 +116,60 @@ public class Connection {
 
     }
 
- /*   private void ConnectCallBack(IAsyncResult aSyncResult)
-    {
-        clientConnection = new ClientConnect();
-        try
-        {
-            socket = (Socket)aSyncResult.AsyncState;
-            
-            clientConnection.socket = socket.EndAccept(aSyncResult);
-
-        }
-        catch (Exception e)
-        {
-            menuHandler.SetDestroyStatusBox();
-            menuHandler.SetStatusText(e.Message);
-            Debug.Log(e);
-            clientConnection.socket.Shutdown(SocketShutdown.Both);
-            clientConnection.socket.Close();
-        }
 
 
-    }*/
+    /*   private void ConnectCallBack(IAsyncResult aSyncResult)
+       {
+           clientConnection = new ClientConnect();
+           try
+           {
+               socket = (Socket)aSyncResult.AsyncState;
+
+               clientConnection.socket = socket.EndAccept(aSyncResult);
+
+           }
+           catch (Exception e)
+           {
+               menuHandler.SetDestroyStatusBox();
+               menuHandler.SetStatusText(e.Message);
+               Debug.Log(e);
+               clientConnection.socket.Shutdown(SocketShutdown.Both);
+               clientConnection.socket.Close();
+           }
+
+
+       }*/
 
     public void Send(BasePacket packetToSend)
     {
+        if (socket == null)
+        {
+            Debug.Log("null as bro");
+        }
 
-        clientConnection.socket.BeginSend(packetToSend.data, 0, packetToSend.data.Length, 0,
-            new AsyncCallback(SendCallBack), clientConnection.socket);
+        Debug.Log("fml" + packetToSend.header.packetSize);
+        socket.BeginSend(packetToSend.GetPacketBytes(), 0, packetToSend.GetPacketBytes().Length, 0,
+            new AsyncCallback(SendCallBack), socket);
     }
 
     private void SendCallBack(IAsyncResult aSyncResult)
     {
-        clientConnection.socket = (Socket)aSyncResult.AsyncState;
-        clientConnection.socket.EndSend(aSyncResult);
+        socket = (Socket)aSyncResult.AsyncState;
+        socket.EndSend(aSyncResult);
 
-
-        Receive(clientConnection);
+        socket.BeginReceive(buffer, 0, buffer.Length, 0,
+    new AsyncCallback(ReceiveCallBack), socket);
     }
 
 
 
-    private void Receive(ClientConnect clientConnection)
-    {
-
-        try
-        {
-            // Create the state object.
-            // Begin receiving the data from the remote device.
-            clientConnection.socket.BeginReceive(clientConnection.buffer, 0, clientConnection.buffer.Length, 0,
-                new AsyncCallback(ReceiveCallBack), clientConnection.socket);
-        }
-        catch (Exception e)
-        {
-            menuHandler.SetDestroyStatusBox();
-            menuHandler.SetStatusText(e.Message);
-            Debug.Log(e);
-            clientConnection.socket.Shutdown(SocketShutdown.Both);
-            clientConnection.socket.Close();
-        }
-    }
 
     private void ReceiveCallBack(IAsyncResult aSyncResult)
     {
-        ClientConnect clientConnection = (ClientConnect)aSyncResult.AsyncState;
         PacketProcessor packetProcessor = new PacketProcessor();
         try
         {
-            int bytesRead = clientConnection.socket.EndReceive(aSyncResult);
+            int bytesRead = socket.EndReceive(aSyncResult);
 
 
             if (bytesRead > 0)
@@ -149,7 +179,7 @@ public class Connection {
                 //build/compile packets until can no longer or data is finished
                 while (true)
                 {
-                    BasePacket basePacket = BuildPacket(ref offset, clientConnection.buffer, bytesRead);
+                    BasePacket basePacket = BuildPacket(ref offset, buffer, bytesRead);
                     if (basePacket == null)
                     {
                         break;
@@ -157,26 +187,26 @@ public class Connection {
                     else
                     {
 
-                        packetProcessor.ProcessPacket(clientConnection, basePacket);
+                        packetProcessor.ProcessPacket(this, basePacket);
                     }
 
                 }
                 //Not all bytes consumed, transfer leftover to beginning
                 if (offset < bytesRead)
                 {
-                    Array.Copy(clientConnection.buffer, offset, clientConnection.buffer, 0, bytesRead - offset);
+                    Array.Copy(buffer, offset, buffer, 0, bytesRead - offset);
                 }
 
-                Array.Clear(clientConnection.buffer, bytesRead - offset, clientConnection.buffer.Length - (bytesRead - offset));
+                Array.Clear(buffer, bytesRead - offset, buffer.Length - (bytesRead - offset));
 
                 if (offset < bytesRead)
                 //need offset since not all bytes consumed
                 {
-                    clientConnection.socket.BeginReceive(clientConnection.buffer, bytesRead - offset, clientConnection.buffer.Length - (bytesRead - offset), SocketFlags.None, new AsyncCallback(ReceiveCallBack), clientConnection);
+                    socket.BeginReceive(buffer, bytesRead - offset, buffer.Length - (bytesRead - offset), SocketFlags.None, new AsyncCallback(ReceiveCallBack), socket);
                 }
                 else
                 {
-                    clientConnection.socket.BeginReceive(clientConnection.buffer, 0, clientConnection.buffer.Length, SocketFlags.None, new AsyncCallback(ReceiveCallBack), clientConnection);
+                    socket.BeginReceive(buffer, 0, buffer.Length, SocketFlags.None, new AsyncCallback(ReceiveCallBack), socket);
                 }
             }
             else

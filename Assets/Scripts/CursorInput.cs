@@ -150,24 +150,16 @@ public class CursorInput : MonoBehaviour {
 
         MenuHandler statusBox = OpenStatusBox();
 
-        try
-        {
             CheckInputs(userName, password);
-            AccountPacket ap = new AccountPacket();
-            byte[] data = ap.GetDataBytes(userName, password);
+        AccountPacket ap = new AccountPacket();
+        byte[] data = ap.GetDataBytes(userName, password);
 
-            //       bool register, uint lengthOfUsername, uint lengthOfPassword, uint sourceId, uint targetId, byte[] data, SubPacketTypes spt
-            SubPacket subPacket = new SubPacket(registering, (uint)userName.Length, (uint)password.Length, 0, 0, data, SubPacketTypes.Account);
-            BasePacket packetToSend = BasePacket.CreatePacket(subPacket, false, false);
+        //       bool register, uint lengthOfUsername, uint lengthOfPassword, uint sourceId, uint targetId, byte[] data, SubPacketTypes spt
+        SubPacket subPacket = new SubPacket(registering, (ushort)userName.Length, (ushort)password.Length, 0, 0, data, SubPacketTypes.Account);
+
+        BasePacket packetToSend = BasePacket.CreatePacket(subPacket, false, false);
 
             packetProcessor.LoginOrRegister(packetToSend, statusBox);
-        }
-        catch (Exception e)
-        {
-            statusBox.SetStatusText(e.Message);
-            Debug.Log(e);
-            statusBox.SetDestroyStatusBox();
-        }
 
 
 

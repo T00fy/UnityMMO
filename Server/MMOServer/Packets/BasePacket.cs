@@ -53,7 +53,7 @@ namespace MMOServer
             }
 
             int packetSize = header.packetSize;
-
+            Console.WriteLine("packetSize: " + packetSize);
             if (bytes.Length < offset + header.packetSize)
                 throw new OverflowException("Packet Error: Packet size didn't equal given size");
 

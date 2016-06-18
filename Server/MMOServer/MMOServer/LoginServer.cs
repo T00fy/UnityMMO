@@ -106,14 +106,15 @@ namespace MMOServer
         {
 
             //need to setup buffer of length PacketController 
-
             // Retrieve the state object and the handler socket
             // from the asynchronous state object.
             ClientConnection client = (ClientConnection)ar.AsyncState;
             PacketProcessor packetProcessor = new PacketProcessor();
             try
             {
+                
                 int bytesRead = client.socket.EndReceive(ar);
+                Console.WriteLine("bytes read" + bytesRead);
                 //allows to pause traffic and restart for debugging purposes.
                 bytesRead += client.lastPartialSize;
                 if (bytesRead > 0)
@@ -126,6 +127,7 @@ namespace MMOServer
                         BasePacket basePacket = BuildPacket(ref offset, client.buffer, bytesRead);
                         if (basePacket == null)
                         {
+                            Console.WriteLine("gets here");
                             break;
                         }
                         else
@@ -215,10 +217,12 @@ namespace MMOServer
 
             try
             {
+                
                 newPacket = new BasePacket(buffer, ref offset);
             }
             catch (OverflowException)
             {
+                Console.WriteLine("something fucked up fam overflow exception");
                 return null;
             }
 
