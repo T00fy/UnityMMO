@@ -17,7 +17,7 @@ namespace MMOServer
 
     public enum GamePacketOpCode
     {
-        Error,Success
+        AccountError,AccountSuccess
     }
 
     public enum ErrorCodes

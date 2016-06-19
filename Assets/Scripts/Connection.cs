@@ -16,18 +16,15 @@ public class Connection {
     //       public CircularBuffer<byte> incomingStream = new CircularBuffer<byte>(1024);
     public Queue<BasePacket> sendPacketQueue = new Queue<BasePacket>(100);
     public int lastPartialSize = 0;
-
-    private MenuHandler menuHandler;
   //  private BasePacket packetToSend;
-    private bool loggedIn;
 
 
     //used mainly for logging in and registering, will display a statusbox with packet 
 
-    /*    public EstablishConnection(BasePacket packetToSend, MenuHandler menuHandler) {
+    /*    public EstablishConnection(BasePacket packetToSend, CursorInput.menuHandler CursorInput.menuHandler) {
             this.packetToSend = packetToSend;
             loggedIn = packetToSend.isAuthenticated();
-            this.menuHandler = menuHandler;
+            this.CursorInput.menuHandler = CursorInput.menuHandler;
         }
 
         public EstablishConnection(BasePacket packetToSend)
@@ -43,9 +40,9 @@ public class Connection {
     //store into basepacket and send when ready
     //
 
-    public Connection(MenuHandler statusBox)
+    public Connection()
     {
-        menuHandler = statusBox;
+       
     }
 
     public void Disconnect()
@@ -98,19 +95,19 @@ public class Connection {
             IPAddress[] ip = Dns.GetHostAddresses("127.0.0.1");
 
 
-            menuHandler.SetStatusText("Connecting...");
+            CursorInput.menuHandler.SetStatusText("Connecting...");
 
             IPEndPoint remoteEP = new IPEndPoint(ip[0], 3425);
          //   socket.Connect(remoteEP, new AsyncCallback(ConnectCallBack), socket);
             socket.Connect(remoteEP);
 
-            menuHandler.SetStatusText("Established Connection");
+            CursorInput.menuHandler.SetStatusText("Established Connection");
 
         }
         catch (Exception e)
         {
-            menuHandler.SetDestroyStatusBox();
-            menuHandler.SetStatusText(e.Message);
+            CursorInput.menuHandler.SetDestroyStatusBox();
+            CursorInput.menuHandler.SetStatusText(e.Message);
             Debug.Log(e);
         }
 
@@ -130,8 +127,8 @@ public class Connection {
            }
            catch (Exception e)
            {
-               menuHandler.SetDestroyStatusBox();
-               menuHandler.SetStatusText(e.Message);
+               CursorInput.menuHandler.SetDestroyStatusBox();
+               CursorInput.menuHandler.SetStatusText(e.Message);
                Debug.Log(e);
                clientConnection.socket.Shutdown(SocketShutdown.Both);
                clientConnection.socket.Close();
@@ -187,7 +184,7 @@ public class Connection {
                     else
                     {
 
-                        packetProcessor.ProcessPacket(this, basePacket);
+                        packetProcessor.ProcessPacket(basePacket);
                     }
 
                 }
@@ -260,7 +257,7 @@ public class Connection {
 
     private void CloseSocket(Socket socket)
     {
-        menuHandler.SetDestroyStatusBox();
+        CursorInput.menuHandler.SetDestroyStatusBox();
         socket.Shutdown(SocketShutdown.Both);
         socket.Close();
     }

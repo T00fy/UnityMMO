@@ -56,7 +56,7 @@ namespace MMOServer
                     case 2:
                         //user and password found
                         Console.WriteLine("Username: {0} Password: {1} has logged in successfully", account[1], account[2]);
-                        SubPacket success = new SubPacket(GamePacketOpCode.Success, 0, 0, System.Text.Encoding.Unicode.GetBytes("Login Successful"), SubPacketTypes.GamePacket);
+                        SubPacket success = new SubPacket(GamePacketOpCode.AccountSuccess, 0, 0, System.Text.Encoding.Unicode.GetBytes("Login Successful"), SubPacketTypes.GamePacket);
                         BasePacket basePacket = BasePacket.CreatePacket(success, true, false);
                         client.QueuePacket(basePacket);
                         break;
@@ -72,7 +72,7 @@ namespace MMOServer
                 if (succeeded)
                 {
                     Console.WriteLine("Username: {0} Password: {1} has been registered successfully", ap.userName, ap.password);
-                    SubPacket success = new SubPacket(GamePacketOpCode.Success, 0, 0, System.Text.Encoding.Unicode.GetBytes("Registration Successful"), SubPacketTypes.GamePacket);
+                    SubPacket success = new SubPacket(GamePacketOpCode.AccountSuccess, 0, 0, System.Text.Encoding.Unicode.GetBytes("Registration Successful"), SubPacketTypes.GamePacket);
                     BasePacket basePacket = BasePacket.CreatePacket(success, true, false);
                     client.QueuePacket(basePacket);
                 }

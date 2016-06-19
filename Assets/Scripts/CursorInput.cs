@@ -4,8 +4,7 @@ using UnityEngine.UI;
 using MMOServer;
 
 public class CursorInput : MonoBehaviour {
-    
-    public MenuHandler previousMenu;
+    public static MenuHandler menuHandler;
 
     private GameObject cursor;
     private GameObject activeMenu;
@@ -18,6 +17,7 @@ public class CursorInput : MonoBehaviour {
 
     void Awake () {
         cursor = gameObject;
+        menuHandler = GameObject.Find("MenuHandler").GetComponent<MenuHandler>();
         string parent = cursor.transform.parent.name;
         activeMenu = GameObject.Find(parent);
         cm = gameObject.GetComponent<CursorMover>();
@@ -74,7 +74,7 @@ public class CursorInput : MonoBehaviour {
                 switch (clientState) {
                     
                     case "menu":
-                        previousMenu.SetPrevious(activeMenu);
+                        menuHandler.SetPrevious(activeMenu);
                         GameObject enterMenu = ml.GetMenuItem();
                         activeMenu.SetActive(false);
                         enterMenu.SetActive(true);
@@ -99,10 +99,10 @@ public class CursorInput : MonoBehaviour {
             {
 
                 //    enterMenu.SetActive(true);
-                if (previousMenu.GetPrevious() != null)
+                if (menuHandler.GetPrevious() != null)
                 {
                     activeMenu.SetActive(false);
-                    previousMenu.GetPrevious().SetActive(true);
+                    menuHandler.GetPrevious().SetActive(true);
 
                 }
 
@@ -148,9 +148,9 @@ public class CursorInput : MonoBehaviour {
         string password = passwordInput.text;
         string userName = usernameInput.text;
 
-        MenuHandler statusBox = OpenStatusBox();
+        OpenStatusBox();
 
-            CheckInputs(userName, password);
+        CheckInputs(userName, password);
         AccountPacket ap = new AccountPacket();
         byte[] data = ap.GetDataBytes(userName, password);
 
@@ -159,7 +159,7 @@ public class CursorInput : MonoBehaviour {
 
         BasePacket packetToSend = BasePacket.CreatePacket(subPacket, false, false);
 
-            packetProcessor.LoginOrRegister(packetToSend, statusBox);
+            packetProcessor.LoginOrRegister(packetToSend);
 
 
 
@@ -183,14 +183,11 @@ public class CursorInput : MonoBehaviour {
         }
     }
 
-    private MenuHandler OpenStatusBox()
+    private void OpenStatusBox()
     {
-        GameObject menuHandlerObj = previousMenu.gameObject;
-        MenuHandler menuHandler = menuHandlerObj.GetComponent<MenuHandler>();
         cursor = GameObject.Find("Cursor");
         menuHandler.SetCursor(cursor);
         menuHandler.ToggleCursor(false);
         menuHandler.OpenStatusBox();
-        return menuHandler;
     }
 }

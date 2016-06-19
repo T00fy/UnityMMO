@@ -29,7 +29,7 @@ namespace MMOServer
                 byte[] data = memStream.GetBuffer();
                 memStream.Dispose();
                 binWriter.Close();
-                SubPacket subPacket = new SubPacket(GamePacketOpCode.Error, 0, 0, data, SubPacketTypes.GamePacket);
+                SubPacket subPacket = new SubPacket(GamePacketOpCode.AccountError, 0, 0, data, SubPacketTypes.GamePacket);
                 return subPacket;
             }
             catch (Exception)

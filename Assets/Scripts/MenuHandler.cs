@@ -6,6 +6,7 @@ public class MenuHandler : MonoBehaviour
 {
     public GameObject statusBoxPrefab;
     public GameObject characterSelectPrefab;
+    
 
     private GameObject previousMenu;
     private bool loginSuccessful;
@@ -26,6 +27,10 @@ public class MenuHandler : MonoBehaviour
 
     public GameObject GetPrevious() {
         return previousMenu;
+    }
+
+    public bool BoxOpened() {
+        return boxOpened;
     }
 
     public void OpenStatusBox() {

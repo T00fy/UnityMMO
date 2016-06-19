@@ -36,7 +36,7 @@ namespace MMOServer
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.ToString());
+                Console.WriteLine(e.Message);
                 return false;
 
             }

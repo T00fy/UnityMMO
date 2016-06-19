@@ -5,6 +5,10 @@ using MMOServer;
 using System.Net.Sockets;
 using System.Collections.Generic;
 
+
+
+
+//class deprecated, delete when sure it won't affect shit
 public class ClientConnect {
     public Socket socket;
     public byte[] buffer = new byte[0xffff];
