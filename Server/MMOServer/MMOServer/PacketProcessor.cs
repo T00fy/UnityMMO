@@ -32,6 +32,7 @@ namespace MMOServer
         private void ProcessAccountPacket(ClientConnection client, SubPacket packet)
         {
             AccountPacket ap = new AccountPacket();
+            ErrorPacket ep = new ErrorPacket();
             ap.Read(packet.GetAccountHeaderBytes(), packet.data);
             Console.WriteLine("ACCOUNT PACKET REGISTER: " + ap.register);
             Console.WriteLine("length of username" + ap.lengthOfUserName);
@@ -43,14 +44,14 @@ namespace MMOServer
                 switch (account.Count)
                 {
                     case 0:
-                        ErrorPacket errorPacket = new ErrorPacket(ErrorCodes.NoAccount, "Account does not exist");
-                        QueueErrorPacket(errorPacket, client);
+                        var packetToSend = ep.buildPacket(ErrorCodes.NoAccount, "Account does not exist");
+                        QueueErrorPacket(packetToSend, client);
                         break;
 
                     case 1:
                         //password incorrect
-                        ErrorPacket errorPacket2 = new ErrorPacket(ErrorCodes.WrongPassword, "Wrong username or password");
-                        QueueErrorPacket(errorPacket2, client);
+                        packetToSend = ep.buildPacket(ErrorCodes.WrongPassword, "Wrong username or password");
+                        QueueErrorPacket(packetToSend, client);
                         break;
 
                     case 2:
@@ -65,7 +66,7 @@ namespace MMOServer
                         throw new Exception("somehow found more than 2 colums in DB");
                 }
             }
-            else
+            else //account is registering
             {
                 Database db = new Database();
                 var succeeded = db.AddUserToDb(ap.userName, ap.password);
@@ -78,17 +79,16 @@ namespace MMOServer
                 }
                 else
                 {
-                    ErrorPacket errorPacket = new ErrorPacket(ErrorCodes.DuplicateAccount, "Account already registered");
-                    QueueErrorPacket(errorPacket, client);
+                    var packetToSend = ep.buildPacket(ErrorCodes.DuplicateAccount, "Account already registered");
+                    QueueErrorPacket(packetToSend, client);
                 }
 
 
             }
         }
 
-        private void QueueErrorPacket(ErrorPacket errorPacket, ClientConnection client)
+        private void QueueErrorPacket(SubPacket subPacket, ClientConnection client)
         {
-            SubPacket subPacket = errorPacket.buildPacket();
             BasePacket errorBasePacket = BasePacket.CreatePacket(subPacket, false, false);
             client.QueuePacket(errorBasePacket);
         }

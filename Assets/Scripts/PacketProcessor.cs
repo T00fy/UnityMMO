@@ -40,8 +40,16 @@ public class PacketProcessor {
                 }
                 if (subPacket.gameMessage.opcode == (ushort)GamePacketOpCode.AccountError)
                 {
-                    CursorInput.menuHandler.SetStatusText(Encoding.Unicode.GetString(subPacket.data));
-                    
+                    stdOut = System.Console.Out;
+                    consoleOut = new System.IO.StringWriter();
+                    System.Console.SetOut(consoleOut);
+                    ErrorPacket ep = new ErrorPacket();
+                    ep.ReadPacket(subPacket.data);
+                    string msg = ep.GetErrorMessage();
+                    CursorInput.menuHandler.SetStatusText(msg);
+                    Debug.Log(consoleOut.ToString());
+                    System.Console.SetOut(stdOut);
+
                 }
 
             }
