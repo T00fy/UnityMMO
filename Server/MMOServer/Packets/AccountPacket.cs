@@ -19,6 +19,8 @@ namespace MMOServer
 
         public void Read(byte[] header, byte[] data)
         {
+
+            //reading the header
             MemoryStream mem = new MemoryStream(header);
             BinaryReader binReader = new BinaryReader(mem);
                 {
@@ -48,6 +50,8 @@ namespace MMOServer
                     }
                 }
 
+
+            //reading the data
             if (!invalidPacket)
             {
                 MemoryStream dataMem = new MemoryStream(data);

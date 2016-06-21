@@ -44,6 +44,34 @@ namespace MMOServer
             return new string(result);
         }
 
+        public static ushort SwapEndianUShort(byte[] bytes)
+        {
+            Array.Reverse(bytes);
+            ushort converted = BitConverter.ToUInt16(bytes, 0);
+            return converted;
+        }
+
+        public static uint SwapEndianUInt(byte[] bytes)
+        {
+            Array.Reverse(bytes);
+            uint converted = BitConverter.ToUInt32(bytes, 0);
+            return converted;
+        }
+
+        public static short SwapEndianShort(byte[] bytes)
+        {
+            Array.Reverse(bytes);
+            short converted = BitConverter.ToInt16(bytes, 0);
+            return converted;
+        }
+
+        public static int SwapEndianInt(byte[] bytes)
+        {
+            Array.Reverse(bytes);
+            var converted = BitConverter.ToInt32(bytes, 0);
+            return converted;
+        }
+
         public static uint UnixTimeStampUTC()
         {
             uint unixTimeStamp;

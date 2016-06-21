@@ -15,7 +15,6 @@ namespace MMOServer
 
             //else
             packet.debugPrintPacket();
-            Console.WriteLine("gets here");
             List<SubPacket> subPackets = packet.GetSubpackets();
             foreach (SubPacket subPacket in subPackets)
             {
@@ -34,9 +33,6 @@ namespace MMOServer
             AccountPacket ap = new AccountPacket();
             ErrorPacket ep = new ErrorPacket();
             ap.Read(packet.GetAccountHeaderBytes(), packet.data);
-            Console.WriteLine("ACCOUNT PACKET REGISTER: " + ap.register);
-            Console.WriteLine("length of username" + ap.lengthOfUserName);
-            Console.WriteLine("length of pw" + ap.lengthOfPassword);
             if (!ap.register)//if account is logging in
             {
                 Database db = new Database();

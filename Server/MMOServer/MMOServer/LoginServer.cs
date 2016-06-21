@@ -127,7 +127,6 @@ namespace MMOServer
                         BasePacket basePacket = BuildPacket(ref offset, client.buffer, bytesRead);
                         if (basePacket == null)
                         {
-                            Console.WriteLine("gets here");
                             break;
                         }
                         else

@@ -23,17 +23,13 @@ namespace MMOServer
 
         public void ReadPacket(byte[] data)
         {
-            MemoryStream mem = new MemoryStream();
+            MemoryStream mem = new MemoryStream(data); //NEED TO PASS IN BYTE ARRAY WHEN READING!!! FML
             BinaryReader bReader = new BinaryReader(mem);
 
             try
             {
-
-                // need to fix this, doesn't return anything meaningful
-                errorId = SwapEndianUInt(bReader.ReadBytes(sizeof(uint)));
-                int count = SwapEndianInt(bReader.ReadBytes(sizeof(int)));
-                Console.WriteLine(count);
-                errorMessage = Encoding.Unicode.GetString(bReader.ReadBytes(count));
+                errorId = bReader.ReadUInt16(); //for some reason don't have to swap endian no fucking idea why
+                errorMessage = Encoding.Unicode.GetString(bReader.ReadBytes(data.Length));
 
                 mem.Dispose();
                 bReader.Close();
@@ -44,30 +40,16 @@ namespace MMOServer
             }
         }
 
-        private int SwapEndianInt(byte[] bytes)
-        {
-            Array.Reverse(bytes);
-            var converted = BitConverter.ToInt32(bytes, 0);
-            return converted;
-        }
-
-        private uint SwapEndianUInt(byte[] bytes)
-        {
-            Array.Reverse(bytes);
-            var converted = BitConverter.ToUInt32(bytes, 0);
-            return converted;
-        }
-
         public SubPacket buildPacket(ErrorCodes errorId, string message)
         {
             byte[] msg = Encoding.Unicode.GetBytes(message);
+            var errorIdConv = (ushort)errorId;
             MemoryStream memStream = new MemoryStream();
             BinaryWriter binWriter = new BinaryWriter(memStream);
 
             try
             {
-                binWriter.Write((uint)errorId);
-                binWriter.Write(msg.Length);
+                binWriter.Write(errorIdConv);
                 binWriter.Write(msg);
 
                 byte[] data = memStream.GetBuffer();

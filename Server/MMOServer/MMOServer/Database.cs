@@ -30,7 +30,7 @@ namespace MMOServer
             }
             catch (MySqlException e)
             {
-                Console.WriteLine(e.ToString());
+          //      Console.WriteLine(e.ToString());
                 Console.WriteLine("Duplicate username attempted to be registered");
                 return false;
             }

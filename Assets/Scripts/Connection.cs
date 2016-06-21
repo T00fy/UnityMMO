@@ -144,7 +144,6 @@ public class Connection {
             Debug.Log("null as bro");
         }
 
-        Debug.Log("fml" + packetToSend.header.packetSize);
         socket.BeginSend(packetToSend.GetPacketBytes(), 0, packetToSend.GetPacketBytes().Length, 0,
             new AsyncCallback(SendCallBack), socket);
     }

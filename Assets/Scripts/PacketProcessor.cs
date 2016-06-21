@@ -25,12 +25,12 @@ public class PacketProcessor {
         List<SubPacket> subPackets = receivedPacket.GetSubpackets();
         foreach (SubPacket subPacket in subPackets)
         {
-            var stdOut = System.Console.Out;
+          /*  var stdOut = System.Console.Out;
             var consoleOut = new System.IO.StringWriter();
             System.Console.SetOut(consoleOut);
             subPacket.debugPrintSubPacket();
             Debug.Log(consoleOut.ToString());
-            System.Console.SetOut(stdOut);
+            System.Console.SetOut(stdOut);*/
 
             if (subPacket.header.type == (ushort)SubPacketTypes.GamePacket)
             {
@@ -40,15 +40,10 @@ public class PacketProcessor {
                 }
                 if (subPacket.gameMessage.opcode == (ushort)GamePacketOpCode.AccountError)
                 {
-                    stdOut = System.Console.Out;
-                    consoleOut = new System.IO.StringWriter();
-                    System.Console.SetOut(consoleOut);
                     ErrorPacket ep = new ErrorPacket();
                     ep.ReadPacket(subPacket.data);
                     string msg = ep.GetErrorMessage();
                     CursorInput.menuHandler.SetStatusText(msg);
-                    Debug.Log(consoleOut.ToString());
-                    System.Console.SetOut(stdOut);
 
                 }
 
