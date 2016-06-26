@@ -148,7 +148,7 @@ public class CursorInput : MonoBehaviour {
         string password = passwordInput.text;
         string userName = usernameInput.text;
 
-        OpenStatusBox();
+        OpenStatusBox(); //need to change this so it uses a separate login status box with a menulink set to character select, script should read text and make sure it says login successful
 
         CheckInputs(userName, password);
         AccountPacket ap = new AccountPacket();

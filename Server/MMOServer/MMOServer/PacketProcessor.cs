@@ -52,7 +52,7 @@ namespace MMOServer
 
                     case 2:
                         //user and password found
-                        Console.WriteLine("Username: {0} Password: {1} has logged in successfully", account[1], account[2]);
+                        Console.WriteLine("Username: {0} Password: {1} has logged in successfully", account[0], account[1]);
                         SubPacket success = new SubPacket(GamePacketOpCode.AccountSuccess, 0, 0, System.Text.Encoding.Unicode.GetBytes("Login Successful"), SubPacketTypes.GamePacket);
                         BasePacket basePacket = BasePacket.CreatePacket(success, true, false);
                         client.QueuePacket(basePacket);

@@ -16,6 +16,7 @@ public class MenuHandler : MonoBehaviour
     private bool boxOpened;
     private GameObject cursor;
     private bool finishedConnection;
+    private bool statusBoxClosed;
 
     public void SetPrevious(GameObject activeMenu) {
         previousMenu = activeMenu;
@@ -33,22 +34,23 @@ public class MenuHandler : MonoBehaviour
         return boxOpened;
     }
 
+    public bool StatusBoxIsClosed()
+    {
+        return statusBoxClosed;
+    }
+
     public void OpenStatusBox() {
         status = Instantiate(statusBoxPrefab, new Vector3(0, 0, 0), Quaternion.identity) as GameObject;
         statusTextObj = status.GetComponentInChildren<Text>();
         boxOpened = true;
     }
 
+    /// <summary>
+    /// Sets the Status box okay to be destroyed after user input
+    /// </summary>
     public void SetDestroyStatusBox() {
         finishedConnection = true;
 
-    }
-
-    public void SetLoginSuccessful(bool b) {
-        loginSuccessful = b;
-        if (loginSuccessful == true) {
-            DisplayCharacterScreen();
-        }
     }
 
     public void SetCursor(GameObject cursor)
@@ -62,14 +64,19 @@ public class MenuHandler : MonoBehaviour
 
     }
 
-    private void DisplayCharacterScreen() {
-        
-
-    }
-
     public void SetStatusText(string statusText)
     {
         this.statusText = statusText;
+    }
+
+
+    /// <summary>
+    /// Destroys the status box instantly, without waiting for user input
+    /// </summary>
+    public void DestroyStatusBox()
+    {
+        Destroy(status);
+        statusBoxClosed = true;
     }
 
 
@@ -78,6 +85,7 @@ public class MenuHandler : MonoBehaviour
         if (Input.GetButtonDown("Fire1") && finishedConnection && status != null)
         {
             Destroy(status);
+            statusBoxClosed = true;
 
         }
 

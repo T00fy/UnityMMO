@@ -25,29 +25,38 @@ public class PacketProcessor {
         List<SubPacket> subPackets = receivedPacket.GetSubpackets();
         foreach (SubPacket subPacket in subPackets)
         {
-          /*  var stdOut = System.Console.Out;
-            var consoleOut = new System.IO.StringWriter();
-            System.Console.SetOut(consoleOut);
-            subPacket.debugPrintSubPacket();
-            Debug.Log(consoleOut.ToString());
-            System.Console.SetOut(stdOut);*/
+            /*  var stdOut = System.Console.Out;
+              var consoleOut = new System.IO.StringWriter();
+              System.Console.SetOut(consoleOut);
+              subPacket.debugPrintSubPacket();
+              Debug.Log(consoleOut.ToString());
+              System.Console.SetOut(stdOut);*/
 
-            if (subPacket.header.type == (ushort)SubPacketTypes.GamePacket)
+            if (!receivedPacket.isAuthenticated())
+            {
+                if (subPacket.header.type == (ushort)SubPacketTypes.GamePacket)
+                {
+                    if (subPacket.gameMessage.opcode == (ushort)GamePacketOpCode.AccountError)
+                    {
+                        ErrorPacket ep = new ErrorPacket();
+                        ep.ReadPacket(subPacket.data);
+                        string msg = ep.GetErrorMessage();
+                        CursorInput.menuHandler.SetStatusText(msg);
+
+                    }
+
+                }
+            }
+            else
             {
                 if (subPacket.gameMessage.opcode == (ushort)GamePacketOpCode.AccountSuccess)
                 {
                     CursorInput.menuHandler.SetStatusText(Encoding.Unicode.GetString(subPacket.data));
-                }
-                if (subPacket.gameMessage.opcode == (ushort)GamePacketOpCode.AccountError)
-                {
-                    ErrorPacket ep = new ErrorPacket();
-                    ep.ReadPacket(subPacket.data);
-                    string msg = ep.GetErrorMessage();
-                    CursorInput.menuHandler.SetStatusText(msg);
+                    
 
                 }
-
             }
+
             CursorInput.menuHandler.SetDestroyStatusBox();
 
         }
