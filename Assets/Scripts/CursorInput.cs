@@ -20,6 +20,7 @@ public class CursorInput : MonoBehaviour {
         menuHandler = GameObject.Find("MenuHandler").GetComponent<MenuHandler>();
         string parent = cursor.transform.parent.name;
         activeMenu = GameObject.Find(parent);
+        menuHandler.SetActiveMenu(activeMenu);
         cm = gameObject.GetComponent<CursorMover>();
         selectedOption = cm.GetSelectedOption();
     }
@@ -74,10 +75,7 @@ public class CursorInput : MonoBehaviour {
                 switch (clientState) {
                     
                     case "menu":
-                        menuHandler.SetPrevious(activeMenu);
-                        GameObject enterMenu = ml.GetMenuItem();
-                        activeMenu.SetActive(false);
-                        enterMenu.SetActive(true);
+                        menuHandler.EnterMenu(ml.GetMenuItem(), activeMenu);
                         break;
 
                     case "register":
@@ -101,8 +99,7 @@ public class CursorInput : MonoBehaviour {
                 //    enterMenu.SetActive(true);
                 if (menuHandler.GetPrevious() != null)
                 {
-                    activeMenu.SetActive(false);
-                    menuHandler.GetPrevious().SetActive(true);
+                    menuHandler.EnterMenu(menuHandler.GetPrevious(), activeMenu);
 
                 }
 
@@ -154,7 +151,7 @@ public class CursorInput : MonoBehaviour {
         AccountPacket ap = new AccountPacket();
         byte[] data = ap.GetDataBytes(userName, password);
 
-        //       bool register, uint lengthOfUsername, uint lengthOfPassword, uint sourceId, uint targetId, byte[] data, SubPacketTypes spt
+        
         SubPacket subPacket = new SubPacket(registering, (ushort)userName.Length, (ushort)password.Length, 0, 0, data, SubPacketTypes.Account);
 
         BasePacket packetToSend = BasePacket.CreatePacket(subPacket, false, false);

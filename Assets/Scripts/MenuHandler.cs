@@ -6,8 +6,9 @@ public class MenuHandler : MonoBehaviour
 {
     public GameObject statusBoxPrefab;
     public GameObject characterSelectPrefab;
-    
+    public GameObject characterMenu;
 
+    private GameObject activeMenu;
     private GameObject previousMenu;
     private bool loginSuccessful;
     private GameObject status;
@@ -17,6 +18,16 @@ public class MenuHandler : MonoBehaviour
     private GameObject cursor;
     private bool finishedConnection;
     private bool statusBoxClosed;
+
+    public void SetActiveMenu(GameObject current)
+    {
+        activeMenu = current;
+    }
+
+    public GameObject GetActiveMenu()
+    {
+        return activeMenu;
+    }
 
     public void SetPrevious(GameObject activeMenu) {
         previousMenu = activeMenu;
@@ -86,6 +97,11 @@ public class MenuHandler : MonoBehaviour
         {
             Destroy(status);
             statusBoxClosed = true;
+            if (loginSuccessful)
+            {
+                EnterMenu(characterMenu, activeMenu);
+                loginSuccessful = false;
+            }
 
         }
 
@@ -104,5 +120,16 @@ public class MenuHandler : MonoBehaviour
 
     }
 
+    public void LoggedInSuccessfully()
+    {
+        loginSuccessful = true; 
+    }
 
+    public void EnterMenu(GameObject enterMenu, GameObject previousMenu)
+    {
+        this.previousMenu = previousMenu;
+        previousMenu.SetActive(false);
+        enterMenu.SetActive(true);
+        activeMenu = enterMenu;
+    }
 }

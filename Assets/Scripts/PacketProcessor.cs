@@ -11,7 +11,25 @@ using System.Collections.Generic;
 public class PacketProcessor {
     public Connection connect;
 
-    //general case when receiving any packet and deciding what to do with it
+    /// <summary>
+    /// Establishes the initial connection and sends the first login or registration packet
+    /// </summary>
+    /// <param name="packetToSend"></param>
+    public void LoginOrRegister(BasePacket packetToSend)
+    {
+        if (!packetToSend.isAuthenticated())
+        {
+            Connection connect = new Connection();
+            connect.EstablishConnection(); //connection now established
+            connect.Send(packetToSend);
+
+        }
+    }
+
+    /// <summary>
+    /// All incoming packets are handled through this and then directed to the appropriate function
+    /// </summary>
+    /// <param name="receivedPacket"></param>
     public void ProcessPacket(BasePacket receivedPacket)
     {
         if (connect == null)
@@ -49,12 +67,17 @@ public class PacketProcessor {
             }
             else
             {
-                if (subPacket.gameMessage.opcode == (ushort)GamePacketOpCode.AccountSuccess)
+                switch (subPacket.gameMessage.opcode)
                 {
-                    CursorInput.menuHandler.SetStatusText(Encoding.Unicode.GetString(subPacket.data));
-                    
+                    case ((ushort)GamePacketOpCode.AccountSuccess):
+                        CursorInput.menuHandler.SetStatusText(Encoding.Unicode.GetString(subPacket.data));
+                        CursorInput.menuHandler.LoggedInSuccessfully();
+                        break;
 
-                }
+                    default:
+                        Debug.Log("Unknown or corrupted packet");
+                        break;
+                    }
             }
 
             CursorInput.menuHandler.SetDestroyStatusBox();
@@ -62,19 +85,10 @@ public class PacketProcessor {
         }
     }
 
-    public void LoginOrRegister(BasePacket packetToSend) {
-        if (!packetToSend.isAuthenticated())
-        {
-            Connection connect = new Connection();
-            connect.EstablishConnection(); //connection now established
-            connect.Send(packetToSend);
-
-        }
 
 
 
-
-    }
+    
 
 
 
