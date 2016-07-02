@@ -97,9 +97,10 @@ public class CursorInput : MonoBehaviour {
             {
 
                 //    enterMenu.SetActive(true);
-                if (menuHandler.GetPrevious() != null)
+                if (menuHandler.GetPrevious() != null && menuHandler.GetPrevious() != menuHandler.characterMenu)
                 {
                     menuHandler.EnterMenu(menuHandler.GetPrevious(), activeMenu);
+                    
 
                 }
 
