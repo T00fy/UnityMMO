@@ -95,9 +95,14 @@ public class CursorInput : MonoBehaviour {
 
             if (Input.GetButtonDown("Fire2"))
             {
-
+                //rewrite this in future so that cancel only goes up a menu and does not enable previous menu
                 //    enterMenu.SetActive(true);
-                if (menuHandler.GetPrevious() != null && menuHandler.GetPrevious() != menuHandler.characterMenu)
+
+                if (menuHandler.GetPrevious() == menuHandler.characterMenu && menuHandler.GetActiveMenu() == menuHandler.login)
+                {
+                    menuHandler.SetPrevious(menuHandler.home);
+                }
+                if (menuHandler.GetPrevious() != null)
                 {
                     menuHandler.EnterMenu(menuHandler.GetPrevious(), activeMenu);
                     

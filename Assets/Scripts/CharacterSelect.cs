@@ -15,10 +15,11 @@ public class CharacterSelect : MonoBehaviour {
         selectedGameObject = cm.GetSelectedOption();
         selectedCharacter = selectedGameObject;
         selectedText = selectedGameObject.GetComponent<Text>();
+        
     }
 	// Update is called once per frame
 	void Update () {
-
+        CursorInput.menuHandler.SetPrevious(CursorInput.menuHandler.login);
 
         selectedText.color = Color.red;
         if (Input.GetButtonDown("Fire1"))

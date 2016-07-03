@@ -8,6 +8,7 @@ public class MenuHandler : MonoBehaviour
     public GameObject characterSelectPrefab;
     public GameObject characterMenu;
     public GameObject home;
+    public GameObject login;
 
     private GameObject activeMenu;
     private GameObject previousMenu;
@@ -102,7 +103,6 @@ public class MenuHandler : MonoBehaviour
             {
                 EnterMenu(characterMenu, activeMenu);
                 loginSuccessful = false;
-                previousMenu = home;
             }
 
         }
