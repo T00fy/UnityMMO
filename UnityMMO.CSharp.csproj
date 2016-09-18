@@ -78,6 +78,7 @@
     <Compile Include="Assets\Scripts\CursorMover.cs" />
     <Compile Include="Assets\Scripts\MenuHandler.cs" />
     <Compile Include="Assets\Scripts\MenuLink.cs" />
+    <Compile Include="Assets\Scripts\MenuTree.cs" />
     <Compile Include="Assets\Scripts\PacketProcessor.cs" />
     <Compile Include="Assets\Scripts\TextFieldHandler.cs" />
   </ItemGroup>

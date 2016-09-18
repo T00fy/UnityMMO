@@ -9,6 +9,7 @@ public class MenuHandler : MonoBehaviour
     public GameObject characterMenu;
     public GameObject home;
     public GameObject login;
+    public GameObject[] menus;
 
     private GameObject activeMenu;
     private GameObject previousMenu;
@@ -19,7 +20,29 @@ public class MenuHandler : MonoBehaviour
     private bool boxOpened;
     private GameObject cursor;
     private bool finishedConnection;
-    private bool statusBoxClosed;
+    private MenuTree<GameObject> root;
+
+    void Start()
+    {
+        InitializeMenuHeirarchy();
+    }
+
+    private void InitializeMenuHeirarchy()
+    {
+        root = new MenuTree<GameObject>(home);
+        {
+            var loginMenu = root.AddChild(menus[1]);
+            {
+                var characterMenu = loginMenu.AddChild(menus[2]);
+                {
+                    var characterSelection = characterMenu.AddChild(menus[3]);//character creation
+                }
+            } //login
+
+            var registerMenu = root.AddChild(menus[4]); //register
+        }
+        activeMenu = root.Data;
+    }
 
     public void SetActiveMenu(GameObject current)
     {
@@ -40,6 +63,7 @@ public class MenuHandler : MonoBehaviour
     }
 
     public GameObject GetPrevious() {
+        
         return previousMenu;
     }
 
@@ -47,15 +71,12 @@ public class MenuHandler : MonoBehaviour
         return boxOpened;
     }
 
-    public bool StatusBoxIsClosed()
-    {
-        return statusBoxClosed;
-    }
-
     public void OpenStatusBox() {
         status = Instantiate(statusBoxPrefab, new Vector3(0, 0, 0), Quaternion.identity) as GameObject;
+        root.FindMenuTree(node => node.Data == activeMenu).AddChild(status);
         statusTextObj = status.GetComponentInChildren<Text>();
-        boxOpened = true;
+   //     boxOpened = true;
+        activeMenu = status;
     }
 
     /// <summary>
@@ -86,37 +107,52 @@ public class MenuHandler : MonoBehaviour
     /// <summary>
     /// Destroys the status box instantly, without waiting for user input
     /// </summary>
-    public void DestroyStatusBox()
+    private void DestroyStatusBox()
     {
+        activeMenu = root.FindMenuTree(node => node.Data == activeMenu).Parent.Data;
+        root.RemoveChild(root.FindMenuTree(node => node.Data == activeMenu));
         Destroy(status);
-        statusBoxClosed = true;
     }
 
 
     void Update()
     {
-        if (Input.GetButtonDown("Fire1") && finishedConnection && status != null)
+        if (finishedConnection && status != null)
         {
-            Destroy(status);
-            statusBoxClosed = true;
-            if (loginSuccessful)
+            if (Input.GetButtonDown("Fire1"))
             {
-                EnterMenu(characterMenu, activeMenu);
-                loginSuccessful = false;
+                DestroyStatusBox();
+                if (loginSuccessful)
+                {
+                    EnterMenu(characterMenu);
+                    loginSuccessful = false;
+                }
             }
-
+            if (Input.GetButtonDown("Fire2"))
+            {
+                
+                
+                DestroyStatusBox();
+                EnterMenu(activeMenu);
+            }
         }
+
 
         if (statusTextObj != null)
         {
             statusTextObj.text = "Status: " + statusText;
         }
 
-        if (boxOpened && status == null)
+        try
         {
-            ToggleCursor(true);
+            if (status == null)
+            {
+                ToggleCursor(true);
 
+            }
         }
+        catch (NullReferenceException) { }
+        
 
 
 
@@ -127,11 +163,38 @@ public class MenuHandler : MonoBehaviour
         loginSuccessful = true;
     }
 
-    public void EnterMenu(GameObject enterMenu, GameObject previousMenu)
+    public void EnterMenu(GameObject enterMenu)
     {
-        this.previousMenu = previousMenu;
-        previousMenu.SetActive(false);
-        enterMenu.SetActive(true);
-        activeMenu = enterMenu;
+        
+        activeMenu.SetActive(false);
+        activeMenu = root.FindMenuTree(node => node.Data == enterMenu).Data;
+        if (activeMenu != null)
+        {
+            activeMenu.SetActive(true);
+        }
+        else
+        {
+            Debug.Log("Something fucked up, menu is null");
+        }
+        
+    }
+
+    public void GoUpMenu()
+    {
+        if (status != null)
+            DestroyStatusBox();
+        activeMenu.SetActive(false);
+        try
+        {
+            var parent = root.FindMenuTree(node => node.Data == activeMenu).Parent.Data;
+            activeMenu = parent;
+        }
+        catch (NullReferenceException e)
+        {
+            Debug.Log(e);
+        }
+        
+        
+        activeMenu.SetActive(true);
     }
 }
