@@ -191,7 +191,7 @@ public class MenuHandler : MonoBehaviour
         }
         catch (NullReferenceException e)
         {
-            Debug.Log(e);
+            Debug.Log("Missing menu");
         }
         
         

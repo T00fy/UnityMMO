@@ -19,8 +19,6 @@ public class CursorInput : MonoBehaviour {
         cursor = gameObject;
         menuHandler = GameObject.Find("MenuHandler").GetComponent<MenuHandler>();
         string parent = cursor.transform.parent.name;
- //       activeMenu = GameObject.Find(parent);
- //       menuHandler.SetActiveMenu(activeMenu);
         cm = gameObject.GetComponent<CursorMover>();
         selectedOption = cm.GetSelectedOption();
     }
@@ -96,23 +94,8 @@ public class CursorInput : MonoBehaviour {
             }
 
             if (Input.GetButtonDown("Fire2"))
-            {
-                //rewrite this in future so that cancel only goes up a menu and does not enable previous menu
-                //    enterMenu.SetActive(true);
-
-                
+            { 
                 menuHandler.GoUpMenu();
-
-          /*      if (menuHandler.GetPrevious() == menuHandler.characterMenu && menuHandler.GetActiveMenu() == menuHandler.login)
-                {
-                    menuHandler.SetPrevious(menuHandler.home);
-                }
-                if (menuHandler.GetPrevious() != null)
-                {
-                    menuHandler.EnterMenu(menuHandler.GetPrevious());
-                    
-
-                }*/
 
             }
         }

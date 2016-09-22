@@ -3,16 +3,18 @@ using System.Collections;
 
 public class CharacterCreateHandler : MonoBehaviour {
 
-    private CharacterSelect cs;
+    public CharacterSelect characterSelect;
+    public GameObject[] statNumbers;
+    public GameObject nameField;
     private GameObject selectedSlot;
 	// Use this for initialization
 	void Start () {
-        cs = gameObject.transform.parent.GetComponentInChildren<CharacterSelect>();
+        selectedSlot = characterSelect.GetSelectedCharacter();
     }
 	
 	// Update is called once per frame
 	void Update () {
-        selectedSlot = cs.GetSelectedCharacter();
+        
 
         //check if character slot is empty
         //

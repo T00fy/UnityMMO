@@ -48,6 +48,8 @@ public class CursorMover : MonoBehaviour {
     {
         var curr = selectedOption.transform.position;
         float smallestDistance = 9999999999999f;
+        float largestDistance = 0f;
+        bool foundHorizontal = false;
         Debug.Log(direction);
         int pointer = -1;
         for (int i = 0; i < menuObjects.Length; i++)
@@ -55,17 +57,24 @@ public class CursorMover : MonoBehaviour {
             if (samePositions(curr.y, menuObjects[i].transform.position.y))
             {
                 Vector2 midVector = menuObjects[i].transform.position - curr;
-  //              Debug.Log("horizontal mid: " + midVector);
-   //             Debug.Log("horizontal dir: " + direction);
+
+                Debug.Log("horizontal mid: " + midVector);
+                Debug.Log("horizontal dir: " + direction);
                 if (Vector2.Distance(curr, menuObjects[i].transform.position) < smallestDistance &&
                     midVector.normalized.x == direction.normalized.x && menuObjects[i] != selectedOption)
                 {
                     smallestDistance = Vector2.Distance(curr, menuObjects[i].transform.position);
                     pointer = i;
-
+                    foundHorizontal = true;
                 }
             }
 
+            else if (!samePositions(curr.x, menuObjects[i].transform.position.x) && !foundHorizontal &&
+                Vector2.Distance(curr, menuObjects[i].transform.position) > largestDistance)
+            {
+                largestDistance = Vector2.Distance(curr, menuObjects[i].transform.position);
+                pointer = i;
+            }
         }
         if (pointer == -1)
         {
