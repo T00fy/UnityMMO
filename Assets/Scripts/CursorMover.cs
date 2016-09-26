@@ -5,6 +5,7 @@ using UnityEngine.UI;
 public class CursorMover : MonoBehaviour {
     public GameObject selectedOption;
     public GameObject[] menuObjects;
+    public bool moveLaterally;
 
     private float scaleOfCanvas;
     private Vector2 direction;
@@ -50,6 +51,7 @@ public class CursorMover : MonoBehaviour {
         float smallestDistance = 9999999999999f;
         float largestDistance = 0f;
         bool foundHorizontal = false;
+        bool somethingInTheDirection = false;
         Debug.Log(direction);
         int pointer = -1;
         for (int i = 0; i < menuObjects.Length; i++)
@@ -68,8 +70,24 @@ public class CursorMover : MonoBehaviour {
                     foundHorizontal = true;
                 }
             }
+            else if (moveLaterally && !foundHorizontal && !samePositions(curr.x, menuObjects[i].transform.position.x) &&
+                Vector2.Distance(curr, menuObjects[i].transform.position) < smallestDistance)
+            {
+                
+                for (int j = 0; j < menuObjects.Length; j++)
+                {
+                    Vector2 midVector = menuObjects[j].transform.position - curr;
+                    if (direction.x < 0 && midVector.x < 0 || direction.x > 0 && midVector.x > 0)
+                    {
+                        somethingInTheDirection = true;
+                    }
+                }
+                smallestDistance = Vector2.Distance(curr, menuObjects[i].transform.position);
+                pointer = i;
 
-            else if (!samePositions(curr.x, menuObjects[i].transform.position.x) && !foundHorizontal &&
+            }
+
+            else if (moveLaterally && !somethingInTheDirection && !samePositions(curr.x, menuObjects[i].transform.position.x) && !foundHorizontal &&
                 Vector2.Distance(curr, menuObjects[i].transform.position) > largestDistance)
             {
                 largestDistance = Vector2.Distance(curr, menuObjects[i].transform.position);
