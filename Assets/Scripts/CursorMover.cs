@@ -51,9 +51,43 @@ public class CursorMover : MonoBehaviour {
         float smallestDistance = 9999999999999f;
         float largestDistance = 0f;
         bool foundHorizontal = false;
+        bool entered = false;
         bool somethingInTheDirection = false;
+        bool somethingInTheDirection2 = false;
         Debug.Log(direction);
         int pointer = -1;
+
+
+        for (int j = 0; j < menuObjects.Length; j++)
+        {
+            Vector2 midVector = menuObjects[j].transform.position - curr;
+            if (samePositions(curr.y, menuObjects[j].transform.position.y))
+            {
+                Debug.Log(direction.x < 0 && midVector.x < 0 || direction.x > 0 && midVector.x > 0);
+                if (direction.x < 0 && midVector.x < 0 || direction.x > 0 && midVector.x > 0)
+                {
+                    somethingInTheDirection2 = true;
+                }
+                Debug.Log(menuObjects[j].ToString() + somethingInTheDirection2);
+                if (!somethingInTheDirection2 && Vector2.Distance(curr, menuObjects[j].transform.position) > largestDistance)
+                {
+                    
+                    largestDistance = Vector2.Distance(curr, menuObjects[j].transform.position);
+                    pointer = j;
+                    entered = true;
+                }
+            }
+        }
+        if (entered && !somethingInTheDirection2)
+        {
+            
+            return menuObjects[pointer];
+        }
+
+        largestDistance = 0f;
+        smallestDistance = 9999999999999f;
+        pointer = -1;
+
         for (int i = 0; i < menuObjects.Length; i++)
         {
             if (samePositions(curr.y, menuObjects[i].transform.position.y))
@@ -69,7 +103,10 @@ public class CursorMover : MonoBehaviour {
                     pointer = i;
                     foundHorizontal = true;
                 }
+
+
             }
+
             else if (moveLaterally && !foundHorizontal && !samePositions(curr.x, menuObjects[i].transform.position.x) &&
                 Vector2.Distance(curr, menuObjects[i].transform.position) < smallestDistance)
             {
