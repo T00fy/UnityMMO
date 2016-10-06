@@ -63,12 +63,12 @@ public class CursorMover : MonoBehaviour {
             Vector2 midVector = menuObjects[j].transform.position - curr;
             if (samePositions(curr.y, menuObjects[j].transform.position.y))
             {
-                Debug.Log(direction.x < 0 && midVector.x < 0 || direction.x > 0 && midVector.x > 0);
+
                 if (direction.x < 0 && midVector.x < 0 || direction.x > 0 && midVector.x > 0)
                 {
                     somethingInTheDirection2 = true;
                 }
-                Debug.Log(menuObjects[j].ToString() + somethingInTheDirection2);
+
                 if (!somethingInTheDirection2 && Vector2.Distance(curr, menuObjects[j].transform.position) > largestDistance)
                 {
                     

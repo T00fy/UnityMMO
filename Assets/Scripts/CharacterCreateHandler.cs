@@ -2,6 +2,7 @@
 using System.Collections;
 using UnityEngine.UI;
 using System;
+using MMOServer;
 
 public class CharacterCreateHandler : MonoBehaviour {
 
@@ -44,44 +45,75 @@ public class CharacterCreateHandler : MonoBehaviour {
         }
 
         var selectedOption = gameObject.GetComponent<CursorMover>().GetSelectedOption();
-        if (Input.GetButtonDown("Fire1") && !statSelected)
+        if (selectedOption != cm.menuObjects[6])
         {
-            if (selectedOption != nameField) 
+            if (Input.GetButtonDown("Fire1") && !statSelected)
             {
-                cursorInput.enabled = false;
-                cm.enabled = false;
-                animator.enabled = true;
-                statSelected = true;
-                selectedOption.GetComponent<Text>().color = Color.red;
-                selectedOption.transform.GetChild(0).GetComponent<Text>().color = Color.red;
+                if (selectedOption != nameField)
+                {
+                    cursorInput.enabled = false;
+                    cm.enabled = false;
+                    animator.enabled = true;
+                    statSelected = true;
+                    selectedOption.GetComponent<Text>().color = Color.red;
+                    selectedOption.transform.GetChild(0).GetComponent<Text>().color = Color.red;
+                }
+            }
+            else if (Input.GetButtonDown("Fire1") || Input.GetButtonDown("Fire2") && statSelected)
+            {
+                selectedOption.GetComponent<Text>().color = Color.white;
+                selectedOption.transform.GetChild(0).GetComponent<Text>().color = Color.white;
+                cursorInput.enabled = true;
+                cm.enabled = true;
+                animator.enabled = false;
+                statSelected = false;
+            }
+            if (Input.GetKeyDown("right") && statSelected && !reachedMaxStats)
+            {
+                string rawNumber = selectedOption.transform.GetChild(0).GetComponent<Text>().text;
+                int convertedNumber = DoStatChange(rawNumber, 1);
+                selectedOption.transform.GetChild(0).GetComponent<Text>().text = convertedNumber.ToString();
+            }
+
+            if (Input.GetKeyDown("left") && statSelected)
+            {
+                string rawNumber = selectedOption.transform.GetChild(0).GetComponent<Text>().text;
+                int convertedNumber = DoStatChange(rawNumber, -1);
+                selectedOption.transform.GetChild(0).GetComponent<Text>().text = convertedNumber.ToString();
+            }
+
+            statsLeft.GetComponent<Text>().text = statCounter.ToString();
+
+        }
+        else
+        {
+            if (Input.GetButtonDown("Fire1"))
+            {
+                SendCharacterCreateInfo(statNumbers, nameField);
+                //some other stuff here
             }
         }
-        else if (Input.GetButtonDown("Fire1") || Input.GetButtonDown("Fire2") &&  statSelected)
+
+
+    }
+
+    private void SendCharacterCreateInfo(GameObject[] statNumbers, GameObject nameField)
+    {
+        ushort[] stats = new ushort[statNumbers.Length];
+        for (int i = 0; i < statNumbers.Length; i++)
         {
-            selectedOption.GetComponent<Text>().color = Color.white;
-            selectedOption.transform.GetChild(0).GetComponent<Text>().color = Color.white;
-            cursorInput.enabled = true;
-            cm.enabled = true;
-            animator.enabled = false;
-            statSelected = false;
-        }
-        if (Input.GetKeyDown("right") && statSelected && !reachedMaxStats)
-        {
-            string rawNumber = selectedOption.transform.GetChild(0).GetComponent<Text>().text;
-            int convertedNumber = DoStatChange(rawNumber, 1);
-            selectedOption.transform.GetChild(0).GetComponent<Text>().text = convertedNumber.ToString();
+            ushort stat = ushort.Parse(statNumbers[i].GetComponent<Text>().text);
+            stats[i] = stat;
         }
 
-        if (Input.GetKeyDown("left") && statSelected)
-        {
-            string rawNumber = selectedOption.transform.GetChild(0).GetComponent<Text>().text;
-            int convertedNumber = DoStatChange(rawNumber, -1);
-            selectedOption.transform.GetChild(0).GetComponent<Text>().text = convertedNumber.ToString();
-        }
+        //    bytesToSend = o920i
+        CharacterPacket cp = new CharacterPacket(nameField.GetComponent<InputField>().text, stats);
+        var bytesToSend = cp.GetData();
+        SubPacket sp = new SubPacket(GamePacketOpCode.CreateCharacter, 0, 0, bytesToSend, SubPacketTypes.GamePacket);
+        BasePacket characterCreationPacket = BasePacket.CreatePacket(sp, PacketProcessor.isAuthenticated, false);
 
-        statsLeft.GetComponent<Text>().text = statCounter.ToString();
-        //check if character slot is empty
-        //
+        PacketProcessor.SendCharacterCreationPacket(characterCreationPacket);
+        CursorInput.menuHandler.OpenStatusBox();
     }
 
     private int DoStatChange(string stringToParse, int numberToAdd)

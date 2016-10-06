@@ -162,7 +162,6 @@ public class Connection {
 
     private void ReceiveCallBack(IAsyncResult aSyncResult)
     {
-        PacketProcessor packetProcessor = new PacketProcessor();
         try
         {
             int bytesRead = socket.EndReceive(aSyncResult);
@@ -183,7 +182,7 @@ public class Connection {
                     else
                     {
 
-                        packetProcessor.ProcessPacket(basePacket);
+                        PacketProcessor.ProcessPacket(basePacket);
                     }
 
                 }

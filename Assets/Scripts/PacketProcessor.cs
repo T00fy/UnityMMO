@@ -8,29 +8,39 @@ using MMOServer;
 using System.Threading;
 using System.Collections.Generic;
 
-public class PacketProcessor {
-    public Connection connect;
+public static class PacketProcessor {
+    private static Connection connect;
+    public static bool isAuthenticated;
 
     /// <summary>
     /// Establishes the initial connection and sends the first login or registration packet
     /// </summary>
     /// <param name="packetToSend"></param>
-    public void LoginOrRegister(BasePacket packetToSend)
+    public static void LoginOrRegister(BasePacket packetToSend)
     {
         if (!packetToSend.isAuthenticated())
         {
-            Connection connect = new Connection();
-            connect.EstablishConnection(); //connection now established
+            connect = new Connection();
+            connect.EstablishConnection();
             connect.Send(packetToSend);
 
         }
     }
 
     /// <summary>
+    /// Sends a character creation packet to the server
+    /// </summary>
+    /// <param name="characterCreationPacket"></param>
+    public static void SendCharacterCreationPacket(BasePacket characterCreationPacket)
+    {
+            connect.Send(characterCreationPacket);
+    }
+
+    /// <summary>
     /// All incoming packets are handled through this and then directed to the appropriate function
     /// </summary>
     /// <param name="receivedPacket"></param>
-    public void ProcessPacket(BasePacket receivedPacket)
+    public static void ProcessPacket(BasePacket receivedPacket)
     {
         if (connect == null)
         {
@@ -40,6 +50,13 @@ public class PacketProcessor {
         if (receivedPacket == null) {
             Debug.Log("tis null");
         }
+
+        if (!isAuthenticated && receivedPacket.isAuthenticated())
+        {
+            isAuthenticated = true;
+        }
+
+
         List<SubPacket> subPackets = receivedPacket.GetSubpackets();
         foreach (SubPacket subPacket in subPackets)
         {
@@ -49,6 +66,13 @@ public class PacketProcessor {
               subPacket.debugPrintSubPacket();
               Debug.Log(consoleOut.ToString());
               System.Console.SetOut(stdOut);*/
+            DoAuthenticationChecks(receivedPacket, subPacket);
+
+            if (isAuthenticated == false)
+            {
+                Debug.Log("Should kick back into login screen");
+                break;
+            }
 
             if (!receivedPacket.isAuthenticated())
             {
@@ -71,7 +95,16 @@ public class PacketProcessor {
                 {
                     case ((ushort)GamePacketOpCode.AccountSuccess):
                         CursorInput.menuHandler.SetStatusText(Encoding.Unicode.GetString(subPacket.data));
+                        isAuthenticated = true;
                         CursorInput.menuHandler.LoggedInSuccessfully();
+                        break;
+
+                    case ((ushort)GamePacketOpCode.RegisterSuccess):
+                        CursorInput.menuHandler.SetStatusText(Encoding.Unicode.GetString(subPacket.data));
+                        break;
+
+                    case ((ushort)GamePacketOpCode.CreateCharacter):
+                        CursorInput.menuHandler.SetStatusText(Encoding.Unicode.GetString(subPacket.data));
                         break;
 
                     default:
@@ -85,14 +118,12 @@ public class PacketProcessor {
         }
     }
 
+    private static void DoAuthenticationChecks(BasePacket receivedPacket, SubPacket subPacket)
+    {
 
-
-
-    
-
-
-
-
-
-
+        if (isAuthenticated && !receivedPacket.isAuthenticated() && subPacket.gameMessage.opcode != (ushort)GamePacketOpCode.RegisterSuccess)
+        {
+            isAuthenticated = false;
+        }
+    }
 }

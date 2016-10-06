@@ -17,7 +17,6 @@ public class AccountHandler : MonoBehaviour {
         InputField usernameInput = userGameObj.GetComponent<InputField>();
 
         GameObject subObj = ml.GetMenuItem();
-        PacketProcessor packetProcessor = new PacketProcessor();
         string password = passwordInput.text;
         string userName = usernameInput.text;
 
@@ -32,7 +31,7 @@ public class AccountHandler : MonoBehaviour {
 
         BasePacket packetToSend = BasePacket.CreatePacket(subPacket, false, false);
 
-        packetProcessor.LoginOrRegister(packetToSend);
+        PacketProcessor.LoginOrRegister(packetToSend);
 
 
 

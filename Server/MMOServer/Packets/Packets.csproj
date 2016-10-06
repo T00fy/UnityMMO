@@ -44,6 +44,7 @@
     <Compile Include="AccountPacket.cs" />
     <Compile Include="BasePacket.cs" />
     <Compile Include="Blowfish.cs" />
+    <Compile Include="CharacterPacket.cs" />
     <Compile Include="ErrorPacket.cs" />
     <Compile Include="PacketTypes.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

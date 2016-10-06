@@ -27,14 +27,10 @@ namespace MMOServer
                     try
                     {
 
-                    //windows uses primarily little endian encoding
-                    //networking however uses big endian encoding
-                    //have to convert between the two 
+                    //GetAccountHeaderBytes() seems to use big endian, possible marshal class
+                    //thats why have to reverse the array below  
 
-                    //readbytes uses little endian but converter class uses big endian
-                    //have to reverse array for bytes to be converted correctly
-
-                        register = binReader.ReadBoolean();
+                    register = binReader.ReadBoolean();
                     lengthOfUserName = SwapEndianShort(binReader.ReadBytes(sizeof(ushort)));
                     lengthOfPassword = SwapEndianShort(binReader.ReadBytes(sizeof(ushort)));
 

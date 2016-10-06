@@ -25,6 +25,16 @@ namespace MMOServer
                     ProcessAccountPacket(client, subPacket);
                 }
 
+                if (subPacket.header.type == (ushort)SubPacketTypes.GamePacket)
+                {
+                    switch (subPacket.gameMessage.opcode)
+                    {
+                        case (ushort)GamePacketOpCode.CreateCharacter:
+                            CheckCharacterCreatePacket(subPacket);
+                            break;
+                    }
+                }
+
             }
         }
 
@@ -69,7 +79,7 @@ namespace MMOServer
                 if (succeeded)
                 {
                     Console.WriteLine("Username: {0} Password: {1} has been registered successfully", ap.userName, ap.password);
-                    SubPacket success = new SubPacket(GamePacketOpCode.AccountSuccess, 0, 0, System.Text.Encoding.Unicode.GetBytes("Registration Successful"), SubPacketTypes.GamePacket);
+                    SubPacket success = new SubPacket(GamePacketOpCode.RegisterSuccess, 0, 0, System.Text.Encoding.Unicode.GetBytes("Registration Successful"), SubPacketTypes.GamePacket);
                     BasePacket basePacket = BasePacket.CreatePacket(success, true, false);
                     client.QueuePacket(basePacket);
                 }
@@ -82,14 +92,20 @@ namespace MMOServer
 
             }
         }
-
+     
         private void QueueErrorPacket(SubPacket subPacket, ClientConnection client)
         {
             BasePacket errorBasePacket = BasePacket.CreatePacket(subPacket, false, false);
             client.QueuePacket(errorBasePacket);
         }
 
-
+        private void CheckCharacterCreatePacket(SubPacket subPacket)
+        {
+            Console.WriteLine("Received character packet");
+            CharacterPacket cp = new CharacterPacket(subPacket.data);
+            Console.WriteLine("Received: " + cp.GetCharacterName() + cp.GetDex());
+            
+        }
 
 
 
