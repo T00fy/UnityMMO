@@ -68,12 +68,6 @@ public static class PacketProcessor {
               System.Console.SetOut(stdOut);*/
             DoAuthenticationChecks(receivedPacket, subPacket);
 
-            if (isAuthenticated == false)
-            {
-                Debug.Log("Should kick back into login screen");
-                break;
-            }
-
             if (!receivedPacket.isAuthenticated())
             {
                 if (subPacket.header.type == (ushort)SubPacketTypes.GamePacket)

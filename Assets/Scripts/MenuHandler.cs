@@ -21,6 +21,7 @@ public class MenuHandler : MonoBehaviour
     private GameObject cursor;
     private bool finishedConnection;
     private MenuTree<GameObject> root;
+    private GameObject statusBoxLink;
 
     void Start()
     {
@@ -71,11 +72,14 @@ public class MenuHandler : MonoBehaviour
         return boxOpened;
     }
 
-    public void OpenStatusBox() {
+    public void OpenStatusBox(Menus characterMenu)
+    {
+        statusBoxLink = menus[(int)characterMenu];
+        ToggleCursor(false);
         status = Instantiate(statusBoxPrefab, new Vector3(0, 0, 0), Quaternion.identity) as GameObject;
         root.FindMenuTree(node => node.Data == activeMenu).AddChild(status);
         statusTextObj = status.GetComponentInChildren<Text>();
-   //     boxOpened = true;
+        //     boxOpened = true;
         activeMenu = status;
     }
 
@@ -117,15 +121,21 @@ public class MenuHandler : MonoBehaviour
 
     void Update()
     {
+        Debug.Log(finishedConnection);
         if (finishedConnection && status != null)
         {
             if (Input.GetButtonDown("Fire1"))
             {
+                
                 DestroyStatusBox();
                 if (loginSuccessful)
                 {
-                    EnterMenu(characterMenu);
+                    EnterMenu(statusBoxLink);
                     loginSuccessful = false;
+                }
+                if (activeMenu != menus[(int)Menus.LoginMenu] && activeMenu != menus[(int)Menus.RegisterMenu])
+                {
+                    EnterMenu(statusBoxLink);
                 }
             }
             if (Input.GetButtonDown("Fire2"))
@@ -133,7 +143,6 @@ public class MenuHandler : MonoBehaviour
                 
                 
                 DestroyStatusBox();
-                EnterMenu(activeMenu);
             }
         }
 

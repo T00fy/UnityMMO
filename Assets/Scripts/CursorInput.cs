@@ -21,6 +21,7 @@ public class CursorInput : MonoBehaviour {
         string parent = cursor.transform.parent.name;
         cm = gameObject.GetComponent<CursorMover>();
         selectedOption = cm.GetSelectedOption();
+        menuHandler.SetCursor(cursor);
     }
 	
 	void Update () {

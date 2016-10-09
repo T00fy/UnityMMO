@@ -20,7 +20,7 @@ public class AccountHandler : MonoBehaviour {
         string password = passwordInput.text;
         string userName = usernameInput.text;
 
-        OpenStatusBox(); //need to change this so it uses a separate login status box with a menulink set to character select, script should read text and make sure it says login successful
+        menuHandler.OpenStatusBox(Menus.CharacterMenu);
 
         CheckInputs(userName, password);
         AccountPacket ap = new AccountPacket();
@@ -53,14 +53,6 @@ public class AccountHandler : MonoBehaviour {
         {
             throw new Exception("Password and Username length must be greater than 4 characters");
         }
-    }
-
-    private void OpenStatusBox()
-    {
-        cursor = GameObject.Find("Cursor");
-        menuHandler.SetCursor(cursor);
-        menuHandler.ToggleCursor(false);
-        menuHandler.OpenStatusBox();
     }
     // Use this for initialization
     void Start () {

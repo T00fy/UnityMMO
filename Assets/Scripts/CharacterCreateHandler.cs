@@ -113,7 +113,7 @@ public class CharacterCreateHandler : MonoBehaviour {
         BasePacket characterCreationPacket = BasePacket.CreatePacket(sp, PacketProcessor.isAuthenticated, false);
 
         PacketProcessor.SendCharacterCreationPacket(characterCreationPacket);
-        CursorInput.menuHandler.OpenStatusBox();
+        CursorInput.menuHandler.OpenStatusBox(Menus.CharacterMenu);
     }
 
     private int DoStatChange(string stringToParse, int numberToAdd)
