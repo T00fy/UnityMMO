@@ -5,7 +5,7 @@ using UnityEngine.UI;
 public class MenuHandler : MonoBehaviour
 {
     public GameObject statusBoxPrefab;
-    public GameObject characterSelectPrefab;
+    public GameObject modalStatusBoxPrefab;
     public GameObject characterMenu;
     public GameObject home;
     public GameObject login;
@@ -22,6 +22,8 @@ public class MenuHandler : MonoBehaviour
     private bool finishedConnection;
     private MenuTree<GameObject> root;
     private GameObject statusBoxLink;
+    private bool modalBoxOpened;
+    private string modalChoice;
 
     void Start()
     {
@@ -83,6 +85,18 @@ public class MenuHandler : MonoBehaviour
         activeMenu = status;
     }
 
+    public void OpenModalStatusBox(Menus characterMenu)
+    {
+        statusBoxLink = menus[(int)characterMenu];
+        ToggleCursor(false);
+        status = Instantiate(modalStatusBoxPrefab, new Vector3(0, 0, 0), Quaternion.identity) as GameObject;
+        root.FindMenuTree(node => node.Data == activeMenu).AddChild(status);
+        statusTextObj = status.GetComponentInChildren<Text>();
+        modalBoxOpened = true;
+        activeMenu = status;
+    }
+
+
     /// <summary>
     /// Sets the Status box okay to be destroyed after user input
     /// </summary>
@@ -107,21 +121,39 @@ public class MenuHandler : MonoBehaviour
         this.statusText = statusText;
     }
 
-
+    public bool GetModalChoice()
+    {
+        if (modalChoice == "Yes")
+        {
+            modalChoice = null;
+            return true;
+        }
+        else
+        {
+            modalChoice = null;
+            return false;
+        }
+    }
     /// <summary>
     /// Destroys the status box instantly, without waiting for user input
     /// </summary>
     private void DestroyStatusBox()
     {
+        if (modalBoxOpened)
+        {
+            modalChoice = status.GetComponentInChildren<CursorMover>().GetSelectedOption().ToString();
+        }
         activeMenu = root.FindMenuTree(node => node.Data == activeMenu).Parent.Data;
+        var blah = activeMenu.transform.FindChild("Cursor");
+        SetCursor(blah.gameObject);
         root.RemoveChild(root.FindMenuTree(node => node.Data == activeMenu));
         Destroy(status);
+        SetStatusText("");
     }
 
 
     void Update()
     {
-        Debug.Log(finishedConnection);
         if (finishedConnection && status != null)
         {
             if (Input.GetButtonDown("Fire1"))
@@ -156,6 +188,7 @@ public class MenuHandler : MonoBehaviour
         {
             if (status == null)
             {
+
                 ToggleCursor(true);
 
             }

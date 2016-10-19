@@ -18,7 +18,8 @@ public class CharacterCreateHandler : MonoBehaviour {
     private CursorMover cm;
     private int statCounter;
     private bool reachedMaxStats;
-
+    //need to change this so it gets instantiated as a prefab instead
+    //character select should load characters from database
 
 	// Use this for initialization
 	void Start () {
@@ -113,7 +114,12 @@ public class CharacterCreateHandler : MonoBehaviour {
         BasePacket characterCreationPacket = BasePacket.CreatePacket(sp, PacketProcessor.isAuthenticated, false);
 
         PacketProcessor.SendCharacterCreationPacket(characterCreationPacket);
-        CursorInput.menuHandler.OpenStatusBox(Menus.CharacterMenu);
+        CursorInput.menuHandler.OpenModalStatusBox(Menus.CharacterMenu);
+        bool yes = CursorInput.menuHandler.GetModalChoice();
+        if (yes)
+        {
+            //create character and save it into database on server
+        }
     }
 
     private int DoStatChange(string stringToParse, int numberToAdd)
