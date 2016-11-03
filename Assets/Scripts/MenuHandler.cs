@@ -4,8 +4,6 @@ using UnityEngine.UI;
 
 public class MenuHandler : MonoBehaviour
 {
-    public GameObject statusBoxPrefab;
-    public GameObject modalStatusBoxPrefab;
     public GameObject characterMenu;
     public GameObject home;
     public GameObject login;
@@ -14,16 +12,8 @@ public class MenuHandler : MonoBehaviour
     private GameObject activeMenu;
     private GameObject previousMenu;
     private bool loginSuccessful;
-    private GameObject status;
-    private Text statusTextObj;
-    private string statusText;
-    private bool boxOpened;
     private GameObject cursor;
-    private bool finishedConnection;
     private MenuTree<GameObject> root;
-    private GameObject statusBoxLink;
-    private bool modalBoxOpened;
-    private string modalChoice;
 
     void Start()
     {
@@ -47,6 +37,16 @@ public class MenuHandler : MonoBehaviour
         activeMenu = root.Data;
     }
 
+    public void AddMenuAsChild(GameObject status)
+    {
+        root.FindMenuTree(node => node.Data == activeMenu).AddChild(status);
+    }
+
+    public GameObject[] GetMenus()
+    {
+        return menus;
+    }
+
     public void SetActiveMenu(GameObject current)
     {
         activeMenu = current;
@@ -61,7 +61,7 @@ public class MenuHandler : MonoBehaviour
         previousMenu = activeMenu;
     }
 
-    public GameObject ThisCursor() {
+    public GameObject GetCursor() {
         return cursor;
     }
 
@@ -70,40 +70,11 @@ public class MenuHandler : MonoBehaviour
         return previousMenu;
     }
 
-    public bool BoxOpened() {
-        return boxOpened;
-    }
-
-    public void OpenStatusBox(Menus characterMenu)
-    {
-        statusBoxLink = menus[(int)characterMenu];
-        ToggleCursor(false);
-        status = Instantiate(statusBoxPrefab, new Vector3(0, 0, 0), Quaternion.identity) as GameObject;
-        root.FindMenuTree(node => node.Data == activeMenu).AddChild(status);
-        statusTextObj = status.GetComponentInChildren<Text>();
-        //     boxOpened = true;
-        activeMenu = status;
-    }
-
-    public void OpenModalStatusBox(Menus characterMenu)
-    {
-        statusBoxLink = menus[(int)characterMenu];
-        ToggleCursor(false);
-        status = Instantiate(modalStatusBoxPrefab, new Vector3(0, 0, 0), Quaternion.identity) as GameObject;
-        root.FindMenuTree(node => node.Data == activeMenu).AddChild(status);
-        statusTextObj = status.GetComponentInChildren<Text>();
-        modalBoxOpened = true;
-        activeMenu = status;
-    }
-
 
     /// <summary>
     /// Sets the Status box okay to be destroyed after user input
     /// </summary>
-    public void SetDestroyStatusBox() {
-        finishedConnection = true;
 
-    }
 
     public void SetCursor(GameObject cursor)
     {
@@ -116,88 +87,23 @@ public class MenuHandler : MonoBehaviour
 
     }
 
-    public void SetStatusText(string statusText)
-    {
-        this.statusText = statusText;
-    }
 
-    public bool GetModalChoice()
-    {
-        if (modalChoice == "Yes")
-        {
-            modalChoice = null;
-            return true;
-        }
-        else
-        {
-            modalChoice = null;
-            return false;
-        }
-    }
-    /// <summary>
-    /// Destroys the status box instantly, without waiting for user input
-    /// </summary>
-    private void DestroyStatusBox()
-    {
-        if (modalBoxOpened)
-        {
-            modalChoice = status.GetComponentInChildren<CursorMover>().GetSelectedOption().ToString();
-        }
-        activeMenu = root.FindMenuTree(node => node.Data == activeMenu).Parent.Data;
-        var blah = activeMenu.transform.FindChild("Cursor");
-        SetCursor(blah.gameObject);
-        root.RemoveChild(root.FindMenuTree(node => node.Data == activeMenu));
-        Destroy(status);
-        SetStatusText("");
-    }
 
 
     void Update()
     {
-        if (finishedConnection && status != null)
-        {
-            if (Input.GetButtonDown("Fire1"))
-            {
-                
-                DestroyStatusBox();
-                if (loginSuccessful)
-                {
-                    EnterMenu(statusBoxLink);
-                    loginSuccessful = false;
-                }
-                if (activeMenu != menus[(int)Menus.LoginMenu] && activeMenu != menus[(int)Menus.RegisterMenu])
-                {
-                    EnterMenu(statusBoxLink);
-                }
-            }
-            if (Input.GetButtonDown("Fire2"))
-            {
-                
-                
-                DestroyStatusBox();
-            }
-        }
 
 
-        if (statusTextObj != null)
-        {
-            statusTextObj.text = "Status: " + statusText;
-        }
+    }
 
-        try
-        {
-            if (status == null)
-            {
+    public void RemoveChildMenu(GameObject menuToRemove)
+    {
+        root.RemoveChild(root.FindMenuTree(node => node.Data == menuToRemove));
+    }
 
-                ToggleCursor(true);
-
-            }
-        }
-        catch (NullReferenceException) { }
-        
-
-
-
+    public GameObject GetParentMenuObject()
+    {
+        return root.FindMenuTree(node => node.Data == activeMenu).Parent.Data;
     }
 
     public void LoggedInSuccessfully()
@@ -223,8 +129,6 @@ public class MenuHandler : MonoBehaviour
 
     public void GoUpMenu()
     {
-        if (status != null)
-            DestroyStatusBox();
         activeMenu.SetActive(false);
         try
         {

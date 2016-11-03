@@ -11,6 +11,7 @@ using System.Collections.Generic;
 public static class PacketProcessor {
     private static Connection connect;
     public static bool isAuthenticated;
+    public static bool loggedInSuccessfully;
 
     /// <summary>
     /// Establishes the initial connection and sends the first login or registration packet
@@ -77,7 +78,7 @@ public static class PacketProcessor {
                         ErrorPacket ep = new ErrorPacket();
                         ep.ReadPacket(subPacket.data);
                         string msg = ep.GetErrorMessage();
-                        CursorInput.menuHandler.SetStatusText(msg);
+                        StatusBoxHandler.statusText = msg;
 
                     }
 
@@ -88,17 +89,17 @@ public static class PacketProcessor {
                 switch (subPacket.gameMessage.opcode)
                 {
                     case ((ushort)GamePacketOpCode.AccountSuccess):
-                        CursorInput.menuHandler.SetStatusText(Encoding.Unicode.GetString(subPacket.data));
+                        StatusBoxHandler.statusText = Encoding.Unicode.GetString(subPacket.data);
                         isAuthenticated = true;
-                        CursorInput.menuHandler.LoggedInSuccessfully();
+                        loggedInSuccessfully = true;
                         break;
 
                     case ((ushort)GamePacketOpCode.RegisterSuccess):
-                        CursorInput.menuHandler.SetStatusText(Encoding.Unicode.GetString(subPacket.data));
+                        StatusBoxHandler.statusText = Encoding.Unicode.GetString(subPacket.data);
                         break;
 
                     case ((ushort)GamePacketOpCode.CreateCharacter):
-                        CursorInput.menuHandler.SetStatusText(Encoding.Unicode.GetString(subPacket.data));
+                        StatusBoxHandler.statusText = Encoding.Unicode.GetString(subPacket.data);
                         break;
 
                     default:
@@ -107,7 +108,7 @@ public static class PacketProcessor {
                     }
             }
 
-            CursorInput.menuHandler.SetDestroyStatusBox();
+            StatusBoxHandler.readyToClose = true;
 
         }
     }

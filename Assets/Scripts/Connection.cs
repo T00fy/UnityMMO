@@ -12,7 +12,6 @@ public class Connection {
     private Socket socket;
     public const int BUFFER_SIZE = 65535;
     public byte[] buffer = new byte[0xffff];
-    public bool isAuthenticated;
     //       public CircularBuffer<byte> incomingStream = new CircularBuffer<byte>(1024);
     public Queue<BasePacket> sendPacketQueue = new Queue<BasePacket>(100);
     public int lastPartialSize = 0;
@@ -95,19 +94,19 @@ public class Connection {
             IPAddress[] ip = Dns.GetHostAddresses("127.0.0.1");
 
 
-            CursorInput.menuHandler.SetStatusText("Connecting...");
+            StatusBoxHandler.statusText = "Connecting...";
 
             IPEndPoint remoteEP = new IPEndPoint(ip[0], 3425);
          //   socket.Connect(remoteEP, new AsyncCallback(ConnectCallBack), socket);
             socket.Connect(remoteEP);
 
-            CursorInput.menuHandler.SetStatusText("Established Connection");
+            StatusBoxHandler.statusText = "Established Connection";
 
         }
         catch (Exception e)
         {
-            CursorInput.menuHandler.SetDestroyStatusBox();
-            CursorInput.menuHandler.SetStatusText(e.Message);
+            StatusBoxHandler.readyToClose = true;
+            StatusBoxHandler.statusText = e.Message;
             Debug.Log(e);
         }
 
@@ -255,7 +254,8 @@ public class Connection {
 
     private void CloseSocket(Socket socket)
     {
-        CursorInput.menuHandler.SetDestroyStatusBox();
+        //might be able to remove all these readytoclose checks in statusboxhandler and in here
+        StatusBoxHandler.readyToClose = true;
         socket.Shutdown(SocketShutdown.Both);
         socket.Close();
     }

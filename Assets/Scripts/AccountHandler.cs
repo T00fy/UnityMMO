@@ -4,6 +4,8 @@ using MMOServer;
 using System;
 
 public class AccountHandler : MonoBehaviour {
+    public StatusBoxHandler statusBoxHandler;
+
     private GameObject cursor;
     private MenuHandler menuHandler;
 
@@ -20,7 +22,7 @@ public class AccountHandler : MonoBehaviour {
         string password = passwordInput.text;
         string userName = usernameInput.text;
 
-        menuHandler.OpenStatusBox(Menus.CharacterMenu);
+        statusBoxHandler.OpenStatusBox(Menus.CharacterMenu);
 
         CheckInputs(userName, password);
         AccountPacket ap = new AccountPacket();

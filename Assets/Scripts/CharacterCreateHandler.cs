@@ -10,6 +10,7 @@ public class CharacterCreateHandler : MonoBehaviour {
     public GameObject[] statNumbers;
     public GameObject nameField;
     public GameObject statsLeft;
+    public StatusBoxHandler statusBoxHandler;
 
     private GameObject selectedSlot;
     private bool statSelected;
@@ -114,8 +115,8 @@ public class CharacterCreateHandler : MonoBehaviour {
         BasePacket characterCreationPacket = BasePacket.CreatePacket(sp, PacketProcessor.isAuthenticated, false);
 
         PacketProcessor.SendCharacterCreationPacket(characterCreationPacket);
-        CursorInput.menuHandler.OpenModalStatusBox(Menus.CharacterMenu);
-        bool yes = CursorInput.menuHandler.GetModalChoice();
+        statusBoxHandler.OpenModalStatusBox(Menus.CharacterMenu);
+        bool yes = statusBoxHandler.GetModalChoice();
         if (yes)
         {
             //create character and save it into database on server

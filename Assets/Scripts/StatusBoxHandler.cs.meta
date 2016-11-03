@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 7a0f6e0ed97449f4cb729f73e8957a4c
+timeCreated: 1478165769
+licenseType: Free
+MonoImporter:
+  serializedVersion: 2
+  defaultReferences:
+  - menuHandler: {instanceID: 0}
+  - statusBoxPrefab: {fileID: 101962, guid: 763a992e063f87b43b9c25bd7bdd6599, type: 2}
+  - modalStatusBoxPrefab: {fileID: 1000011745601940, guid: 1cd38fdb277c6c944bf5f7c9a9131291,
+      type: 2}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

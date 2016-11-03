@@ -83,6 +83,7 @@
     <Compile Include="Assets\Scripts\Menus.cs" />
     <Compile Include="Assets\Scripts\PacketProcessor.cs" />
     <Compile Include="Assets\Scripts\StatViewer.cs" />
+    <Compile Include="Assets\Scripts\StatusBoxHandler.cs" />
     <Compile Include="Assets\Scripts\TextFieldHandler.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\SyntaxTree\UnityVS\2015\UnityVS.CSharp.targets" />
