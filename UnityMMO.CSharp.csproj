@@ -71,6 +71,7 @@
   <ItemGroup>
     <Compile Include="Assets\Scripts\AccountHandler.cs" />
     <Compile Include="Assets\Scripts\CharacterCreateHandler.cs" />
+    <Compile Include="Assets\Scripts\CharacterMenuPrefabHandler.cs" />
     <Compile Include="Assets\Scripts\CharacterSelect.cs" />
     <Compile Include="Assets\Scripts\ClickRegisterSynchronous.cs" />
     <Compile Include="Assets\Scripts\ClientConnect.cs" />
@@ -79,6 +80,7 @@
     <Compile Include="Assets\Scripts\CursorMover.cs" />
     <Compile Include="Assets\Scripts\MenuHandler.cs" />
     <Compile Include="Assets\Scripts\MenuLink.cs" />
+    <Compile Include="Assets\Scripts\MenuPrefabHandler.cs" />
     <Compile Include="Assets\Scripts\MenuTree.cs" />
     <Compile Include="Assets\Scripts\Menus.cs" />
     <Compile Include="Assets\Scripts\PacketProcessor.cs" />

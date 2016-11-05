@@ -23,6 +23,7 @@ public class CursorMover : MonoBehaviour {
 
     public GameObject GetSelectedOption()
     {
+        
         return selectedOption;
     }
 
@@ -189,7 +190,7 @@ public class CursorMover : MonoBehaviour {
         }
         var cosAngleError = Mathf.Cos(angleError * Mathf.Deg2Rad);
 
-        var cosAngle = Vector3.Dot(a.normalized, b.normalized);
+        var cosAngle = Vector2.Dot(a.normalized, b.normalized);
         if (cosAngle >= cosAngleError)
         {
             //If angle is greater, that means that the angle between the two vectors is less than the error allowed.

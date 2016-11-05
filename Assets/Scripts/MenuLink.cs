@@ -8,7 +8,7 @@ public class MenuLink : MonoBehaviour {
 
     public enum State
     {       //creates a drop down menu in unity editor of the available states
-        menu, inputfield, register, login, cancel
+        menu, inputfield, register, login, cancel, prefabmenu
     }
 
     public State GetState() {

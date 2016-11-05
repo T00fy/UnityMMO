@@ -6,13 +6,11 @@ using MMOServer;
 
 public class CharacterCreateHandler : MonoBehaviour {
 
-    public CharacterSelect characterSelect;
     public GameObject[] statNumbers;
     public GameObject nameField;
     public GameObject statsLeft;
-    public StatusBoxHandler statusBoxHandler;
+    private CharacterMenuPrefabHandler characterMenuPrefabHandler;
 
-    private GameObject selectedSlot;
     private bool statSelected;
     private Animator animator;
     private CursorInput cursorInput;
@@ -23,9 +21,11 @@ public class CharacterCreateHandler : MonoBehaviour {
     //character select should load characters from database
 
 	// Use this for initialization
-	void Start () {
+	void Awake () {
         reachedMaxStats = false;
-        selectedSlot = characterSelect.GetSelectedCharacter();
+        //      selectedSlot = characterSelect.GetSelectedCharacter();
+        Debug.Log(gameObject.name);
+        characterMenuPrefabHandler = GameObject.Find("StatusBoxHandler").GetComponent<CharacterMenuPrefabHandler>();
         animator = gameObject.GetComponent<Animator>();
         cursorInput = gameObject.GetComponent<CursorInput>();
         cm = gameObject.GetComponent<CursorMover>();
@@ -45,23 +45,16 @@ public class CharacterCreateHandler : MonoBehaviour {
         {
             reachedMaxStats = false;
         }
-
         var selectedOption = gameObject.GetComponent<CursorMover>().GetSelectedOption();
         if (selectedOption != cm.menuObjects[6])
         {
-            if (Input.GetButtonDown("Fire1") && !statSelected)
+            if (Input.GetButtonDown("Fire2") && !statSelected)
             {
-                if (selectedOption != nameField)
-                {
-                    cursorInput.enabled = false;
-                    cm.enabled = false;
-                    animator.enabled = true;
-                    statSelected = true;
-                    selectedOption.GetComponent<Text>().color = Color.red;
-                    selectedOption.transform.GetChild(0).GetComponent<Text>().color = Color.red;
-                }
-            }
-            else if (Input.GetButtonDown("Fire1") || Input.GetButtonDown("Fire2") && statSelected)
+                //instantiate modal prefab asking if want to quit character create
+                characterMenuPrefabHandler.InstantiateModalPrefab(MenuPrefabs.ModalStatusBox, "Are you sure you want to exit character creation without saving?");
+                characterMenuPrefabHandler.HandleExitDecision();
+            }else
+            if ((Input.GetButtonDown("Fire1") || Input.GetButtonDown("Fire2")) && statSelected)
             {
                 selectedOption.GetComponent<Text>().color = Color.white;
                 selectedOption.transform.GetChild(0).GetComponent<Text>().color = Color.white;
@@ -70,6 +63,20 @@ public class CharacterCreateHandler : MonoBehaviour {
                 animator.enabled = false;
                 statSelected = false;
             }
+            else if (Input.GetButtonDown("Fire1") && !statSelected)
+            {
+                if (selectedOption != nameField)
+                {
+                    
+                    cursorInput.enabled = false;
+                    cm.enabled = false;
+                    animator.enabled = true;
+                    statSelected = true;
+                    selectedOption.GetComponent<Text>().color = Color.red;
+                    selectedOption.transform.GetChild(0).GetComponent<Text>().color = Color.red;
+                }
+            }
+
             if (Input.GetKeyDown("right") && statSelected && !reachedMaxStats)
             {
                 string rawNumber = selectedOption.transform.GetChild(0).GetComponent<Text>().text;
@@ -89,10 +96,16 @@ public class CharacterCreateHandler : MonoBehaviour {
         }
         else
         {
+            
             if (Input.GetButtonDown("Fire1"))
             {
-                SendCharacterCreateInfo(statNumbers, nameField);
-                //some other stuff here
+                characterMenuPrefabHandler.InstantiateModalPrefab(MenuPrefabs.ModalStatusBox, "Are you sure you want to create this character?");
+                characterMenuPrefabHandler.HandleCreateDecision(statNumbers, nameField);
+            }
+            if (Input.GetButtonDown("Fire2") && !statSelected)
+            {
+                characterMenuPrefabHandler.CloseAndDiscardCharacterCreateInstance();
+                //instantiate modal prefab asking if want to quit character create
             }
         }
 
@@ -115,12 +128,6 @@ public class CharacterCreateHandler : MonoBehaviour {
         BasePacket characterCreationPacket = BasePacket.CreatePacket(sp, PacketProcessor.isAuthenticated, false);
 
         PacketProcessor.SendCharacterCreationPacket(characterCreationPacket);
-        statusBoxHandler.OpenModalStatusBox(Menus.CharacterMenu);
-        bool yes = statusBoxHandler.GetModalChoice();
-        if (yes)
-        {
-            //create character and save it into database on server
-        }
     }
 
     private int DoStatChange(string stringToParse, int numberToAdd)

@@ -24,12 +24,17 @@ public class CharacterSelect : MonoBehaviour {
         if (Input.GetButtonDown("Fire1"))
         {
             selectedGameObject = cm.GetSelectedOption();
-            if (selectedGameObject.transform.IsChildOf(transform))
+            if (selectedGameObject.transform.IsChildOf(transform) && selectedGameObject != cm.menuObjects[3])
             {
                 selectedText.color = Color.white;
                 selectedText = selectedGameObject.GetComponent<Text>();
                 selectedCharacter = selectedGameObject;
                 selectedText.color = Color.red;
+            }
+
+            if (selectedGameObject == cm.menuObjects[3]) //3 is Create
+            {
+                selectedGameObject.gameObject.GetComponent<CharacterMenuPrefabHandler>().InstantiatePrefabAsChangedMenu(MenuPrefabs.CharacterCreate);
             }
 
         }

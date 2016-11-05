@@ -22,7 +22,7 @@ public class AccountHandler : MonoBehaviour {
         string password = passwordInput.text;
         string userName = usernameInput.text;
 
-        statusBoxHandler.OpenStatusBox(Menus.CharacterMenu);
+        statusBoxHandler.InstantiatePrefab(Menus.CharacterMenu, MenuPrefabs.StatusBox);
 
         CheckInputs(userName, password);
         AccountPacket ap = new AccountPacket();

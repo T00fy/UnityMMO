@@ -13,19 +13,16 @@ public class CursorInput : MonoBehaviour {
     private CursorMover cm;
     private GameObject selectedOption;
 
-    // Use this for initialization
 
     void Awake () {
-        cursor = gameObject;
         menuHandler = GameObject.Find("MenuHandler").GetComponent<MenuHandler>();
+        cursor = gameObject;
         string parent = cursor.transform.parent.name;
         cm = gameObject.GetComponent<CursorMover>();
         selectedOption = cm.GetSelectedOption();
-    }
-
-    void OnEnable() {
         menuHandler.SetCursor(cursor);
     }
+
 	
 	void Update () {
         Vector2 direction = new Vector2(0,0);

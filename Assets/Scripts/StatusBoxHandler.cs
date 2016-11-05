@@ -2,31 +2,16 @@
 using System.Collections;
 using UnityEngine.UI;
 
-public class StatusBoxHandler : MonoBehaviour {
-    public MenuHandler menuHandler;
-
+public class StatusBoxHandler : MenuPrefabHandler {
     private bool boxOpened;
-    public GameObject statusBoxPrefab;
-    public GameObject modalStatusBoxPrefab;
-
     public static Text statusTextObj;
     public static string statusText;
-    private GameObject statusBoxLink;
-    private GameObject[] menus;
-    private GameObject status;
-    private bool modalBoxOpened;
-    private GameObject parentCursor;
     public static bool readyToClose;
-    private string modalChoice;
 
-    void Start()
-    { 
-        menus = menuHandler.GetMenus();
-    }
 
     void Update()
     {
-        if (readyToClose && status != null)
+        if (readyToClose && prefab != null)
         {
             if (Input.GetButtonDown("Fire1"))
             {
@@ -55,17 +40,6 @@ public class StatusBoxHandler : MonoBehaviour {
         {
             statusTextObj.text = "Status: " + statusText;
         }
-/*
-        try
-        {
-            if (status == null)
-            {
-
-                ToggleCursor(true);
-
-            }
-        }
-        catch (NullReferenceException) { }*/
 
     }
 
@@ -74,58 +48,49 @@ public class StatusBoxHandler : MonoBehaviour {
         return boxOpened;
     }
 
-    //merge openstatusbox methods into one by taking an enum parameter when can be fucked to change
-    public void OpenStatusBox(Menus characterMenu)
+    /// <summary>
+    /// Instantiates a prefab and sets it active (set previous menu to unactive if you dont want a status box)
+    /// </summary>
+    /// <param name="menuLink"></param>
+    /// <param name="prefab"></param>
+    public void InstantiatePrefab(Menus menuLink, MenuPrefabs prefabToInstantiate)
     {
-        statusBoxLink = menus[(int)characterMenu];
+        prefab = prefabs[(int)prefabToInstantiate];
+        statusBoxLink = menus[(int)menuLink];
         parentCursor = menuHandler.GetCursor();
         menuHandler.ToggleCursor(false);
-        status = Instantiate(statusBoxPrefab, new Vector3(0, 0, 0), Quaternion.identity) as GameObject;
-        menuHandler.AddMenuAsChild(status);
-        statusTextObj = status.GetComponentInChildren<Text>();
-        boxOpened = true;
-        menuHandler.SetActiveMenu(status);
-    }
+        prefab = Instantiate(prefab) as GameObject;
+        menuHandler.AddMenuAsChild(prefab);
+        statusTextObj = prefab.GetComponentInChildren<Text>();
+        
+        
 
-    public void OpenModalStatusBox(Menus characterMenu)
-    {
-        statusBoxLink = menus[(int)characterMenu];
-        parentCursor = menuHandler.GetCursor();
-        menuHandler.ToggleCursor(false);
-        status = Instantiate(modalStatusBoxPrefab, new Vector3(0, 0, 0), Quaternion.identity) as GameObject;
-        menuHandler.AddMenuAsChild(status);
-        statusTextObj = status.GetComponentInChildren<Text>();
-        modalBoxOpened = true;
-        menuHandler.SetActiveMenu(status);
-    }
-
-    public bool GetModalChoice()
-    {
-        if (modalChoice == "Yes")
+        if (prefab.name == "ModalStatusBox")
         {
-            modalChoice = null;
-            return true;
+            modalBoxOpened = true;
+            statusBoxOpened = true;
         }
-        else
+        if (prefab.name == "StatusBox")
         {
-            modalChoice = null;
-            return false;
+            statusBoxOpened = true;
         }
+        menuHandler.SetActiveMenu(prefab);
     }
 
     /// <summary>
     /// Destroys the status box instantly, without waiting for user input
     /// </summary>
-    private void DestroyStatusBox()
+    ///
+    private new void DestroyStatusBox()
     {
         if (modalBoxOpened)
         {
-            modalChoice = status.GetComponentInChildren<CursorMover>().GetSelectedOption().ToString();
+            modalChoice = prefab.GetComponentInChildren<CursorMover>().GetSelectedOption().ToString();
         }
         GameObject parentMenu = menuHandler.GetParentMenuObject();
         menuHandler.SetActiveMenu(parentMenu);
-        menuHandler.RemoveChildMenu(status);
-        Destroy(status);
+        menuHandler.RemoveChildMenu(prefab);
+        Destroy(prefab);
         if (parentCursor != null)
         {
             menuHandler.SetCursor(parentCursor);

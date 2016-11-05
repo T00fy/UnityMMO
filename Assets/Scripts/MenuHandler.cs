@@ -8,6 +8,7 @@ public class MenuHandler : MonoBehaviour
     public GameObject home;
     public GameObject login;
     public GameObject[] menus;
+    public GameObject[] prefabs;
 
     private GameObject activeMenu;
     private GameObject previousMenu;
@@ -24,15 +25,15 @@ public class MenuHandler : MonoBehaviour
     {
         root = new MenuTree<GameObject>(home);
         {
-            var loginMenu = root.AddChild(menus[1]);
+            var loginMenu = root.AddChild(menus[(int)Menus.LoginMenu]);
             {
-                var characterMenu = loginMenu.AddChild(menus[2]);
+                var characterMenu = loginMenu.AddChild(menus[(int)Menus.LoginMenu]);
                 {
-                    var characterSelection = characterMenu.AddChild(menus[3]);//character creation
+                    var characterSelection = characterMenu.AddChild(menus[(int)Menus.CharacterMenu]);//character creation
                 }
             } //login
 
-            var registerMenu = root.AddChild(menus[4]); //register
+            var registerMenu = root.AddChild(menus[(int)Menus.RegisterMenu]); //register
         }
         activeMenu = root.Data;
     }
@@ -45,6 +46,10 @@ public class MenuHandler : MonoBehaviour
     public GameObject[] GetMenus()
     {
         return menus;
+    }
+    public GameObject[] GetPrefabs()
+    {
+        return prefabs;
     }
 
     public void SetActiveMenu(GameObject current)
@@ -71,11 +76,6 @@ public class MenuHandler : MonoBehaviour
     }
 
 
-    /// <summary>
-    /// Sets the Status box okay to be destroyed after user input
-    /// </summary>
-
-
     public void SetCursor(GameObject cursor)
     {
         this.cursor = cursor;
@@ -84,15 +84,6 @@ public class MenuHandler : MonoBehaviour
     public void ToggleCursor(bool enabled)
     {
         cursor.SetActive(enabled);
-
-    }
-
-
-
-
-    void Update()
-    {
-
 
     }
 
@@ -129,18 +120,24 @@ public class MenuHandler : MonoBehaviour
 
     public void GoUpMenu()
     {
-        activeMenu.SetActive(false);
-        try
+        if (activeMenu.name == "CharacterCreation(Clone)")
         {
-            var parent = root.FindMenuTree(node => node.Data == activeMenu).Parent.Data;
-            activeMenu = parent;
+
         }
-        catch (NullReferenceException e)
-        {
-            Debug.Log("Missing menu");
+        else {
+            activeMenu.SetActive(false);
+            try
+            {
+                var parent = root.FindMenuTree(node => node.Data == activeMenu).Parent.Data;
+                activeMenu = parent;
+            }
+            catch (NullReferenceException e)
+            {
+                Debug.Log("Missing menu");
+            }
+
+
+            activeMenu.SetActive(true);
         }
-        
-        
-        activeMenu.SetActive(true);
     }
 }
