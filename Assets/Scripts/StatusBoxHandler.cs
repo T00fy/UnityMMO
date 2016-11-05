@@ -26,6 +26,7 @@ public class StatusBoxHandler : MenuPrefabHandler {
                     menuHandler.EnterMenu(statusBoxLink);
                     PacketProcessor.loggedInSuccessfully = false;
                 }
+                readyToClose = false;
             }
             if (Input.GetButtonDown("Fire2"))
             {

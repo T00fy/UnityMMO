@@ -54,9 +54,20 @@ namespace MMOServer
             {
                 conn.Open();
                 MySqlCommand command = conn.CreateCommand();
-                command.CommandText = "SELECT `username`, `password` FROM `account` WHERE `username`=@user";
+                command.CommandText = "SELECT `username` FROM `account` WHERE `username`=@user";
                 command.Parameters.AddWithValue("@user", userName);
                 MySqlDataReader rdr = command.ExecuteReader();
+                if (rdr.HasRows)
+                {
+                    while (rdr.Read())
+                    {
+                        list.Add(rdr.GetString(0));
+                    }
+                }
+                rdr.Close();
+                command.CommandText = "SELECT `username`, `password` FROM `account` WHERE `username`=@user AND `password`=@password";
+                command.Parameters.AddWithValue("@password", password);
+                rdr = command.ExecuteReader();
                 if (rdr.HasRows)
                 {
                     while (rdr.Read())
@@ -65,12 +76,25 @@ namespace MMOServer
                         list.Add(rdr.GetString(1));
                     }
                 }
+                if (list.Count > 1)
+                {
+                    if (list.ElementAt(0) == list.ElementAt(1))
+                    {
+                        list.RemoveAt(1);
+                    }
+                    else
+                    {
+                        list.RemoveAt(1);
+                        list.RemoveAt(2);
+                    }
+                }
                 rdr.Close();
                 return list;
 
             }
-            catch (MySqlException)
+            catch (MySqlException e)
             {
+                Console.WriteLine(e.ToString());
                 Console.WriteLine("MySQL error");
                 return list;
             }

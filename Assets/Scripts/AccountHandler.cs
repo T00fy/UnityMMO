@@ -24,16 +24,25 @@ public class AccountHandler : MonoBehaviour {
 
         statusBoxHandler.InstantiatePrefab(Menus.CharacterMenu, MenuPrefabs.StatusBox);
 
-        CheckInputs(userName, password);
-        AccountPacket ap = new AccountPacket();
-        byte[] data = ap.GetDataBytes(userName, password);
+        try
+        {
+            CheckInputs(userName, password);
+            AccountPacket ap = new AccountPacket();
+            byte[] data = ap.GetDataBytes(userName, password);
 
 
-        SubPacket subPacket = new SubPacket(registering, (ushort)userName.Length, (ushort)password.Length, 0, 0, data, SubPacketTypes.Account);
+            SubPacket subPacket = new SubPacket(registering, (ushort)userName.Length, (ushort)password.Length, 0, 0, data, SubPacketTypes.Account);
 
-        BasePacket packetToSend = BasePacket.CreatePacket(subPacket, false, false);
+            BasePacket packetToSend = BasePacket.CreatePacket(subPacket, false, false);
 
-        PacketProcessor.LoginOrRegister(packetToSend);
+            PacketProcessor.LoginOrRegister(packetToSend);
+        }
+        catch (AccountException e)
+        {
+            StatusBoxHandler.statusText = e.Message;
+            StatusBoxHandler.readyToClose = true;
+        }
+
 
 
 
@@ -45,15 +54,15 @@ public class AccountHandler : MonoBehaviour {
     {
         if (password.Contains(" ") || userName.Contains(" "))
         {
-            throw new Exception("Invalid character in Username or Password");
+            throw new AccountException("Invalid character in Username or Password");
         }
         if (password == null && userName == null)
         {
-            throw new Exception("Empty username or password");
+            throw new AccountException("Empty username or password");
         }
         if (password.Length < 4 || userName.Length < 3)
         {
-            throw new Exception("Password and Username length must be greater than 4 characters");
+            throw new AccountException("Password and Username length must be greater than 4 characters");
         }
     }
     // Use this for initialization
@@ -65,4 +74,8 @@ public class AccountHandler : MonoBehaviour {
 	void Update () {
 	
 	}
+}
+public class AccountException : Exception
+{
+    public AccountException(string message) : base(message) { }
 }

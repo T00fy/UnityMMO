@@ -51,12 +51,14 @@ namespace MMOServer
                 {
                     case 0:
                         var packetToSend = ep.buildPacket(ErrorCodes.NoAccount, "Account does not exist");
+                        Console.WriteLine("Attempted log in for username: {0} pw: {1}, account does not exist", ap.userName, ap.password);
                         QueueErrorPacket(packetToSend, client);
                         break;
 
                     case 1:
                         //password incorrect
                         packetToSend = ep.buildPacket(ErrorCodes.WrongPassword, "Wrong username or password");
+                        Console.WriteLine("Attempted log in for username: {0} pw: {1}, password incorrect", ap.userName, ap.password);
                         QueueErrorPacket(packetToSend, client);
                         break;
 
