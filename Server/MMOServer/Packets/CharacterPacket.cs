@@ -15,8 +15,9 @@ namespace MMOServer
         public ushort inte;
         public ushort vit;
         public ushort dex;
+        public ushort statsAllowed;
 
-        public CharacterPacket(string characterName, ushort[] stats) {
+        public CharacterPacket(string characterName, ushort[] stats, ushort statsAllowed) {
             nameLength = (ushort)characterName.Length;
             this.characterName = characterName;
             str = stats[0];
@@ -24,6 +25,7 @@ namespace MMOServer
             inte = stats[2];
             vit = stats[3];
             dex = stats[4];
+            this.statsAllowed = statsAllowed;
         }
 
         public CharacterPacket(byte[] receivedData)
@@ -44,7 +46,7 @@ namespace MMOServer
                 inte = BitConverter.ToUInt16(binReader.ReadBytes(sizeof(ushort)), 0);
                 vit = BitConverter.ToUInt16(binReader.ReadBytes(sizeof(ushort)), 0);
                 dex = BitConverter.ToUInt16(binReader.ReadBytes(sizeof(ushort)), 0);
-
+                statsAllowed = BitConverter.ToUInt16(binReader.ReadBytes(sizeof(ushort)), 0);
             }
             catch (Exception e)
             {
@@ -64,8 +66,9 @@ namespace MMOServer
             byte[] inteBytes = BitConverter.GetBytes(inte);
             byte[] vitBytes = BitConverter.GetBytes(vit);
             byte[] dexBytes = BitConverter.GetBytes(dex);
+            byte[] statsAllowedBytes = BitConverter.GetBytes(statsAllowed);
 
-            byte[] data = new byte[nameLengthBytes.Length + nameBytes.Length + strBytes.Length + agiBytes.Length + inteBytes.Length + vitBytes.Length + dexBytes.Length];
+            byte[] data = new byte[nameLengthBytes.Length + nameBytes.Length + strBytes.Length + agiBytes.Length + inteBytes.Length + vitBytes.Length + dexBytes.Length + statsAllowedBytes.Length];
             //should only need to do this for bitconverter class
             if (!BitConverter.IsLittleEndian)
             {
@@ -75,6 +78,7 @@ namespace MMOServer
                 Array.Reverse(inteBytes);
                 Array.Reverse(vitBytes);
                 Array.Reverse(dexBytes);
+                Array.Reverse(statsAllowedBytes);
 
             }
 
@@ -87,6 +91,7 @@ namespace MMOServer
                 bw.Write(inteBytes);
                 bw.Write(vitBytes);
                 bw.Write(dexBytes);
+                bw.Write(statsAllowedBytes);
 
                 data = mem.GetBuffer();
 
@@ -124,6 +129,10 @@ namespace MMOServer
         public ushort GetDex()
         {
             return dex;
+        }
+        public ushort GetStatsAllowed()
+        {
+            return statsAllowed;
         }
     }
 }

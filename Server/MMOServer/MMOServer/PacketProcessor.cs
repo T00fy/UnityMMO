@@ -6,7 +6,7 @@ namespace MMOServer
     class PacketProcessor
     {
         //basically see what kind of packet it is and decide what to do with it
-
+        private AccountPacket ap;
 
         public void ProcessPacket(ClientConnection client, BasePacket packet)
         {
@@ -40,7 +40,7 @@ namespace MMOServer
 
         private void ProcessAccountPacket(ClientConnection client, SubPacket packet)
         {
-            AccountPacket ap = new AccountPacket();
+            ap = new AccountPacket();
             ErrorPacket ep = new ErrorPacket();
             ap.Read(packet.GetAccountHeaderBytes(), packet.data);
             if (!ap.register)//if account is logging in
@@ -103,10 +103,17 @@ namespace MMOServer
 
         private void CheckCharacterCreatePacket(SubPacket subPacket)
         {
-            Console.WriteLine("Received character packet");
+            Database db = new Database();
             CharacterPacket cp = new CharacterPacket(subPacket.data);
-            Console.WriteLine("Received: " + cp.GetCharacterName() + cp.GetDex());
-            
+            var summedStats = cp.GetStr() + cp.GetAgi() + cp.GetInt() + cp.GetVit() + cp.GetDex();
+            Console.WriteLine(ap.userName);
+            if (summedStats != cp.statsAllowed)
+            {
+                Console.WriteLine("summed stats: {0} was different from packet: {1}", summedStats, cp.statsAllowed);
+                Console.WriteLine("shouldn't get here unless someone is trying to hack the client. Username was {0}", ap.userName);
+            }
+            Console.WriteLine("Received new character creation request for character name: {0}", cp.GetCharacterName());
+          //  db.AddCharacterToDb();
         }
 
 

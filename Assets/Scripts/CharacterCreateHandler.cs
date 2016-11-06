@@ -9,8 +9,8 @@ public class CharacterCreateHandler : MonoBehaviour {
     public GameObject[] statNumbers;
     public GameObject nameField;
     public GameObject statsLeft;
+    private ushort totalStatsAllowed;
     private CharacterMenuPrefabHandler characterMenuPrefabHandler;
-
     private bool statSelected;
     private Animator animator;
     private CursorInput cursorInput;
@@ -32,7 +32,7 @@ public class CharacterCreateHandler : MonoBehaviour {
         animator.enabled = false;
         statSelected = false;
         statCounter = int.Parse(statsLeft.GetComponent<Text>().text);
-
+        totalStatsAllowed = (ushort)(statCounter + 5);
     }
 	
 	// Update is called once per frame
@@ -100,7 +100,15 @@ public class CharacterCreateHandler : MonoBehaviour {
             if (Input.GetButtonDown("Fire1"))
             {
                 characterMenuPrefabHandler.InstantiateModalPrefab(MenuPrefabs.ModalStatusBox, "Are you sure you want to create this character?");
-                characterMenuPrefabHandler.HandleCreateDecision(statNumbers, nameField);
+                if (reachedMaxStats)
+                {
+                    characterMenuPrefabHandler.HandleCreateDecision(statNumbers, nameField, totalStatsAllowed);
+                }
+                else
+                {
+                    //open status box saying you cant do that
+                }
+                
             }
             if (Input.GetButtonDown("Fire2") && !statSelected)
             {
@@ -110,24 +118,6 @@ public class CharacterCreateHandler : MonoBehaviour {
         }
 
 
-    }
-
-    private void SendCharacterCreateInfo(GameObject[] statNumbers, GameObject nameField)
-    {
-        ushort[] stats = new ushort[statNumbers.Length];
-        for (int i = 0; i < statNumbers.Length; i++)
-        {
-            ushort stat = ushort.Parse(statNumbers[i].GetComponent<Text>().text);
-            stats[i] = stat;
-        }
-
-        //    bytesToSend = o920i
-        CharacterPacket cp = new CharacterPacket(nameField.GetComponent<InputField>().text, stats);
-        var bytesToSend = cp.GetData();
-        SubPacket sp = new SubPacket(GamePacketOpCode.CreateCharacter, 0, 0, bytesToSend, SubPacketTypes.GamePacket);
-        BasePacket characterCreationPacket = BasePacket.CreatePacket(sp, PacketProcessor.isAuthenticated, false);
-
-        PacketProcessor.SendCharacterCreationPacket(characterCreationPacket);
     }
 
     private int DoStatChange(string stringToParse, int numberToAdd)

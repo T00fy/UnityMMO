@@ -18,6 +18,7 @@ namespace MMOServer
         public static ManualResetEvent allDone = new ManualResetEvent(false);
         public const int BUFFER_SIZE = 65535;
         private Socket listener;
+        private PacketProcessor packetProcessor;
 
         public void StartListening()
         {
@@ -37,7 +38,7 @@ namespace MMOServer
             {
                 listener.Bind(new IPEndPoint(IPAddress.Any, 3425));
                 listener.Listen(100);
-
+                packetProcessor = new PacketProcessor();
                 while (true)
                 {
                     // Set the event to nonsignaled state.
@@ -51,7 +52,7 @@ namespace MMOServer
                     // Wait until a connection is made before continuing.
                     allDone.WaitOne();
                 }
-
+                
             }
             catch (Exception e)
             {
@@ -70,9 +71,9 @@ namespace MMOServer
 
             try
             {
-                listener = (Socket)ar.AsyncState;
+                Socket s = (Socket)ar.AsyncState;
                 client = new ClientConnection();
-                client.socket = listener.EndAccept(ar);
+                client.socket = s.EndAccept(ar);
                 client.buffer = new byte[BUFFER_SIZE];
                 lock (mConnectionList)
                 {
@@ -109,7 +110,6 @@ namespace MMOServer
             // Retrieve the state object and the handler socket
             // from the asynchronous state object.
             ClientConnection client = (ClientConnection)ar.AsyncState;
-            PacketProcessor packetProcessor = new PacketProcessor();
             try
             {
                 

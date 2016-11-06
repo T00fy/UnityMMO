@@ -84,9 +84,9 @@ public class CharacterMenuPrefabHandler : MenuPrefabHandler {
     //shameless hack ahead
     //
     //
-    public void HandleCreateDecision(GameObject[] statNumbers, GameObject nameField)
+    public void HandleCreateDecision(GameObject[] statNumbers, GameObject nameField, ushort statsAllowed)
     {
-        StartCoroutine(WaitForModalCreateDecision(statNumbers, nameField));
+        StartCoroutine(WaitForModalCreateDecision(statNumbers, nameField, statsAllowed));
         
     }
 
@@ -113,7 +113,7 @@ public class CharacterMenuPrefabHandler : MenuPrefabHandler {
         modalChoiceMade = false;
     }
 
-    public IEnumerator WaitForModalCreateDecision(GameObject[] statNumbers, GameObject nameField)
+    public IEnumerator WaitForModalCreateDecision(GameObject[] statNumbers, GameObject nameField, ushort statsAllowed)
     {
         while (!modalChoiceMade)
         {
@@ -122,7 +122,7 @@ public class CharacterMenuPrefabHandler : MenuPrefabHandler {
         Debug.Log("Choice made");
         if (AnsweredYes())
         {
-            SendCharacterCreateInfo(statNumbers, nameField);
+            SendCharacterCreateInfo(statNumbers, nameField, statsAllowed);
             Debug.Log("bruh");
             CloseAndDiscardCharacterCreateInstance();
             modalChoiceMade = false;
@@ -131,7 +131,7 @@ public class CharacterMenuPrefabHandler : MenuPrefabHandler {
         modalChoiceMade = false;
     }
 
-    private void SendCharacterCreateInfo(GameObject[] statNumbers, GameObject nameField)
+    private void SendCharacterCreateInfo(GameObject[] statNumbers, GameObject nameField, ushort statsAllowed)
     {
         ushort[] stats = new ushort[statNumbers.Length];
         for (int i = 0; i < statNumbers.Length; i++)
@@ -141,7 +141,7 @@ public class CharacterMenuPrefabHandler : MenuPrefabHandler {
         }
 
         //    bytesToSend = o920i
-        CharacterPacket cp = new CharacterPacket(nameField.GetComponent<InputField>().text, stats);
+        CharacterPacket cp = new CharacterPacket(nameField.GetComponent<InputField>().text, stats, statsAllowed);
         var bytesToSend = cp.GetData();
         SubPacket sp = new SubPacket(GamePacketOpCode.CreateCharacter, 0, 0, bytesToSend, SubPacketTypes.GamePacket);
         BasePacket characterCreationPacket = BasePacket.CreatePacket(sp, PacketProcessor.isAuthenticated, false);

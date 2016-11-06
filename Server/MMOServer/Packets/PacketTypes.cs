@@ -22,6 +22,6 @@ namespace MMOServer
 
     public enum ErrorCodes
     {
-        NoAccount,WrongPassword,DuplicateAccount
+        NoAccount,WrongPassword,DuplicateAccount,StatsNotUsed
     }
 }
