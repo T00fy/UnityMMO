@@ -55,7 +55,6 @@ public class CursorMover : MonoBehaviour {
         bool entered = false;
         bool somethingInTheDirection = false;
         bool somethingInTheDirection2 = false;
-        Debug.Log(direction);
         int pointer = -1;
 
 
@@ -95,8 +94,6 @@ public class CursorMover : MonoBehaviour {
             {
                 Vector2 midVector = menuObjects[i].transform.position - curr;
 
-                Debug.Log("horizontal mid: " + midVector);
-                Debug.Log("horizontal dir: " + direction);
                 if (Vector2.Distance(curr, menuObjects[i].transform.position) < smallestDistance &&
                     midVector.normalized.x == direction.normalized.x && menuObjects[i] != selectedOption)
                 {

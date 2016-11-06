@@ -23,6 +23,11 @@ public class CursorInput : MonoBehaviour {
         menuHandler.SetCursor(cursor);
     }
 
+    void OnEnable()
+    {
+        menuHandler.SetCursor(cursor);
+    }
+
 	
 	void Update () {
         Vector2 direction = new Vector2(0,0);

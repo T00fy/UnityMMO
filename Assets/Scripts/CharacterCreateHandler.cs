@@ -3,6 +3,7 @@ using System.Collections;
 using UnityEngine.UI;
 using System;
 using MMOServer;
+using System.Text.RegularExpressions;
 
 public class CharacterCreateHandler : MonoBehaviour {
 
@@ -17,6 +18,7 @@ public class CharacterCreateHandler : MonoBehaviour {
     private CursorMover cm;
     private int statCounter;
     private bool reachedMaxStats;
+    private GameObject handler;
     //need to change this so it gets instantiated as a prefab instead
     //character select should load characters from database
 
@@ -25,7 +27,8 @@ public class CharacterCreateHandler : MonoBehaviour {
         reachedMaxStats = false;
         //      selectedSlot = characterSelect.GetSelectedCharacter();
         Debug.Log(gameObject.name);
-        characterMenuPrefabHandler = GameObject.Find("StatusBoxHandler").GetComponent<CharacterMenuPrefabHandler>();
+        handler = GameObject.Find("StatusBoxHandler");
+        characterMenuPrefabHandler = handler.GetComponent<CharacterMenuPrefabHandler>();
         animator = gameObject.GetComponent<Animator>();
         cursorInput = gameObject.GetComponent<CursorInput>();
         cm = gameObject.GetComponent<CursorMover>();
@@ -50,8 +53,7 @@ public class CharacterCreateHandler : MonoBehaviour {
         {
             if (Input.GetButtonDown("Fire2") && !statSelected)
             {
-                //instantiate modal prefab asking if want to quit character create
-                characterMenuPrefabHandler.InstantiateModalPrefab(MenuPrefabs.ModalStatusBox, "Are you sure you want to exit character creation without saving?");
+                characterMenuPrefabHandler.InstantiatePrefab(MenuPrefabs.ModalStatusBox, "Are you sure you want to exit character creation without saving?");
                 characterMenuPrefabHandler.HandleExitDecision();
             }else
             if ((Input.GetButtonDown("Fire1") || Input.GetButtonDown("Fire2")) && statSelected)
@@ -99,14 +101,20 @@ public class CharacterCreateHandler : MonoBehaviour {
             
             if (Input.GetButtonDown("Fire1"))
             {
-                characterMenuPrefabHandler.InstantiateModalPrefab(MenuPrefabs.ModalStatusBox, "Are you sure you want to create this character?");
-                if (reachedMaxStats)
+                if (reachedMaxStats && CharacterNameIsLegal())
                 {
+                    characterMenuPrefabHandler.InstantiatePrefab(MenuPrefabs.ModalStatusBox, "Are you sure you want to create this character?");
                     characterMenuPrefabHandler.HandleCreateDecision(statNumbers, nameField, totalStatsAllowed);
                 }
-                else
+                else if (!reachedMaxStats)
                 {
+                    handler.GetComponent<StatusBoxHandler>().InstantiatePrefab(MenuPrefabs.StatusBox, "You need to use all your stats first");
+
                     //open status box saying you cant do that
+                }
+                else if (!CharacterNameIsLegal())
+                {
+                    handler.GetComponent<StatusBoxHandler>().InstantiatePrefab(MenuPrefabs.StatusBox, "Your name needs to have 3-9 alphanumeric characters.");
                 }
                 
             }
@@ -118,6 +126,21 @@ public class CharacterCreateHandler : MonoBehaviour {
         }
 
 
+    }
+
+    private bool CharacterNameIsLegal()
+    {
+        Regex r = new Regex("^[a-zA-Z0-9]+$");
+        var input = nameField.GetComponent<InputField>().text;
+        if (input.Length > 10 || input.Length < 3)
+        {
+            return false;
+        }
+        if (r.IsMatch(input))
+        {
+            return true;
+        }
+        return false;
     }
 
     private int DoStatChange(string stringToParse, int numberToAdd)

@@ -3,10 +3,10 @@ using System.Collections;
 using UnityEngine.UI;
 
 public class StatusBoxHandler : MenuPrefabHandler {
-    private bool boxOpened;
     public static Text statusTextObj;
     public static string statusText;
     public static bool readyToClose;
+    private GameObject statusBoxLink;
 
 
     void Update()
@@ -19,7 +19,11 @@ public class StatusBoxHandler : MenuPrefabHandler {
                 DestroyStatusBox();
                 if (PacketProcessor.isAuthenticated)
                 {
-                    menuHandler.EnterMenu(statusBoxLink);
+                    if (statusBoxLink != null)
+                    {
+                        menuHandler.EnterMenu(statusBoxLink);
+                    }
+                    
                 }
                 else if (menuHandler.GetActiveMenu() == menus[(int)Menus.LoginMenu] && PacketProcessor.loggedInSuccessfully)
                 {
@@ -27,13 +31,16 @@ public class StatusBoxHandler : MenuPrefabHandler {
                     PacketProcessor.loggedInSuccessfully = false;
                 }
                 readyToClose = false;
+                statusBoxLink = null;
             }
             if (Input.GetButtonDown("Fire2"))
             {
 
 
                 DestroyStatusBox();
+                statusBoxLink = null;
             }
+            
         }
 
 
@@ -44,13 +51,8 @@ public class StatusBoxHandler : MenuPrefabHandler {
 
     }
 
-    public bool BoxOpened()
-    {
-        return boxOpened;
-    }
-
     /// <summary>
-    /// Instantiates a prefab and sets it active (set previous menu to unactive if you dont want a status box)
+    /// Instantiates a prefab and sets it active, goes to the specified menulink when OK is pushed
     /// </summary>
     /// <param name="menuLink"></param>
     /// <param name="prefab"></param>
@@ -63,14 +65,7 @@ public class StatusBoxHandler : MenuPrefabHandler {
         prefab = Instantiate(prefab) as GameObject;
         menuHandler.AddMenuAsChild(prefab);
         statusTextObj = prefab.GetComponentInChildren<Text>();
-        
-        
 
-        if (prefab.name == "ModalStatusBox")
-        {
-            modalBoxOpened = true;
-            statusBoxOpened = true;
-        }
         if (prefab.name == "StatusBox")
         {
             statusBoxOpened = true;
@@ -84,11 +79,12 @@ public class StatusBoxHandler : MenuPrefabHandler {
     ///
     private new void DestroyStatusBox()
     {
-        if (modalBoxOpened)
+  /*      if (modalBoxOpened)
         {
             modalChoice = prefab.GetComponentInChildren<CursorMover>().GetSelectedOption().ToString();
-        }
+        }*/
         GameObject parentMenu = menuHandler.GetParentMenuObject();
+        Debug.Log(parentMenu);
         menuHandler.SetActiveMenu(parentMenu);
         menuHandler.RemoveChildMenu(prefab);
         Destroy(prefab);

@@ -16,7 +16,6 @@ public class CharacterMenuPrefabHandler : MenuPrefabHandler {
             if (Input.GetButtonDown("Fire1"))
             {
                 modalChoiceMade = true;
-                Debug.Log("Got here");
                 modalChoice = menuHandler.GetCursor().GetComponent<CursorMover>().GetSelectedOption().GetComponent<Text>().text;
                 DestroyStatusBox();
             }
@@ -48,10 +47,10 @@ public class CharacterMenuPrefabHandler : MenuPrefabHandler {
         characterCreateMenu = Instantiate(characterCreateMenu) as GameObject;
         characterCreateMenu.transform.SetParent(GameObject.Find("MainMenu").transform);
         priorMenu = menuHandler.GetActiveMenu();
-        Debug.Log(characterCreateMenu.name);
         priorMenu.SetActive(false);
         menuHandler.AddMenuAsChild(characterCreateMenu);
         menuHandler.SetActiveMenu(characterCreateMenu);
+
     }
 
     public void CloseAndDiscardCharacterCreateInstance()
@@ -119,11 +118,9 @@ public class CharacterMenuPrefabHandler : MenuPrefabHandler {
         {
             yield return null;
         }
-        Debug.Log("Choice made");
         if (AnsweredYes())
         {
             SendCharacterCreateInfo(statNumbers, nameField, statsAllowed);
-            Debug.Log("bruh");
             CloseAndDiscardCharacterCreateInstance();
             modalChoiceMade = false;
 

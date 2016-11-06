@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UnityEngine.UI;
 
 public class CharacterSelect : MonoBehaviour {
@@ -24,7 +25,7 @@ public class CharacterSelect : MonoBehaviour {
         if (Input.GetButtonDown("Fire1"))
         {
             selectedGameObject = cm.GetSelectedOption();
-            if (selectedGameObject.transform.IsChildOf(transform) && selectedGameObject != cm.menuObjects[3])
+            if (selectedGameObject.transform.IsChildOf(transform) && NotAMenuAction())
             {
                 selectedText.color = Color.white;
                 selectedText = selectedGameObject.GetComponent<Text>();
@@ -39,6 +40,11 @@ public class CharacterSelect : MonoBehaviour {
 
         }
 
+    }
+
+    private bool NotAMenuAction()
+    {
+        return ((selectedGameObject != cm.menuObjects[3]) && (selectedGameObject != cm.menuObjects[4]) && (selectedGameObject != cm.menuObjects[5]));
     }
 
     public GameObject GetSelectedCharacter()

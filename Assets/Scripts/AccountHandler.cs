@@ -5,8 +5,6 @@ using System;
 
 public class AccountHandler : MonoBehaviour {
     public StatusBoxHandler statusBoxHandler;
-
-    private GameObject cursor;
     private MenuHandler menuHandler;
 
 

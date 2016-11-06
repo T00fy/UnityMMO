@@ -104,7 +104,6 @@ public class MenuHandler : MonoBehaviour
 
     public void EnterMenu(GameObject enterMenu)
     {
-        
         activeMenu.SetActive(false);
         activeMenu = root.FindMenuTree(node => node.Data == enterMenu).Data;
         if (activeMenu != null)
