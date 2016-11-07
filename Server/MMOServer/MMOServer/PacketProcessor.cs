@@ -7,9 +7,11 @@ namespace MMOServer
     {
         //basically see what kind of packet it is and decide what to do with it
         private AccountPacket ap;
+        private ClientConnection client;
 
         public void ProcessPacket(ClientConnection client, BasePacket packet)
         {
+            this.client = client;
 
     //        BasePacket.DecryptPacket(client.blowfish, ref packet);
 
@@ -50,16 +52,16 @@ namespace MMOServer
                 switch (account.Count)
                 {
                     case 0:
-                        var packetToSend = ep.buildPacket(ErrorCodes.NoAccount, "Account does not exist");
+                        var packetToSend = ep.buildPacket(GamePacketOpCode.AccountError, ErrorCodes.NoAccount, "Account does not exist");
                         Console.WriteLine("Attempted log in for username: {0} pw: {1}, account does not exist", ap.userName, ap.password);
-                        QueueErrorPacket(packetToSend, client);
+                        QueueErrorPacket(packetToSend);
                         break;
 
                     case 1:
                         //password incorrect
-                        packetToSend = ep.buildPacket(ErrorCodes.WrongPassword, "Wrong username or password");
+                        packetToSend = ep.buildPacket(GamePacketOpCode.AccountError, ErrorCodes.WrongPassword, "Wrong username or password");
                         Console.WriteLine("Attempted log in for username: {0} pw: {1}, password incorrect", ap.userName, ap.password);
-                        QueueErrorPacket(packetToSend, client);
+                        QueueErrorPacket(packetToSend);
                         break;
 
                     case 2:
@@ -87,15 +89,15 @@ namespace MMOServer
                 }
                 else
                 {
-                    var packetToSend = ep.buildPacket(ErrorCodes.DuplicateAccount, "Account already registered");
-                    QueueErrorPacket(packetToSend, client);
+                    var packetToSend = ep.buildPacket(GamePacketOpCode.AccountError, ErrorCodes.DuplicateAccount, "Account already registered");
+                    QueueErrorPacket(packetToSend);
                 }
 
 
             }
         }
      
-        private void QueueErrorPacket(SubPacket subPacket, ClientConnection client)
+        private void QueueErrorPacket(SubPacket subPacket)
         {
             BasePacket errorBasePacket = BasePacket.CreatePacket(subPacket, false, false);
             client.QueuePacket(errorBasePacket);
@@ -113,7 +115,28 @@ namespace MMOServer
                 Console.WriteLine("shouldn't get here unless someone is trying to hack the client. Username was {0}", ap.userName);
             }
             Console.WriteLine("Received new character creation request for character name: {0}", cp.GetCharacterName());
-          //  db.AddCharacterToDb();
+            int error = db.AddCharacterToDb(ap.userName, cp);
+            if (error == -1)
+            {
+                SubPacket success = new SubPacket(GamePacketOpCode.CreateCharacterSuccess, 0, 0, System.Text.Encoding.Unicode.GetBytes("Character created successfully"), SubPacketTypes.GamePacket);
+                BasePacket basePacket = BasePacket.CreatePacket(success, true, false);
+                client.QueuePacket(basePacket);
+                //created successfully
+            }
+            else
+            {
+                ErrorPacket ep = new ErrorPacket();
+                if (error == (int)ErrorCodes.DuplicateCharacter)
+                {
+                    var packetToSend = ep.buildPacket(GamePacketOpCode.CreateCharacterError, ErrorCodes.DuplicateCharacter, "Character with that name already exists");
+                }
+                if (error == (int)ErrorCodes.UnknownDatabaseError)
+                {
+                    var packetToSend = ep.buildPacket(GamePacketOpCode.CreateCharacterError, ErrorCodes.UnknownDatabaseError, "Unknown database error occurred");
+                    QueueErrorPacket(packetToSend);
+                }
+            }
+
         }
 
 

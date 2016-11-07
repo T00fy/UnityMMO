@@ -40,7 +40,7 @@ namespace MMOServer
             }
         }
 
-        public SubPacket buildPacket(ErrorCodes errorId, string message)
+        public SubPacket buildPacket(GamePacketOpCode opCode, ErrorCodes errorId, string message)
         {
             byte[] msg = Encoding.Unicode.GetBytes(message);
             var errorIdConv = (ushort)errorId;
@@ -55,7 +55,7 @@ namespace MMOServer
                 byte[] data = memStream.GetBuffer();
                 memStream.Dispose();
                 binWriter.Close();
-                SubPacket subPacket = new SubPacket(GamePacketOpCode.AccountError, 0, 0, data, SubPacketTypes.GamePacket);
+                SubPacket subPacket = new SubPacket(opCode, 0, 0, data, SubPacketTypes.ErrorPacket);
                 return subPacket;
             }
             catch (Exception)

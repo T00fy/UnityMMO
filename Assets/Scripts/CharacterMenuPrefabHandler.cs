@@ -60,7 +60,6 @@ public class CharacterMenuPrefabHandler : MenuPrefabHandler {
         menuHandler.GetActiveMenu().SetActive(true);
         menuHandler.SetCursor(menuHandler.GetActiveMenu().transform.Find("Cursor").gameObject);
         menuHandler.ToggleCursor(true);
-        Debug.Log("gottt");
         if (temp.name == "CharacterCreation(Clone)")
         {
             menuHandler.RemoveChildMenu(characterCreateMenu);
@@ -104,7 +103,6 @@ public class CharacterMenuPrefabHandler : MenuPrefabHandler {
         Debug.Log("Choice made");
         if (AnsweredYes())
         {
-            Debug.Log("bruh");
             CloseAndDiscardCharacterCreateInstance();
             modalChoiceMade = false;
 
@@ -120,8 +118,8 @@ public class CharacterMenuPrefabHandler : MenuPrefabHandler {
         }
         if (AnsweredYes())
         {
+            modalBoxOpened = false;
             SendCharacterCreateInfo(statNumbers, nameField, statsAllowed);
-            CloseAndDiscardCharacterCreateInstance();
             modalChoiceMade = false;
 
         }
@@ -142,9 +140,30 @@ public class CharacterMenuPrefabHandler : MenuPrefabHandler {
         var bytesToSend = cp.GetData();
         SubPacket sp = new SubPacket(GamePacketOpCode.CreateCharacter, 0, 0, bytesToSend, SubPacketTypes.GamePacket);
         BasePacket characterCreationPacket = BasePacket.CreatePacket(sp, PacketProcessor.isAuthenticated, false);
-
+        var box = gameObject.GetComponent<StatusBoxHandler>();
+       // StatusBoxHandler.readyToClose = false;
+       //modal status box is prefab
+        box.InstantiateStatusBoxPrefabWithNoMenuLink(MenuPrefabs.StatusBox);
+        StatusBoxHandler.statusText = "Waiting for response from server..";
         PacketProcessor.SendCharacterCreationPacket(characterCreationPacket);
+        StartCoroutine(WaitForServerResponse(box));
+        
     }
+
+    private IEnumerator WaitForServerResponse(StatusBoxHandler box)
+    {
+        while (!StatusBoxHandler.readyToClose)
+        {
+            yield return null;
+        }
+        while (box.GetPrefab() != null)
+        {
+            yield return null;
+        }
+        CloseAndDiscardCharacterCreateInstance();
+
+    }
+    //i've fucked this up hardout.
 
     //
     //

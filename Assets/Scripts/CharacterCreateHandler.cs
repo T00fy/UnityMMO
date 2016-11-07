@@ -26,7 +26,6 @@ public class CharacterCreateHandler : MonoBehaviour {
 	void Awake () {
         reachedMaxStats = false;
         //      selectedSlot = characterSelect.GetSelectedCharacter();
-        Debug.Log(gameObject.name);
         handler = GameObject.Find("StatusBoxHandler");
         characterMenuPrefabHandler = handler.GetComponent<CharacterMenuPrefabHandler>();
         animator = gameObject.GetComponent<Animator>();

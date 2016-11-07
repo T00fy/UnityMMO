@@ -9,10 +9,9 @@ public class MenuPrefabHandler : MonoBehaviour {
     protected GameObject[] prefabs;
     protected GameObject parentCursor;
     protected GameObject prefab;
-    protected bool modalBoxOpened;
-    protected bool statusBoxOpened;
+    public static bool modalBoxOpened; // change all implementations of these to look for StatusBox(Clone) being open in editor
+    public static bool statusBoxOpened;
     protected string modalChoice;
-
 
     void Start()
     {
@@ -48,7 +47,7 @@ public class MenuPrefabHandler : MonoBehaviour {
     }
 
     /// <summary>
-    /// Instantiates a generic statusbox prefab with custom message, used mainly in character create screen
+    /// Instantiates a generic statusbox prefab with custom message that is instantly ready to close, used mainly in character create screen
     /// </summary>
     /// <param name="prefabToInstantiate"></param>
     /// <param name="statusText"></param>
@@ -74,7 +73,7 @@ public class MenuPrefabHandler : MonoBehaviour {
 
 
     /// <summary>
-    /// Instantiates a generic menu prefab directly from a gameobject
+    /// Instantiates a generic menu prefab directly from a gameobject, ready to close needs to be set manually
     /// </summary>
     /// <param name="characterMenu"></param>
     /// <param name="prefab"></param>
@@ -89,17 +88,27 @@ public class MenuPrefabHandler : MonoBehaviour {
     }
 
     /// <summary>
-    /// Instantiates a generic menu prefab and sets it active using menuprefab enum. DON'T use this for specific menu cases like charcreate
+    /// Instantiates a generic menu prefab and sets it active using menuprefab enum. Instantly sets it ready to close, so 
+    /// used best for a quick message that shouldn't rely on other events to occur after it.
+    /// DON'T use this for specific menu cases like charcreate. 
     /// </summary>
     /// <param name="characterMenu"></param>
     /// <param name="prefab"></param>
     public void InstantiatePrefab(MenuPrefabs prefabToInstantiate)
     {
+        if (prefabToInstantiate == MenuPrefabs.ModalStatusBox)
+        {
+            modalBoxOpened = true;
+        }
+        if (prefabToInstantiate == MenuPrefabs.StatusBox)
+        {
+            statusBoxOpened = true;
+        }
         prefab = prefabs[(int)prefabToInstantiate];
-        parentCursor = menuHandler.GetCursor();
         menuHandler.ToggleCursor(false);
-        prefab = Instantiate(prefab, new Vector3(0, 0, 0), Quaternion.identity) as GameObject;
+        prefab = Instantiate(prefab) as GameObject;
         menuHandler.AddMenuAsChild(prefab);
+        parentCursor = menuHandler.GetCursor();
         menuHandler.SetActiveMenu(prefab);
     }
 

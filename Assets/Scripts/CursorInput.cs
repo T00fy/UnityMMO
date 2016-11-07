@@ -105,7 +105,7 @@ public class CursorInput : MonoBehaviour {
                 }
             }
 
-            if (Input.GetButtonDown("Fire2"))
+            if (Input.GetButtonDown("Fire2") && !(MenuPrefabHandler.statusBoxOpened || MenuPrefabHandler.modalBoxOpened))
             { 
                 menuHandler.GoUpMenu();
 

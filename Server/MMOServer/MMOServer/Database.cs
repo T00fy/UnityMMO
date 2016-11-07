@@ -134,5 +134,52 @@ namespace MMOServer
             return status;
 
         }
+        /// <summary>
+        /// Adds a new character to the database
+        /// </summary>
+        /// <param name="accountName"></param>
+        /// <param name="cp"></param>
+        /// <returns>Returns an int corresponding to ErrorCodes. If no error found will return -1</returns>
+        public int AddCharacterToDb(string accountName, CharacterPacket cp)
+        {
+            /*            INSERT INTO  `chars` (  `AccountID`,`Name`,`Strength`,`Agility`,`Intellect`,`Vitality`,`Dexterity`  ) 
+                        SELECT id, 'test', 1,1,1,1,1
+                        FROM account
+                        WHERE username = 'toofy'*/
+            try
+            {
+                conn.Open();
+                MySqlCommand command = conn.CreateCommand();
+                command.CommandText = "INSERT INTO  `chars` (`AccountID`,`Name`,`Strength`,`Agility`,`Intellect`,`Vitality`,`Dexterity`)"
+                    + "SELECT id, @charactername, @str,@agi,@int,@vit,@dex FROM account WHERE username = @user";
+                command.Parameters.AddWithValue("@user", accountName);
+                command.Parameters.AddWithValue("@charactername", cp.characterName);
+                command.Parameters.AddWithValue("@str", cp.str);
+                command.Parameters.AddWithValue("@agi", cp.agi);
+                command.Parameters.AddWithValue("@int", cp.inte);
+                command.Parameters.AddWithValue("@vit", cp.vit);
+                command.Parameters.AddWithValue("@dex", cp.dex);
+
+                MySqlDataReader rdr = command.ExecuteReader();
+                rdr.Close();
+                conn.Close();
+                return -1;
+            }
+            catch (MySqlException e)
+            {
+                conn.Close();
+                switch (e.Number)
+                {
+                    case (1062):
+                        Console.WriteLine("Duplicate character name attempted to be created");
+                        return (int)ErrorCodes.DuplicateCharacter;
+                    default:
+                        Console.WriteLine("Got a MySQL error and not sure how to handle it");
+                        Console.WriteLine("Error code is " + e.Number);
+                        return (int)ErrorCodes.UnknownDatabaseError;
+                }
+
+            }
+        }
     }
 }

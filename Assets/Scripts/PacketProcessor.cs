@@ -57,7 +57,6 @@ public static class PacketProcessor {
             isAuthenticated = true;
         }
 
-
         List<SubPacket> subPackets = receivedPacket.GetSubpackets();
         foreach (SubPacket subPacket in subPackets)
         {
@@ -71,7 +70,7 @@ public static class PacketProcessor {
 
             if (!receivedPacket.isAuthenticated())
             {
-                if (subPacket.header.type == (ushort)SubPacketTypes.GamePacket)
+                if (subPacket.header.type == (ushort)SubPacketTypes.ErrorPacket)
                 {
                     if (subPacket.gameMessage.opcode == (ushort)GamePacketOpCode.AccountError)
                     {
@@ -79,28 +78,49 @@ public static class PacketProcessor {
                         ep.ReadPacket(subPacket.data);
                         string msg = ep.GetErrorMessage();
                         StatusBoxHandler.statusText = msg;
+                        StatusBoxHandler.readyToClose = true;
 
                     }
-
                 }
             }
             else
             {
+                if (subPacket.header.type == (ushort)SubPacketTypes.ErrorPacket)
+                {
+                    switch (subPacket.gameMessage.opcode)
+                    {
+                        case ((ushort)GamePacketOpCode.CreateCharacterError):
+                            {
+                                StatusBoxHandler.statusText = "Character name has already been taken";
+                                StatusBoxHandler.readyToClose = true;
+                                break;
+                            }
+                    }
+                }
                 switch (subPacket.gameMessage.opcode)
                 {
                     case ((ushort)GamePacketOpCode.AccountSuccess):
                         StatusBoxHandler.statusText = Encoding.Unicode.GetString(subPacket.data);
                         isAuthenticated = true;
                         loggedInSuccessfully = true;
+                        StatusBoxHandler.readyToClose = true;
                         break;
 
                     case ((ushort)GamePacketOpCode.RegisterSuccess):
                         StatusBoxHandler.statusText = Encoding.Unicode.GetString(subPacket.data);
+                        StatusBoxHandler.readyToClose = true;
                         break;
 
                     case ((ushort)GamePacketOpCode.CreateCharacter):
                         StatusBoxHandler.statusText = Encoding.Unicode.GetString(subPacket.data);
+                        StatusBoxHandler.readyToClose = true;
                         break;
+
+                    case ((ushort)GamePacketOpCode.CreateCharacterSuccess):
+                        StatusBoxHandler.statusText = Encoding.Unicode.GetString(subPacket.data);
+                        StatusBoxHandler.readyToClose = true;
+                        break;
+
 
                     default:
                         Debug.Log("Unknown or corrupted packet");
@@ -108,7 +128,7 @@ public static class PacketProcessor {
                     }
             }
 
-            StatusBoxHandler.readyToClose = true;
+     //       StatusBoxHandler.readyToClose = true;
 
         }
     }

@@ -66,7 +66,23 @@ public class StatusBoxHandler : MenuPrefabHandler {
         menuHandler.AddMenuAsChild(prefab);
         statusTextObj = prefab.GetComponentInChildren<Text>();
 
-        if (prefab.name == "StatusBox")
+        if (prefab.name == "StatusBox(Clone)")
+        {
+            statusBoxOpened = true;
+        }
+        menuHandler.SetActiveMenu(prefab);
+    }
+
+    public void InstantiateStatusBoxPrefabWithNoMenuLink(MenuPrefabs prefabToInstantiate)
+    {
+        prefab = prefabs[(int)prefabToInstantiate];
+        parentCursor = menuHandler.GetCursor();
+        menuHandler.ToggleCursor(false);
+        prefab = Instantiate(prefab) as GameObject;
+        menuHandler.AddMenuAsChild(prefab);
+        statusTextObj = prefab.GetComponentInChildren<Text>();
+
+        if (prefab.name == "StatusBox(Clone)")
         {
             statusBoxOpened = true;
         }
@@ -84,7 +100,6 @@ public class StatusBoxHandler : MenuPrefabHandler {
             modalChoice = prefab.GetComponentInChildren<CursorMover>().GetSelectedOption().ToString();
         }*/
         GameObject parentMenu = menuHandler.GetParentMenuObject();
-        Debug.Log(parentMenu);
         menuHandler.SetActiveMenu(parentMenu);
         menuHandler.RemoveChildMenu(prefab);
         Destroy(prefab);
@@ -94,6 +109,7 @@ public class StatusBoxHandler : MenuPrefabHandler {
             menuHandler.ToggleCursor(true);
         }
         statusText = "";
+        statusBoxOpened = false;
     }
 
 }
