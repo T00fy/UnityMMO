@@ -8,14 +8,18 @@ using MMOServer;
 using System.Threading;
 using System.Collections.Generic;
 
-public class Connection {
+public class Connection : MonoBehaviour{
     private Socket socket;
+    [HideInInspector]
     public const int BUFFER_SIZE = 65535;
+    [HideInInspector]
     public byte[] buffer = new byte[0xffff];
     //       public CircularBuffer<byte> incomingStream = new CircularBuffer<byte>(1024);
     public Queue<BasePacket> sendPacketQueue = new Queue<BasePacket>(100);
+    [HideInInspector]
     public int lastPartialSize = 0;
-  //  private BasePacket packetToSend;
+    private PacketProcessor packetProcessor;
+    //  private BasePacket packetToSend;
 
 
     //used mainly for logging in and registering, will display a statusbox with packet 
@@ -38,6 +42,11 @@ public class Connection {
     //get subpackets
     //store into basepacket and send when ready
     //
+
+    void Start()
+    {
+        packetProcessor = GameObject.FindGameObjectWithTag("PacketProcessor").GetComponent<PacketProcessor>();
+    }
 
     public Connection()
     {
@@ -181,7 +190,7 @@ public class Connection {
                     else
                     {
 
-                        PacketProcessor.ProcessPacket(basePacket);
+                        packetProcessor.ProcessPacket(basePacket);
                     }
 
                 }
@@ -211,8 +220,9 @@ public class Connection {
 
 
         }
-        catch {
+        catch (Exception e) {
             Debug.Log("something went wrong");
+            Debug.Log(e);
         }
             
    }

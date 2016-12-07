@@ -6,6 +6,7 @@ using System;
 public class AccountHandler : MonoBehaviour {
     public StatusBoxHandler statusBoxHandler;
     private MenuHandler menuHandler;
+    private PacketProcessor packetProcessor;
 
 
     public void SubmitAccount(string findUser, string findPass, MenuLink ml, bool registering)
@@ -32,8 +33,9 @@ public class AccountHandler : MonoBehaviour {
             SubPacket subPacket = new SubPacket(registering, (ushort)userName.Length, (ushort)password.Length, 0, 0, data, SubPacketTypes.Account);
 
             BasePacket packetToSend = BasePacket.CreatePacket(subPacket, false, false);
-
-            PacketProcessor.LoginOrRegister(packetToSend);
+            Utils.SetAccountName(userName);
+            packetProcessor = GameObject.FindGameObjectWithTag("PacketProcessor").GetComponent<PacketProcessor>();
+            packetProcessor.LoginOrRegister(packetToSend);
         }
         catch (AccountException e)
         {

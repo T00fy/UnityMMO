@@ -9,7 +9,7 @@ public class MenuPrefabHandler : MonoBehaviour {
     protected GameObject[] prefabs;
     protected GameObject parentCursor;
     protected GameObject prefab;
-    public static bool modalBoxOpened; // change all implementations of these to look for StatusBox(Clone) being open in editor
+    public static bool modalBoxOpened;
     public static bool statusBoxOpened;
     protected string modalChoice;
 
@@ -115,7 +115,7 @@ public class MenuPrefabHandler : MonoBehaviour {
     /// <summary>
     /// Destroys the status box instantly
     /// </summary>
-    protected void DestroyStatusBox()
+    protected void DestroyBox()
     {
         GameObject parentMenu = menuHandler.GetParentMenuObject();
         menuHandler.SetActiveMenu(parentMenu);

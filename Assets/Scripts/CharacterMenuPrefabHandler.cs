@@ -8,6 +8,7 @@ public class CharacterMenuPrefabHandler : MenuPrefabHandler {
     private GameObject priorMenu;
     private GameObject characterCreateMenu;
     private bool modalChoiceMade;
+    private PacketProcessor packetProcessor;
 
     void Update()
     {
@@ -17,13 +18,13 @@ public class CharacterMenuPrefabHandler : MenuPrefabHandler {
             {
                 modalChoiceMade = true;
                 modalChoice = menuHandler.GetCursor().GetComponent<CursorMover>().GetSelectedOption().GetComponent<Text>().text;
-                DestroyStatusBox();
+                DestroyBox();
             }
             if (Input.GetButtonDown("Fire2"))
             {
                 modalChoiceMade = true;
                 modalChoice = "No";
-               DestroyStatusBox();
+               DestroyBox();
             }
 
         }
@@ -136,7 +137,7 @@ public class CharacterMenuPrefabHandler : MenuPrefabHandler {
         }
 
         //    bytesToSend = o920i
-        CharacterPacket cp = new CharacterPacket(nameField.GetComponent<InputField>().text, stats, statsAllowed);
+        CharacterCreatePacket cp = new CharacterCreatePacket(nameField.GetComponent<InputField>().text, stats, statsAllowed, CharacterSelect.selectedSlot);
         var bytesToSend = cp.GetData();
         SubPacket sp = new SubPacket(GamePacketOpCode.CreateCharacter, 0, 0, bytesToSend, SubPacketTypes.GamePacket);
         BasePacket characterCreationPacket = BasePacket.CreatePacket(sp, PacketProcessor.isAuthenticated, false);
@@ -145,7 +146,8 @@ public class CharacterMenuPrefabHandler : MenuPrefabHandler {
        //modal status box is prefab
         box.InstantiateStatusBoxPrefabWithNoMenuLink(MenuPrefabs.StatusBox);
         StatusBoxHandler.statusText = "Waiting for response from server..";
-        PacketProcessor.SendCharacterCreationPacket(characterCreationPacket);
+        packetProcessor = GameObject.FindGameObjectWithTag("PacketProcessor").GetComponent<PacketProcessor>();
+        packetProcessor.SendPacket(characterCreationPacket);
         StartCoroutine(WaitForServerResponse(box));
         
     }
@@ -163,7 +165,6 @@ public class CharacterMenuPrefabHandler : MenuPrefabHandler {
         CloseAndDiscardCharacterCreateInstance();
 
     }
-    //i've fucked this up hardout.
 
     //
     //

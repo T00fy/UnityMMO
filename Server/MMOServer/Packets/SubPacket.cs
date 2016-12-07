@@ -224,6 +224,8 @@ namespace MMOServer
 #if DEBUG
             Console.BackgroundColor = ConsoleColor.DarkRed;
             Console.WriteLine("Size: 0x{0:X}", header.subpacketSize);
+            Console.WriteLine("Packet Type: 0x{0:X}", header.type);
+            Console.WriteLine("Opcode: 0x{0:X}", gameMessage.opcode);
             if (header.type == (ushort)SubPacketTypes.GamePacket)
                 Console.WriteLine("Opcode: 0x{0:X}", gameMessage.opcode);
             if (header.type == (ushort)SubPacketTypes.Account)

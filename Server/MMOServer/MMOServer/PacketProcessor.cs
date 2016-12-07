@@ -13,13 +13,14 @@ namespace MMOServer
         {
             this.client = client;
 
-    //        BasePacket.DecryptPacket(client.blowfish, ref packet);
+            //        BasePacket.DecryptPacket(client.blowfish, ref packet);
 
             //else
             packet.debugPrintPacket();
             List<SubPacket> subPackets = packet.GetSubpackets();
             foreach (SubPacket subPacket in subPackets)
             {
+                Console.WriteLine("OPCODE: "+ subPacket.gameMessage.opcode);
                 subPacket.debugPrintSubPacket();
 
                 if (subPacket.header.type == (ushort)SubPacketTypes.Account)
@@ -36,8 +37,30 @@ namespace MMOServer
                             break;
                     }
                 }
+                if (subPacket.header.type == (ushort)SubPacketTypes.GamePacket)
+                {
+                    switch (subPacket.gameMessage.opcode)
+                    {
+                        case (ushort)GamePacketOpCode.CharacterListQuery:
+                            ProcessCharacterListQueryPacket(subPacket);
+                            break;
+                    }
+                }
 
             }
+        }
+
+        private void ProcessCharacterListQueryPacket(SubPacket receivedPacket)
+        {
+            Database db = new Database();
+            CharacterQueryPacket cq = new CharacterQueryPacket();
+            string accountName = cq.ReadAccountName(receivedPacket);
+            var characterList = db.GetListOfCharacters(accountName);
+            var packets = cq.BuildResponsePacket(characterList);
+            Console.WriteLine("Character packeted authenticated = " + client.authenticated);
+            BasePacket packetsToSend = BasePacket.CreatePacket(packets, client.authenticated, false);
+
+            client.QueuePacket(packetsToSend);
         }
 
         private void ProcessAccountPacket(ClientConnection client, SubPacket packet)
@@ -68,7 +91,8 @@ namespace MMOServer
                         //user and password found
                         Console.WriteLine("Username: {0} Password: {1} has logged in successfully", account[0], account[1]);
                         SubPacket success = new SubPacket(GamePacketOpCode.AccountSuccess, 0, 0, System.Text.Encoding.Unicode.GetBytes("Login Successful"), SubPacketTypes.GamePacket);
-                        BasePacket basePacket = BasePacket.CreatePacket(success, true, false);
+                        client.authenticated = true;
+                        BasePacket basePacket = BasePacket.CreatePacket(success, client.authenticated, false);
                         client.QueuePacket(basePacket);
                         break;
 
@@ -84,7 +108,7 @@ namespace MMOServer
                 {
                     Console.WriteLine("Username: {0} Password: {1} has been registered successfully", ap.userName, ap.password);
                     SubPacket success = new SubPacket(GamePacketOpCode.RegisterSuccess, 0, 0, System.Text.Encoding.Unicode.GetBytes("Registration Successful"), SubPacketTypes.GamePacket);
-                    BasePacket basePacket = BasePacket.CreatePacket(success, true, false);
+                    BasePacket basePacket = BasePacket.CreatePacket(success, false, false);
                     client.QueuePacket(basePacket);
                 }
                 else
@@ -99,14 +123,14 @@ namespace MMOServer
      
         private void QueueErrorPacket(SubPacket subPacket)
         {
-            BasePacket errorBasePacket = BasePacket.CreatePacket(subPacket, false, false);
+            BasePacket errorBasePacket = BasePacket.CreatePacket(subPacket, client.authenticated, false);
             client.QueuePacket(errorBasePacket);
         }
 
         private void CheckCharacterCreatePacket(SubPacket subPacket)
         {
             Database db = new Database();
-            CharacterPacket cp = new CharacterPacket(subPacket.data);
+            CharacterCreatePacket cp = new CharacterCreatePacket(subPacket.data);
             var summedStats = cp.GetStr() + cp.GetAgi() + cp.GetInt() + cp.GetVit() + cp.GetDex();
             Console.WriteLine(ap.userName);
             if (summedStats != cp.statsAllowed)
@@ -119,7 +143,7 @@ namespace MMOServer
             if (error == -1)
             {
                 SubPacket success = new SubPacket(GamePacketOpCode.CreateCharacterSuccess, 0, 0, System.Text.Encoding.Unicode.GetBytes("Character created successfully"), SubPacketTypes.GamePacket);
-                BasePacket basePacket = BasePacket.CreatePacket(success, true, false);
+                BasePacket basePacket = BasePacket.CreatePacket(success, client.authenticated, false);
                 client.QueuePacket(basePacket);
                 //created successfully
             }

@@ -10,6 +10,7 @@ namespace MMOServer
     {
         public Blowfish blowfish;
         public Socket socket;
+        public bool authenticated;
         public byte[] buffer = new byte[0xffff];
         public CircularBuffer<byte> incomingStream = new CircularBuffer<byte>(1024);
         public BlockingCollection<BasePacket> sendPacketQueue = new BlockingCollection<BasePacket>(100);
@@ -59,6 +60,7 @@ namespace MMOServer
 
         public void Disconnect()
         {
+            authenticated = false;
             socket.Shutdown(SocketShutdown.Both);
             socket.Disconnect(false);
         }

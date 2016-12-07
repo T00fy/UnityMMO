@@ -111,7 +111,6 @@ namespace MMOServer
             }
         }
 
-
         public string CheckDbConnection()
         {
             conn = new MySqlConnection(connString);
@@ -134,26 +133,92 @@ namespace MMOServer
             return status;
 
         }
+
+
+        /// <summary>
+        /// Returns a list of string arrays corresponding to character information. Each array is a character
+        /// </summary>
+        /// <param name="accountName"></param>
+        /// <returns></returns>
+        public List<string[]> GetListOfCharacters(string accountName)
+        {
+            //get accountid with account name
+            MySqlDataReader rdr = null;
+            List<string[]> characters = new List<string[]>();
+            try
+            {
+                conn.Open();
+                MySqlCommand command = conn.CreateCommand();
+                command.CommandText = "SELECT `id` FROM `account` where `username`=@username";
+                command.Parameters.AddWithValue("@username", accountName);
+                rdr = command.ExecuteReader();
+                string accountId = "";
+                if (rdr.HasRows)
+                {
+                    while (rdr.Read())
+                    {
+                        accountId = rdr.GetString(0);
+                    }
+                    
+                }
+                else
+                {
+                    Console.WriteLine("Could not find your username.");
+                    return characters;
+                    //set is authenticated to false
+                }
+                rdr.Close();
+                command = conn.CreateCommand();
+                command.CommandText = "SELECT CharID, CharacterSlot, AccountID, Name, Strength, Agility, Intellect, Vitality, Dexterity FROM `chars` left join account on account.id = chars.AccountID and account.id=@accountId";
+                command.Parameters.AddWithValue("@accountId", accountId);
+                rdr = command.ExecuteReader();
+                
+                if (rdr.HasRows)
+                {
+                    while (rdr.Read())
+                    {
+                        string[] character = new string[rdr.FieldCount];
+                        for (int i = 0; i < rdr.FieldCount; i++)
+                        {
+                            
+                            character[i] = rdr.GetString(i);
+                        }
+                        characters.Add(character);
+                        //for some fucking mysterious reason it's removing the first element and adding the second one twice
+                    }
+                }
+                rdr.Close();
+                conn.Close();
+            }
+            catch (MySqlException e)
+            {
+
+                Console.WriteLine(e);
+                rdr.Close();
+                conn.Close();
+            }
+
+            return characters;
+        }
+
+
         /// <summary>
         /// Adds a new character to the database
         /// </summary>
         /// <param name="accountName"></param>
         /// <param name="cp"></param>
         /// <returns>Returns an int corresponding to ErrorCodes. If no error found will return -1</returns>
-        public int AddCharacterToDb(string accountName, CharacterPacket cp)
+        public int AddCharacterToDb(string accountName, CharacterCreatePacket cp)
         {
-            /*            INSERT INTO  `chars` (  `AccountID`,`Name`,`Strength`,`Agility`,`Intellect`,`Vitality`,`Dexterity`  ) 
-                        SELECT id, 'test', 1,1,1,1,1
-                        FROM account
-                        WHERE username = 'toofy'*/
             try
             {
                 conn.Open();
                 MySqlCommand command = conn.CreateCommand();
-                command.CommandText = "INSERT INTO  `chars` (`AccountID`,`Name`,`Strength`,`Agility`,`Intellect`,`Vitality`,`Dexterity`)"
-                    + "SELECT id, @charactername, @str,@agi,@int,@vit,@dex FROM account WHERE username = @user";
+                command.CommandText = "INSERT INTO  `chars` (`AccountID`,`CharacterSlot`,`Name`,`Strength`,`Agility`,`Intellect`,`Vitality`,`Dexterity`)"
+                    + "SELECT id, @selectedSlot, @characterName, @str,@agi,@int,@vit,@dex FROM account WHERE username = @user";
                 command.Parameters.AddWithValue("@user", accountName);
-                command.Parameters.AddWithValue("@charactername", cp.characterName);
+                command.Parameters.AddWithValue("@characterName", cp.characterName);
+                command.Parameters.AddWithValue("@selectedSlot", cp.selectedSlot);
                 command.Parameters.AddWithValue("@str", cp.str);
                 command.Parameters.AddWithValue("@agi", cp.agi);
                 command.Parameters.AddWithValue("@int", cp.inte);

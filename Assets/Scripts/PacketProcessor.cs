@@ -1,27 +1,27 @@
 ﻿using UnityEngine;
-using UnityEngine.UI;
-using System.Net;
-using System.Net.Sockets;
 using System;
 using System.Text;
 using MMOServer;
-using System.Threading;
 using System.Collections.Generic;
 
-public static class PacketProcessor {
-    private static Connection connect;
+
+//going to have to change this whole structure so its not a static class and uses monobehaviour ;_;
+public class PacketProcessor : MonoBehaviour{
+    public static Connection connect;
     public static bool isAuthenticated;
     public static bool loggedInSuccessfully;
+    public CharacterLoader characterLoader;
+
 
     /// <summary>
     /// Establishes the initial connection and sends the first login or registration packet
     /// </summary>
     /// <param name="packetToSend"></param>
-    public static void LoginOrRegister(BasePacket packetToSend)
+    public void LoginOrRegister(BasePacket packetToSend)
     {
         if (!packetToSend.isAuthenticated())
         {
-            connect = new Connection();
+            connect = GameObject.FindGameObjectWithTag("Connection").GetComponent<Connection>();
             connect.EstablishConnection();
             connect.Send(packetToSend);
 
@@ -29,19 +29,19 @@ public static class PacketProcessor {
     }
 
     /// <summary>
-    /// Sends a character creation packet to the server
+    /// Sends a packet to the server
     /// </summary>
     /// <param name="characterCreationPacket"></param>
-    public static void SendCharacterCreationPacket(BasePacket characterCreationPacket)
+    public void SendPacket(BasePacket packet)
     {
-            connect.Send(characterCreationPacket);
+            connect.Send(packet);
     }
 
     /// <summary>
     /// All incoming packets are handled through this and then directed to the appropriate function
     /// </summary>
     /// <param name="receivedPacket"></param>
-    public static void ProcessPacket(BasePacket receivedPacket)
+    public void ProcessPacket(BasePacket receivedPacket)
     {
         if (connect == null)
         {
@@ -67,7 +67,6 @@ public static class PacketProcessor {
               Debug.Log(consoleOut.ToString());
               System.Console.SetOut(stdOut);*/
             DoAuthenticationChecks(receivedPacket, subPacket);
-
             if (!receivedPacket.isAuthenticated())
             {
                 if (subPacket.header.type == (ushort)SubPacketTypes.ErrorPacket)
@@ -78,6 +77,8 @@ public static class PacketProcessor {
                         ep.ReadPacket(subPacket.data);
                         string msg = ep.GetErrorMessage();
                         StatusBoxHandler.statusText = msg;
+                        Debug.Log("fam error packet");
+                        Utils.SetAccountName(null);
                         StatusBoxHandler.readyToClose = true;
 
                     }
@@ -121,6 +122,19 @@ public static class PacketProcessor {
                         StatusBoxHandler.readyToClose = true;
                         break;
 
+                    case ((ushort)GamePacketOpCode.CharacterListQuery):
+                        if (BitConverter.ToInt32(subPacket.data, 0) == -1)
+                        {
+                            CharacterLoader.serverResponseFinished = true;
+                            break;
+                        }
+                        else
+                        {
+                            characterLoader.SetCharacterListFromServer(subPacket);
+                            //else send each received packet to CharacterLoader to process
+                        }
+
+                        break;
 
                     default:
                         Debug.Log("Unknown or corrupted packet");
@@ -133,7 +147,7 @@ public static class PacketProcessor {
         }
     }
 
-    private static void DoAuthenticationChecks(BasePacket receivedPacket, SubPacket subPacket)
+    private void DoAuthenticationChecks(BasePacket receivedPacket, SubPacket subPacket)
     {
 
         if (isAuthenticated && !receivedPacket.isAuthenticated() && subPacket.gameMessage.opcode != (ushort)GamePacketOpCode.RegisterSuccess)

@@ -6,7 +6,7 @@ using System.Text;
 
 namespace MMOServer
 {
-    public class CharacterPacket    
+    public class CharacterCreatePacket    
     {
         public string characterName;
         private ushort nameLength;
@@ -16,8 +16,9 @@ namespace MMOServer
         public ushort vit;
         public ushort dex;
         public ushort statsAllowed;
+        public ushort selectedSlot;
 
-        public CharacterPacket(string characterName, ushort[] stats, ushort statsAllowed) {
+        public CharacterCreatePacket(string characterName, ushort[] stats, ushort statsAllowed, ushort selectedSlot) {
             nameLength = (ushort)characterName.Length;
             this.characterName = characterName;
             str = stats[0];
@@ -26,9 +27,10 @@ namespace MMOServer
             vit = stats[3];
             dex = stats[4];
             this.statsAllowed = statsAllowed;
+            this.selectedSlot = selectedSlot;
         }
 
-        public CharacterPacket(byte[] receivedData)
+        public CharacterCreatePacket(byte[] receivedData)
         {
             Read(receivedData);
         }
@@ -47,6 +49,7 @@ namespace MMOServer
                 vit = BitConverter.ToUInt16(binReader.ReadBytes(sizeof(ushort)), 0);
                 dex = BitConverter.ToUInt16(binReader.ReadBytes(sizeof(ushort)), 0);
                 statsAllowed = BitConverter.ToUInt16(binReader.ReadBytes(sizeof(ushort)), 0);
+                selectedSlot = BitConverter.ToUInt16(binReader.ReadBytes(sizeof(ushort)), 0);
             }
             catch (Exception e)
             {
@@ -67,8 +70,9 @@ namespace MMOServer
             byte[] vitBytes = BitConverter.GetBytes(vit);
             byte[] dexBytes = BitConverter.GetBytes(dex);
             byte[] statsAllowedBytes = BitConverter.GetBytes(statsAllowed);
+            byte[] characterSlotBytes = BitConverter.GetBytes(selectedSlot);
 
-            byte[] data = new byte[nameLengthBytes.Length + nameBytes.Length + strBytes.Length + agiBytes.Length + inteBytes.Length + vitBytes.Length + dexBytes.Length + statsAllowedBytes.Length];
+            byte[] data = new byte[nameLengthBytes.Length + nameBytes.Length + strBytes.Length + agiBytes.Length + inteBytes.Length + vitBytes.Length + dexBytes.Length + statsAllowedBytes.Length + characterSlotBytes.Length];
             //should only need to do this for bitconverter class
             if (!BitConverter.IsLittleEndian)
             {
@@ -79,6 +83,7 @@ namespace MMOServer
                 Array.Reverse(vitBytes);
                 Array.Reverse(dexBytes);
                 Array.Reverse(statsAllowedBytes);
+                Array.Reverse(characterSlotBytes);
 
             }
 
@@ -92,6 +97,7 @@ namespace MMOServer
                 bw.Write(vitBytes);
                 bw.Write(dexBytes);
                 bw.Write(statsAllowedBytes);
+                bw.Write(characterSlotBytes);
 
                 data = mem.GetBuffer();
 
@@ -134,5 +140,11 @@ namespace MMOServer
         {
             return statsAllowed;
         }
+        public ushort GetCharacterSlot()
+        {
+            return selectedSlot;
+        }
+
+
     }
 }

@@ -81,7 +81,6 @@ public class StatusBoxHandler : MenuPrefabHandler {
         prefab = Instantiate(prefab) as GameObject;
         menuHandler.AddMenuAsChild(prefab);
         statusTextObj = prefab.GetComponentInChildren<Text>();
-
         if (prefab.name == "StatusBox(Clone)")
         {
             statusBoxOpened = true;
@@ -93,7 +92,7 @@ public class StatusBoxHandler : MenuPrefabHandler {
     /// Destroys the status box instantly, without waiting for user input
     /// </summary>
     ///
-    private new void DestroyStatusBox()
+    public void DestroyStatusBox()
     {
   /*      if (modalBoxOpened)
         {

@@ -19,8 +19,6 @@ public class CharacterCreateHandler : MonoBehaviour {
     private int statCounter;
     private bool reachedMaxStats;
     private GameObject handler;
-    //need to change this so it gets instantiated as a prefab instead
-    //character select should load characters from database
 
 	// Use this for initialization
 	void Awake () {

@@ -8,7 +8,9 @@ public class CharacterSelect : MonoBehaviour {
     private GameObject selectedGameObject;
     private Text selectedText;
     private CursorMover cm;
+    public static ushort selectedSlot;
     
+    //TODO: Refuse character creation if character already created on that slot
 
     void Start()
     {
@@ -27,10 +29,12 @@ public class CharacterSelect : MonoBehaviour {
             selectedGameObject = cm.GetSelectedOption();
             if (selectedGameObject.transform.IsChildOf(transform) && NotAMenuAction())
             {
+                
                 selectedText.color = Color.white;
                 selectedText = selectedGameObject.GetComponent<Text>();
                 selectedCharacter = selectedGameObject;
                 selectedText.color = Color.red;
+                SetCharacterSlot();
             }
 
             if (selectedGameObject == cm.menuObjects[3]) //3 is Create
@@ -40,6 +44,22 @@ public class CharacterSelect : MonoBehaviour {
 
         }
 
+    }
+
+    private void SetCharacterSlot()
+    {
+        if (selectedCharacter == cm.menuObjects[0])
+        {
+            selectedSlot = 0;
+        }
+        if (selectedCharacter == cm.menuObjects[1])
+        {
+            selectedSlot = 1;
+        }
+        if (selectedCharacter == cm.menuObjects[2])
+        {
+            selectedSlot = 2;
+        }
     }
 
     private bool NotAMenuAction()
