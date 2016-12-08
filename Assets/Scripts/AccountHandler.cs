@@ -8,7 +8,7 @@ public class AccountHandler : MonoBehaviour {
     private MenuHandler menuHandler;
     private PacketProcessor packetProcessor;
 
-
+    //split this up into two methods, one for registering and one for logging in
     public void SubmitAccount(string findUser, string findPass, MenuLink ml, bool registering)
     {
         GameObject passwordGameObj = GameObject.Find(findPass);
@@ -21,6 +21,7 @@ public class AccountHandler : MonoBehaviour {
         string password = passwordInput.text;
         string userName = usernameInput.text;
 
+        //problem with this line as registering shouldn't go into CharacterMenu
         statusBoxHandler.InstantiatePrefab(Menus.CharacterMenu, MenuPrefabs.StatusBox);
 
         try

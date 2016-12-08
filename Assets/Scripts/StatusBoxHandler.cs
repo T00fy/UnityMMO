@@ -70,7 +70,7 @@ public class StatusBoxHandler : MenuPrefabHandler {
         {
             statusBoxOpened = true;
         }
-        menuHandler.SetActiveMenu(prefab);
+        menuHandler.SetMenuObject(prefab);
     }
 
     public void InstantiateStatusBoxPrefabWithNoMenuLink(MenuPrefabs prefabToInstantiate)
@@ -85,7 +85,7 @@ public class StatusBoxHandler : MenuPrefabHandler {
         {
             statusBoxOpened = true;
         }
-        menuHandler.SetActiveMenu(prefab);
+        menuHandler.SetMenuObject(prefab);
     }
 
     /// <summary>
@@ -99,7 +99,7 @@ public class StatusBoxHandler : MenuPrefabHandler {
             modalChoice = prefab.GetComponentInChildren<CursorMover>().GetSelectedOption().ToString();
         }*/
         GameObject parentMenu = menuHandler.GetParentMenuObject();
-        menuHandler.SetActiveMenu(parentMenu);
+        menuHandler.SetMenuObject(parentMenu);
         menuHandler.RemoveChildMenu(prefab);
         Destroy(prefab);
         if (parentCursor != null)

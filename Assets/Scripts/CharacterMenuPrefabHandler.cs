@@ -50,31 +50,31 @@ public class CharacterMenuPrefabHandler : MenuPrefabHandler {
         priorMenu = menuHandler.GetActiveMenu();
         priorMenu.SetActive(false);
         menuHandler.AddMenuAsChild(characterCreateMenu);
-        menuHandler.SetActiveMenu(characterCreateMenu);
+        menuHandler.SetMenuObject(characterCreateMenu);
 
     }
 
     public void CloseAndDiscardCharacterCreateInstance()
     {
-        var temp = menuHandler.GetActiveMenu();
-        menuHandler.SetActiveMenu(menus[(int)Menus.CharacterMenu]);
-        menuHandler.GetActiveMenu().SetActive(true);
-        menuHandler.SetCursor(menuHandler.GetActiveMenu().transform.Find("Cursor").gameObject);
+        var oldMenu = menuHandler.GetActiveMenu();
+        oldMenu.SetActive(false);
+        menuHandler.SetMenuObject(menus[(int)Menus.CharacterMenu]);
+        var newMenu = menuHandler.GetActiveMenu();
+        newMenu.SetActive(true);
+        menuHandler.SetCursor(newMenu.transform.Find("Cursor").gameObject);
         menuHandler.ToggleCursor(true);
-        if (temp.name == "CharacterCreation(Clone)")
+        if (oldMenu.name == "CharacterCreation(Clone)")
         {
             menuHandler.RemoveChildMenu(characterCreateMenu);
-            Destroy(temp);
+            Destroy(oldMenu);
         }
         else
         {
-            temp = GameObject.Find("CharacterCreation(Clone)");
-            menuHandler.RemoveChildMenu(temp);
-            Destroy(temp);
+            oldMenu = GameObject.Find("CharacterCreation(Clone)");
+            menuHandler.RemoveChildMenu(oldMenu);
+            Destroy(oldMenu);
         }
 
-        
-        
     }
 
 

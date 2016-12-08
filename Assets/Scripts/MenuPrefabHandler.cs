@@ -67,7 +67,7 @@ public class MenuPrefabHandler : MonoBehaviour {
         menuHandler.ToggleCursor(false);
         prefab = Instantiate(prefab) as GameObject;
         menuHandler.AddMenuAsChild(prefab);
-        menuHandler.SetActiveMenu(prefab);
+        menuHandler.SetMenuObject(prefab);
         prefab.transform.FindChild("StatusText").GetComponentInChildren<Text>().text = statusText;
     }
 
@@ -84,7 +84,7 @@ public class MenuPrefabHandler : MonoBehaviour {
         menuHandler.ToggleCursor(false);
         prefab = Instantiate(prefab) as GameObject;
         menuHandler.AddMenuAsChild(prefab);
-        menuHandler.SetActiveMenu(prefab);
+        menuHandler.SetMenuObject(prefab);
     }
 
     /// <summary>
@@ -109,7 +109,7 @@ public class MenuPrefabHandler : MonoBehaviour {
         prefab = Instantiate(prefab) as GameObject;
         menuHandler.AddMenuAsChild(prefab);
         parentCursor = menuHandler.GetCursor();
-        menuHandler.SetActiveMenu(prefab);
+        menuHandler.SetMenuObject(prefab);
     }
 
     /// <summary>
@@ -118,7 +118,7 @@ public class MenuPrefabHandler : MonoBehaviour {
     protected void DestroyBox()
     {
         GameObject parentMenu = menuHandler.GetParentMenuObject();
-        menuHandler.SetActiveMenu(parentMenu);
+        menuHandler.SetMenuObject(parentMenu);
         menuHandler.RemoveChildMenu(prefab);
         Destroy(prefab);
         if (parentCursor != null)

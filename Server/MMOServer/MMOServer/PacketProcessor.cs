@@ -59,7 +59,8 @@ namespace MMOServer
             var packets = cq.BuildResponsePacket(characterList);
             Console.WriteLine("Character packeted authenticated = " + client.authenticated);
             BasePacket packetsToSend = BasePacket.CreatePacket(packets, client.authenticated, false);
-
+            Console.WriteLine("---Character Query Packet---");
+            packetsToSend.debugPrintPacket();
             client.QueuePacket(packetsToSend);
         }
 

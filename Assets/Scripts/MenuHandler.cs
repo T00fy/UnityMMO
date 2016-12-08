@@ -52,7 +52,7 @@ public class MenuHandler : MonoBehaviour
         return prefabs;
     }
 
-    public void SetActiveMenu(GameObject current)
+    public void SetMenuObject(GameObject current)
     {
         activeMenu = current;
     }
