@@ -72,7 +72,6 @@ public class CharacterSelect : MonoBehaviour {
     private bool CharacterInSlot(ushort selectedSlot)
     {
         var blah = GameObject.FindGameObjectWithTag("Slot" + (selectedSlot+1));
-        Debug.Log(selectedGameObject == cm.menuObjects[selectedSlot]);
         foreach (Transform child in blah.transform)
         {
             if (child.CompareTag("Character") && selectedGameObject == cm.menuObjects[selectedSlot])

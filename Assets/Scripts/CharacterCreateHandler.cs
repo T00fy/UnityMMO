@@ -48,7 +48,7 @@ public class CharacterCreateHandler : MonoBehaviour {
         var selectedOption = gameObject.GetComponent<CursorMover>().GetSelectedOption();
         if (selectedOption != cm.menuObjects[6])
         {
-            if (Input.GetButtonDown("Fire2") && !statSelected)
+            if (Input.GetButtonDown("Fire2") && !statSelected && selectedOption != cm.menuObjects[5])
             {
                 characterMenuPrefabHandler.InstantiatePrefab(MenuPrefabs.ModalStatusBox, "Are you sure you want to exit character creation without saving?");
                 characterMenuPrefabHandler.HandleExitDecision();
