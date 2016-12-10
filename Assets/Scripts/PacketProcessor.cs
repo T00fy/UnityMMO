@@ -83,6 +83,13 @@ public class PacketProcessor : MonoBehaviour{
 
                     }
                 }
+
+                if (subPacket.gameMessage.opcode == (ushort)GamePacketOpCode.RegisterSuccess)
+                {
+                    StatusBoxHandler.statusText = Encoding.Unicode.GetString(subPacket.data);
+                    StatusBoxHandler.readyToClose = true;
+                    break;
+                }
             }
             else
             {
@@ -104,11 +111,6 @@ public class PacketProcessor : MonoBehaviour{
                         StatusBoxHandler.statusText = Encoding.Unicode.GetString(subPacket.data);
                         isAuthenticated = true;
                         loggedInSuccessfully = true;
-                        StatusBoxHandler.readyToClose = true;
-                        break;
-
-                    case ((ushort)GamePacketOpCode.RegisterSuccess):
-                        StatusBoxHandler.statusText = Encoding.Unicode.GetString(subPacket.data);
                         StatusBoxHandler.readyToClose = true;
                         break;
 
