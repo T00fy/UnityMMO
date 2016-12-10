@@ -8,6 +8,7 @@ namespace MMOServer
         //basically see what kind of packet it is and decide what to do with it
         private AccountPacket ap;
         private ClientConnection client;
+        private const int MAX_AMOUNT_OF_CHARACTERS_ALLOWED = 3;
 
         public void ProcessPacket(ClientConnection client, BasePacket packet)
         {
@@ -140,28 +141,30 @@ namespace MMOServer
                 Console.WriteLine("shouldn't get here unless someone is trying to hack the client. Username was {0}", ap.userName);
             }
             Console.WriteLine("Received new character creation request for character name: {0}", cp.GetCharacterName());
-            int error = db.AddCharacterToDb(ap.userName, cp);
-            if (error == -1)
+            if (db.GetNumberOfCharactersForAccount(ap.userName) <= MAX_AMOUNT_OF_CHARACTERS_ALLOWED)
             {
-                SubPacket success = new SubPacket(GamePacketOpCode.CreateCharacterSuccess, 0, 0, System.Text.Encoding.Unicode.GetBytes("Character created successfully"), SubPacketTypes.GamePacket);
-                BasePacket basePacket = BasePacket.CreatePacket(success, client.authenticated, false);
-                client.QueuePacket(basePacket);
-                //created successfully
-            }
-            else
-            {
-                ErrorPacket ep = new ErrorPacket();
-                if (error == (int)ErrorCodes.DuplicateCharacter)
+                int error = db.AddCharacterToDb(ap.userName, cp);
+                if (error == -1)
                 {
-                    var packetToSend = ep.buildPacket(GamePacketOpCode.CreateCharacterError, ErrorCodes.DuplicateCharacter, "Character with that name already exists");
+                    SubPacket success = new SubPacket(GamePacketOpCode.CreateCharacterSuccess, 0, 0, System.Text.Encoding.Unicode.GetBytes("Character created successfully"), SubPacketTypes.GamePacket);
+                    BasePacket basePacket = BasePacket.CreatePacket(success, client.authenticated, false);
+                    client.QueuePacket(basePacket);
+                    //created successfully
                 }
-                if (error == (int)ErrorCodes.UnknownDatabaseError)
+                else
                 {
-                    var packetToSend = ep.buildPacket(GamePacketOpCode.CreateCharacterError, ErrorCodes.UnknownDatabaseError, "Unknown database error occurred");
-                    QueueErrorPacket(packetToSend);
+                    ErrorPacket ep = new ErrorPacket();
+                    if (error == (int)ErrorCodes.DuplicateCharacter)
+                    {
+                        var packetToSend = ep.buildPacket(GamePacketOpCode.CreateCharacterError, ErrorCodes.DuplicateCharacter, "Character with that name already exists");
+                    }
+                    if (error == (int)ErrorCodes.UnknownDatabaseError)
+                    {
+                        var packetToSend = ep.buildPacket(GamePacketOpCode.CreateCharacterError, ErrorCodes.UnknownDatabaseError, "Unknown database error occurred");
+                        QueueErrorPacket(packetToSend);
+                    }
                 }
             }
-
         }
 
 

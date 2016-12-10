@@ -184,7 +184,6 @@ namespace MMOServer
                             character[i] = rdr.GetString(i);
                         }
                         characters.Add(character);
-                        //for some fucking mysterious reason it's removing the first element and adding the second one twice
                     }
                 }
                 rdr.Close();
@@ -199,6 +198,38 @@ namespace MMOServer
             }
 
             return characters;
+        }
+
+        public int GetNumberOfCharactersForAccount(string userName)
+        {
+            //SELECT  `CharacterSlot` FROM  `chars` LEFT JOIN account ON account.id = chars.AccountID AND account.username = 'toofy'
+            try
+            {
+                conn.Open();
+                MySqlCommand command = conn.CreateCommand();
+                command.CommandText = "SELECT  `CharacterSlot` FROM  `chars` LEFT JOIN account ON account.id = chars.AccountID AND account.username=@username";
+                command.Parameters.AddWithValue("@username", userName);
+
+                MySqlDataReader rdr = command.ExecuteReader();
+
+                int amountOfRows=0;
+                if (rdr.HasRows)
+                {
+                    while (rdr.Read())
+                    {
+                        amountOfRows++;
+                    }
+                }
+                return amountOfRows;
+            }
+            catch (MySqlException e)
+            {
+                Console.WriteLine("Error when trying to check how many characters account has for user: " + userName);
+                Console.WriteLine(e);
+                return 999;
+            }
+
+            
         }
 
 
