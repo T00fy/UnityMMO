@@ -54,7 +54,7 @@ namespace MMOServer
             {
                 conn.Open();
                 MySqlCommand command = conn.CreateCommand();
-                command.CommandText = "SELECT `username` FROM `account` WHERE `username`=@user";
+                command.CommandText = "SELECT `username` FROM `account` WHERE BINARY `username`=@user";
                 command.Parameters.AddWithValue("@user", userName);
                 MySqlDataReader rdr = command.ExecuteReader();
                 if (rdr.HasRows)
@@ -65,7 +65,7 @@ namespace MMOServer
                     }
                 }
                 rdr.Close();
-                command.CommandText = "SELECT `username`, `password` FROM `account` WHERE `username`=@user AND `password`=@password";
+                command.CommandText = "SELECT `username`, `password` FROM `account` WHERE BINARY `username`=@user AND `password`=@password";
                 command.Parameters.AddWithValue("@password", password);
                 rdr = command.ExecuteReader();
                 if (rdr.HasRows)
