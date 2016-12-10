@@ -76,15 +76,15 @@ namespace MMOServer
                     byte[] charBytes = BitConverter.GetBytes(charId);
                     byte[] characterSlotBytes = BitConverter.GetBytes(characterSlot);
                     byte[] accountIdBytes = BitConverter.GetBytes(accountId);
-                    byte[] nameLengthBytes = BitConverter.GetBytes((ushort)name.Length);
                     byte[] nameBytes = Encoding.Unicode.GetBytes(name);
+                    byte[] nameLengthBytes = BitConverter.GetBytes((ushort)nameBytes.Length);
                     byte[] strengthBytes = BitConverter.GetBytes(strength);
                     byte[] agiBytes = BitConverter.GetBytes(agility);
                     byte[] intBytes = BitConverter.GetBytes(intellect);
                     byte[] vitBytes = BitConverter.GetBytes(vitality);
                     byte[] dexBytes = BitConverter.GetBytes(dexterity);
 
-                    byte[] data = new byte[charBytes.Length + characterSlotBytes.Length + accountIdBytes.Length + nameBytes.Length + strengthBytes.Length
+                    byte[] data = new byte[charBytes.Length + characterSlotBytes.Length + accountIdBytes.Length + nameLengthBytes.Length + nameBytes.Length + strengthBytes.Length
                         + agiBytes.Length + intBytes.Length + vitBytes.Length + dexBytes.Length];
 
                     if (!BitConverter.IsLittleEndian)
@@ -92,6 +92,7 @@ namespace MMOServer
                         Array.Reverse(charBytes);
                         Array.Reverse(characterSlotBytes);
                         Array.Reverse(accountIdBytes);
+                        Array.Reverse(nameLengthBytes);
                         Array.Reverse(nameBytes);
                         Array.Reverse(strengthBytes);
                         Array.Reverse(agiBytes);
@@ -106,6 +107,7 @@ namespace MMOServer
                         bw.Write(charBytes);
                         bw.Write(characterSlotBytes);
                         bw.Write(accountIdBytes);
+                        bw.Write(nameLengthBytes);
                         bw.Write(nameBytes);
                         bw.Write(strengthBytes);
                         bw.Write(agiBytes);

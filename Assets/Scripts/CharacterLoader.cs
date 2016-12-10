@@ -47,7 +47,6 @@ public class CharacterLoader : MonoBehaviour {
             //load character here
             //will have to change/add a lot more later to this when you can edit race/face/etc
             StatusBoxHandler.statusText = "Status: Loading characters";
-            characters = new Character[characterServerResponse.Count];
             Debug.Log("Amount of characters found: " + characterServerResponse.Count);
             for (int i = 0; i < characterServerResponse.Count; i++)
             {
@@ -55,9 +54,11 @@ public class CharacterLoader : MonoBehaviour {
                 cq.ReadResponsePacket(characterServerResponse[i]);
                 GameObject characterHolder = GetCharacterModelHolder(cq.GetCharacterSlot());
                 if (!CharacterModelAlreadyLoaded(characterHolder))
-                {
-                    characters[i] = new Character(characterServerResponse[i]);
-                    LoadCharacterInSlot(characters[i], characterHolder);
+                { 
+                    GameObject characterSprite = new GameObject();
+                    Character character = characterSprite.AddComponent<Character>();
+                    character.SetCharacterInfoFromPacket(cq);
+                    LoadCharacterInSlot(characterSprite, characterHolder);
                 }
             }
         }
@@ -108,12 +109,14 @@ public class CharacterLoader : MonoBehaviour {
 
     //this currently will only ever set it to a sprite defined in editor. Will need to change this in future
     //when different types of character designs are added.
-    private void LoadCharacterInSlot(Character character, GameObject characterHolder)
+    private void LoadCharacterInSlot(GameObject characterSprite, GameObject characterHolder)
     {
-        GameObject characterSprite = new GameObject("Model");
+        characterSprite.name = characterSprite.GetComponent<Character>().CharacterName;
+        Debug.Log(characterSprite.GetComponent<Character>().CharacterName);
         characterSprite.transform.SetParent(characterHolder.transform);
         characterSprite.transform.localPosition = Vector3.zero;
         SpriteRenderer spriteRenderer = characterSprite.AddComponent<SpriteRenderer>();
+        characterSprite.tag = "Character";
         spriteRenderer.sprite = characterModel;
     }
 

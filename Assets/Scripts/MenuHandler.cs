@@ -12,7 +12,6 @@ public class MenuHandler : MonoBehaviour
 
     private GameObject activeMenu;
     private GameObject previousMenu;
-    private bool loginSuccessful;
     private GameObject cursor;
     private MenuTree<GameObject> root;
 
@@ -95,11 +94,6 @@ public class MenuHandler : MonoBehaviour
     public GameObject GetParentMenuObject()
     {
         return root.FindMenuTree(node => node.Data == activeMenu).Parent.Data;
-    }
-
-    public void LoggedInSuccessfully()
-    {
-        loginSuccessful = true;
     }
 
     public void EnterMenu(GameObject enterMenu)
