@@ -8,7 +8,6 @@ public class CharacterLoader : MonoBehaviour {
     public StatusBoxHandler statusBoxHandler;
     public List<SubPacket> characterServerResponse;
     public static bool serverResponseFinished = false;
-    private Character[] characters;
     private PacketProcessor packetProcessor;
     public Sprite characterModel;
     public GameObject slot1;
@@ -19,6 +18,7 @@ public class CharacterLoader : MonoBehaviour {
     // Use this for initialization
     void OnEnable()
     {
+        serverResponseFinished = false;
         characterServerResponse = new List<SubPacket>();
         CharacterQueryPacket cq = new CharacterQueryPacket(Utils.GetAccountName());
         SubPacket sp = cq.BuildQueryPacket();
@@ -47,7 +47,6 @@ public class CharacterLoader : MonoBehaviour {
             //load character here
             //will have to change/add a lot more later to this when you can edit race/face/etc
             StatusBoxHandler.statusText = "Status: Loading characters";
-            Debug.Log("Amount of characters found: " + characterServerResponse.Count);
             for (int i = 0; i < characterServerResponse.Count; i++)
             {
                 CharacterQueryPacket cq = new CharacterQueryPacket();
@@ -112,7 +111,6 @@ public class CharacterLoader : MonoBehaviour {
     private void LoadCharacterInSlot(GameObject characterSprite, GameObject characterHolder)
     {
         characterSprite.name = characterSprite.GetComponent<Character>().CharacterName;
-        Debug.Log(characterSprite.GetComponent<Character>().CharacterName);
         characterSprite.transform.SetParent(characterHolder.transform);
         characterSprite.transform.localPosition = Vector3.zero;
         SpriteRenderer spriteRenderer = characterSprite.AddComponent<SpriteRenderer>();

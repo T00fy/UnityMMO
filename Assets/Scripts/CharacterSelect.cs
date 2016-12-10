@@ -20,14 +20,13 @@ public class CharacterSelect : MonoBehaviour {
         selectedGameObject = cm.GetSelectedOption();
         selectedCharacter = selectedGameObject;
         selectedText = selectedGameObject.GetComponent<Text>();
-        selectedSlot = 0;
+    //    selectedSlot = 0;
     }
 	// Update is called once per frame
 	void Update () {
 
         selectedText.color = Color.red;
-        
-
+        selectedGameObject = cm.menuObjects[selectedSlot];
         if (CharacterInSlot(selectedSlot) && IsASlotItem())
         {
             cm.menuObjects[4].GetComponent<Text>().color = Color.white;
@@ -49,10 +48,11 @@ public class CharacterSelect : MonoBehaviour {
         {
             var refToPreviousSlot = selectedGameObject;
             selectedGameObject = cm.GetSelectedOption();
-            if (selectedGameObject == cm.menuObjects[3] && allowedToCreateCharacter) //3 is Create
+            if (selectedGameObject == cm.menuObjects[3] && allowedToCreateCharacter && cursor.activeInHierarchy) //3 is Create
             {
                 selectedGameObject.gameObject.GetComponent<CharacterMenuPrefabHandler>().InstantiatePrefabAsChangedMenu(MenuPrefabs.CharacterCreate);
                 selectedGameObject = refToPreviousSlot;
+                SetCharacterSlot();
             }
             else
             if (selectedGameObject.transform.IsChildOf(transform) && IsASlotItem())
@@ -66,7 +66,7 @@ public class CharacterSelect : MonoBehaviour {
             }
 
         }
-
+        allowedToCreateCharacter = false;
     }
 
     private bool CharacterInSlot(ushort selectedSlot)

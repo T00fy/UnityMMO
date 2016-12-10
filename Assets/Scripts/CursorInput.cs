@@ -7,7 +7,6 @@ public class CursorInput : MonoBehaviour {
     public static MenuHandler menuHandler;
 
     private GameObject cursor;
-    private GameObject activeMenu;
     private bool enteringText;
     private InputField inputField;
     private CursorMover cm;

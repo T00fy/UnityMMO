@@ -220,6 +220,8 @@ namespace MMOServer
                         amountOfRows++;
                     }
                 }
+                rdr.Close();
+                conn.Close();
                 return amountOfRows;
             }
             catch (MySqlException e)
@@ -230,6 +232,37 @@ namespace MMOServer
             }
 
             
+        }
+
+        public bool EnsuredThatCharacterSlotIsUniqueValue(ushort selectedSlot, string userName)
+        {
+            try
+            {
+                conn.Open();
+                MySqlCommand command = conn.CreateCommand();
+                command.CommandText = "SELECT  `CharacterSlot` FROM  `chars` LEFT JOIN account ON account.id = chars.AccountID AND account.username=@username";
+                command.Parameters.AddWithValue("@username", userName);
+
+                MySqlDataReader rdr = command.ExecuteReader();
+                List<int> temp = new List<int>();
+                if (rdr.HasRows)
+                {
+                    while (rdr.Read())
+                    {
+                        temp.Add(rdr.GetInt32(0));
+                    }
+                }
+                temp.Add(selectedSlot);
+                rdr.Close();
+                conn.Close();
+                return temp.GroupBy(n => n).Any(c => c.Count() < 2);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("SQL exception when trying to ensure character slot value is unique");
+                Console.WriteLine(e);
+                return false;
+            }
         }
 
 

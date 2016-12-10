@@ -9,6 +9,7 @@ public class CharacterMenuPrefabHandler : MenuPrefabHandler {
     private GameObject characterCreateMenu;
     private bool modalChoiceMade;
     private PacketProcessor packetProcessor;
+    public GameObject characterMenuCursor;
 
     void Update()
     {
@@ -51,6 +52,7 @@ public class CharacterMenuPrefabHandler : MenuPrefabHandler {
         priorMenu.SetActive(false);
         menuHandler.AddMenuAsChild(characterCreateMenu);
         menuHandler.SetMenuObject(characterCreateMenu);
+        menuHandler.GetActiveMenu().SetActive(true);
 
     }
 
@@ -61,8 +63,8 @@ public class CharacterMenuPrefabHandler : MenuPrefabHandler {
         menuHandler.SetMenuObject(menus[(int)Menus.CharacterMenu]);
         var newMenu = menuHandler.GetActiveMenu();
         newMenu.SetActive(true);
-        menuHandler.SetCursor(newMenu.transform.Find("Cursor").gameObject);
-        menuHandler.ToggleCursor(true);
+  //      menuHandler.SetCursor(characterMenuCursor);
+ //       menuHandler.ToggleCursor(true);
         if (oldMenu.name == "CharacterCreation(Clone)")
         {
             menuHandler.RemoveChildMenu(characterCreateMenu);
