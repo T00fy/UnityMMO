@@ -3,6 +3,7 @@ using System.Collections;
 using MMOServer;
 using System.Collections.Generic;
 using System;
+using UnityEngine.UI;
 
 public class CharacterLoader : MonoBehaviour {
     public StatusBoxHandler statusBoxHandler;
@@ -58,10 +59,23 @@ public class CharacterLoader : MonoBehaviour {
                     Character character = characterSprite.AddComponent<Character>();
                     character.SetCharacterInfoFromPacket(cq);
                     LoadCharacterInSlot(characterSprite, characterHolder);
+                    LoadCharacterSnippet(characterHolder, cq);
                 }
             }
         }
         statusBoxHandler.DestroyStatusBox();
+    }
+
+    private void LoadCharacterSnippet(GameObject characterHolder, CharacterQueryPacket cq)
+    {
+        var parent = characterHolder.transform.parent;
+        foreach (Transform child in parent)
+        {
+            if (child.CompareTag("CharacterInfo"))
+            {
+                child.gameObject.GetComponent<Text>().text = cq.GetName() + " (lv 1)"; //change this when levels implemented
+            }
+        }
     }
 
     private GameObject GetCharacterModelHolder(ushort v)
