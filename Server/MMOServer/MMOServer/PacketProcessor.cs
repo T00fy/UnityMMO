@@ -39,19 +39,37 @@ namespace MMOServer
                                 PerformCharacterCreate(subPacket);
                             }
                             break;
-                    }
-                }
-                if (subPacket.header.type == (ushort)SubPacketTypes.GamePacket)
-                {
-                    switch (subPacket.gameMessage.opcode)
-                    {
+
                         case (ushort)GamePacketOpCode.CharacterListQuery:
                             ProcessCharacterListQueryPacket(subPacket);
+                            break;
+
+                        case (ushort)GamePacketOpCode.CharacterDeleteQuery:
+                            ProcessCharacterDeleteRequest(subPacket);
                             break;
                     }
                 }
 
             }
+        }
+
+        private void ProcessCharacterDeleteRequest(SubPacket receivedPacket)
+        {
+            Database db = new Database();
+            CharacterDeletePacket deletePacket = new CharacterDeletePacket(receivedPacket);
+            int error = db.DeleteCharacterFromDb(deletePacket.CharId);
+
+            if (error == -1)
+            {
+                SubPacket success = new SubPacket(GamePacketOpCode.CharacterDeleteSuccess, 0, 0, System.Text.Encoding.Unicode.GetBytes("Character deleted successfully"), SubPacketTypes.GamePacket);
+                BasePacket basePacket = BasePacket.CreatePacket(success, client.authenticated, false);
+                client.QueuePacket(basePacket);
+            }
+            else
+            {
+                //send error packet here
+            }
+
         }
 
         private void ProcessCharacterListQueryPacket(SubPacket receivedPacket)

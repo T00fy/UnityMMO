@@ -13,13 +13,11 @@
     <TargetFrameworkIdentifier>.NETFramework</TargetFrameworkIdentifier>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <TargetFrameworkProfile>Unity Full v3.5</TargetFrameworkProfile>
-    <CompilerResponseFile>
-    </CompilerResponseFile>
+    <CompilerResponseFile></CompilerResponseFile>
     <UnityProjectType>Game:1</UnityProjectType>
     <UnityBuildTarget>StandaloneWindows:5</UnityBuildTarget>
     <UnityVersion>5.4.1f1</UnityVersion>
-    <RootNamespace>
-    </RootNamespace>
+    <RootNamespace></RootNamespace>
     <LangVersion Condition=" '$(VisualStudioVersion)' != '10.0' ">4</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -72,11 +70,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Scripts\AccountHandler.cs" />
+    <Compile Include="Assets\Scripts\Character.cs" />
     <Compile Include="Assets\Scripts\CharacterCreateHandler.cs" />
+    <Compile Include="Assets\Scripts\CharacterDeleteHandler.cs" />
     <Compile Include="Assets\Scripts\CharacterLoader.cs" />
     <Compile Include="Assets\Scripts\CharacterMenuPrefabHandler.cs" />
     <Compile Include="Assets\Scripts\CharacterSelect.cs" />
-    <Compile Include="Assets\Scripts\Character.cs" />
     <Compile Include="Assets\Scripts\ClickRegisterSynchronous.cs" />
     <Compile Include="Assets\Scripts\ClientConnect.cs" />
     <Compile Include="Assets\Scripts\Connection.cs" />

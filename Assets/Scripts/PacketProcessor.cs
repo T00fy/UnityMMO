@@ -138,6 +138,11 @@ public class PacketProcessor : MonoBehaviour{
 
                         break;
 
+                    case ((ushort)GamePacketOpCode.CharacterDeleteSuccess):
+                        StatusBoxHandler.statusText = Encoding.Unicode.GetString(subPacket.data);
+                        StatusBoxHandler.readyToClose = true;
+                        break;
+
                     default:
                         Debug.Log("Unknown or corrupted packet");
                         break;

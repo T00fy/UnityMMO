@@ -7,34 +7,8 @@ using MMOServer;
 public class CharacterMenuPrefabHandler : MenuPrefabHandler {
     private GameObject priorMenu;
     private GameObject characterCreateMenu;
-    private bool modalChoiceMade;
     private PacketProcessor packetProcessor;
     public GameObject characterMenuCursor;
-
-    void Update()
-    {
-        if (modalBoxOpened)
-        {
-            if (Input.GetButtonDown("Fire1"))
-            {
-                modalChoiceMade = true;
-                modalChoice = menuHandler.GetCursor().GetComponent<CursorMover>().GetSelectedOption().GetComponent<Text>().text;
-                DestroyBox();
-            }
-            if (Input.GetButtonDown("Fire2"))
-            {
-                modalChoiceMade = true;
-                modalChoice = "No";
-               DestroyBox();
-            }
-
-        }
-    }
-
-    public bool ModalSelectionMade()
-    {
-        return modalChoiceMade;
-    }
 
 
     /// <summary>

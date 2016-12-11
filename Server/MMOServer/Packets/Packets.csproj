@@ -41,6 +41,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CharacterDeletePacket.cs" />
     <Compile Include="AccountPacket.cs" />
     <Compile Include="BasePacket.cs" />
     <Compile Include="Blowfish.cs" />

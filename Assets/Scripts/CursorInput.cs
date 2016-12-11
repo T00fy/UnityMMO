@@ -6,6 +6,7 @@ using MMOServer;
 public class CursorInput : MonoBehaviour {
     public static MenuHandler menuHandler;
 
+    private MenuPrefabHandler prefabHandler;
     private GameObject cursor;
     private bool enteringText;
     private InputField inputField;
@@ -14,6 +15,7 @@ public class CursorInput : MonoBehaviour {
 
 
     void Awake () {
+        prefabHandler = GameObject.Find("StatusBoxHandler").GetComponent<MenuPrefabHandler>();
         menuHandler = GameObject.Find("MenuHandler").GetComponent<MenuHandler>();
         cursor = gameObject;
         string parent = cursor.transform.parent.name;
@@ -104,7 +106,7 @@ public class CursorInput : MonoBehaviour {
                 }
             }
 
-            if (Input.GetButtonDown("Fire2") && !(MenuPrefabHandler.statusBoxOpened || MenuPrefabHandler.modalBoxOpened))
+            if (Input.GetButtonDown("Fire2") && !(MenuPrefabHandler.statusBoxOpened || prefabHandler.ModalBoxHasBeenOpened()))
             { 
                 menuHandler.GoUpMenu();
 

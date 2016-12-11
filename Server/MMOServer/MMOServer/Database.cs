@@ -266,6 +266,28 @@ namespace MMOServer
         }
 
 
+        public int DeleteCharacterFromDb(int charId)
+        {
+            try
+            {
+                conn.Open();
+                MySqlCommand command = conn.CreateCommand();
+                command.CommandText = "DELETE FROM `login`.`chars` WHERE `chars`.`CharID` =@charId";
+                command.Parameters.AddWithValue("@charId", charId);
+
+                MySqlDataReader rdr = command.ExecuteReader();
+                rdr.Close();
+                conn.Close();
+                return -1;
+            }
+            catch(MySqlException e)
+            {
+                Console.WriteLine("SQL exception when trying to delete character");
+                Console.WriteLine(e);
+                return 999;
+            }
+        }
+
         /// <summary>
         /// Adds a new character to the database
         /// </summary>

@@ -9,14 +9,46 @@ public class MenuPrefabHandler : MonoBehaviour {
     protected GameObject[] prefabs;
     protected GameObject parentCursor;
     protected GameObject prefab;
-    public static bool modalBoxOpened;
+    protected bool modalBoxOpened;
     public static bool statusBoxOpened;
     protected string modalChoice;
+    protected bool modalChoiceMade;
 
     void Start()
     {
         prefabs = menuHandler.GetPrefabs();
         menus = menuHandler.GetMenus();
+    }
+
+    void Awake()
+    {
+        prefabs = menuHandler.GetPrefabs();
+        menus = menuHandler.GetMenus();
+    }
+
+    void Update()
+    {
+        if (modalBoxOpened)
+        {
+            if (Input.GetButtonDown("Fire1"))
+            {
+                modalChoiceMade = true;
+                modalChoice = menuHandler.GetCursor().GetComponent<CursorMover>().GetSelectedOption().GetComponent<Text>().text;
+                DestroyBox();
+            }
+            if (Input.GetButtonDown("Fire2"))
+            {
+                modalChoiceMade = true;
+                modalChoice = "No";
+                DestroyBox();
+            }
+
+        }
+    }
+
+    public void SetModalBoxOpened()
+    {
+        modalBoxOpened = true;
     }
 
     public bool ModalBoxHasBeenOpened()
@@ -27,6 +59,11 @@ public class MenuPrefabHandler : MonoBehaviour {
     public GameObject GetPrefab()
     {
         return prefab;
+    }
+
+    public bool ModalSelectionMade()
+    {
+        return modalChoiceMade;
     }
 
 
