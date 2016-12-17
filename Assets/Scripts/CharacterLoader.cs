@@ -57,6 +57,7 @@ public class CharacterLoader : MonoBehaviour {
                 { 
                     GameObject characterSprite = new GameObject();
                     Character character = characterSprite.AddComponent<Character>();
+
                     character.SetCharacterInfoFromPacket(cq);
                     LoadCharacterInSlot(characterSprite, characterHolder);
                     LoadCharacterSnippet(characterHolder, cq);
@@ -130,6 +131,7 @@ public class CharacterLoader : MonoBehaviour {
         SpriteRenderer spriteRenderer = characterSprite.AddComponent<SpriteRenderer>();
         characterSprite.tag = "Character";
         spriteRenderer.sprite = characterModel;
+        characterSprite.transform.localScale = new Vector3(0.5f, 0.5f, 0);
     }
 
     public void SetCharacterListFromServer(SubPacket response)

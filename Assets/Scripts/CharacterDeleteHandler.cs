@@ -29,7 +29,6 @@ public class CharacterDeleteHandler : MenuPrefabHandler
         }
         if (AnsweredYes())
         {
-            Debug.Log("gets here");
             modalBoxOpened = false;
             SendDeleteCharacterRequest();
         }

@@ -79,7 +79,6 @@ public class CharacterSelect : MonoBehaviour {
                 
                 var sibling = Utils.FindSiblingGameObjectByName(refToPreviousSlot, "CharacterView");
                 var character = Utils.FindComponentInChildWithTag<Character>(sibling, "Character");
-                Debug.Log(character.CharacterName);
 
                 deleteHandler.HandleDeleteDecision(character);
 
