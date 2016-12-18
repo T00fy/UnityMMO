@@ -52,9 +52,6 @@
     <Reference Include="UnityEngine">
       <HintPath>Library\UnityAssemblies\UnityEngine.dll</HintPath>
     </Reference>
-    <Reference Include="UnityEngine.Advertisements">
-      <HintPath>Library\UnityAssemblies\UnityEngine.Advertisements.dll</HintPath>
-    </Reference>
     <Reference Include="UnityEngine.UI">
       <HintPath>Library\UnityAssemblies\UnityEngine.UI.dll</HintPath>
     </Reference>
@@ -70,9 +67,6 @@
     <Reference Include="UnityEngine.HoloLens">
       <HintPath>Library\UnityAssemblies\UnityEngine.HoloLens.dll</HintPath>
     </Reference>
-    <Reference Include="UnityEngine.Purchasing">
-      <HintPath>Library\UnityAssemblies\UnityEngine.Purchasing.dll</HintPath>
-    </Reference>
     <Reference Include="UnityEngine.VR">
       <HintPath>Library\UnityAssemblies\UnityEngine.VR.dll</HintPath>
     </Reference>
@@ -87,31 +81,31 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\Scripts\AccountHandler.cs" />
     <Compile Include="Assets\Scripts\CameraFollow.cs" />
-    <Compile Include="Assets\Scripts\Character.cs" />
-    <Compile Include="Assets\Scripts\CharacterCreateHandler.cs" />
-    <Compile Include="Assets\Scripts\CharacterDeleteHandler.cs" />
-    <Compile Include="Assets\Scripts\CharacterLoader.cs" />
-    <Compile Include="Assets\Scripts\CharacterMenuPrefabHandler.cs" />
-    <Compile Include="Assets\Scripts\CharacterSelect.cs" />
-    <Compile Include="Assets\Scripts\ClickRegisterSynchronous.cs" />
-    <Compile Include="Assets\Scripts\ClientConnect.cs" />
-    <Compile Include="Assets\Scripts\Connection.cs" />
-    <Compile Include="Assets\Scripts\CursorInput.cs" />
-    <Compile Include="Assets\Scripts\CursorMover.cs" />
-    <Compile Include="Assets\Scripts\MenuHandler.cs" />
-    <Compile Include="Assets\Scripts\MenuLink.cs" />
-    <Compile Include="Assets\Scripts\MenuPrefabHandler.cs" />
-    <Compile Include="Assets\Scripts\MenuTree.cs" />
-    <Compile Include="Assets\Scripts\Menus.cs" />
-    <Compile Include="Assets\Scripts\PacketProcessor.cs" />
+    <Compile Include="Assets\Scripts\LoginMenuScripts\AccountHandler.cs" />
+    <Compile Include="Assets\Scripts\LoginMenuScripts\Character.cs" />
+    <Compile Include="Assets\Scripts\LoginMenuScripts\CharacterCreateHandler.cs" />
+    <Compile Include="Assets\Scripts\LoginMenuScripts\CharacterDeleteHandler.cs" />
+    <Compile Include="Assets\Scripts\LoginMenuScripts\CharacterLoader.cs" />
+    <Compile Include="Assets\Scripts\LoginMenuScripts\CharacterMenuPrefabHandler.cs" />
+    <Compile Include="Assets\Scripts\LoginMenuScripts\CharacterSelect.cs" />
+    <Compile Include="Assets\Scripts\LoginMenuScripts\ClickRegisterSynchronous.cs" />
+    <Compile Include="Assets\Scripts\LoginMenuScripts\ClientConnect.cs" />
+    <Compile Include="Assets\Scripts\LoginMenuScripts\Connection.cs" />
+    <Compile Include="Assets\Scripts\LoginMenuScripts\CursorInput.cs" />
+    <Compile Include="Assets\Scripts\LoginMenuScripts\CursorMover.cs" />
+    <Compile Include="Assets\Scripts\LoginMenuScripts\MenuHandler.cs" />
+    <Compile Include="Assets\Scripts\LoginMenuScripts\MenuLink.cs" />
+    <Compile Include="Assets\Scripts\LoginMenuScripts\MenuPrefabHandler.cs" />
+    <Compile Include="Assets\Scripts\LoginMenuScripts\MenuTree.cs" />
+    <Compile Include="Assets\Scripts\LoginMenuScripts\Menus.cs" />
+    <Compile Include="Assets\Scripts\LoginMenuScripts\PacketProcessor.cs" />
+    <Compile Include="Assets\Scripts\LoginMenuScripts\ResetAuthentication.cs" />
+    <Compile Include="Assets\Scripts\LoginMenuScripts\StatViewer.cs" />
+    <Compile Include="Assets\Scripts\LoginMenuScripts\StatusBoxHandler.cs" />
+    <Compile Include="Assets\Scripts\LoginMenuScripts\TextFieldHandler.cs" />
+    <Compile Include="Assets\Scripts\LoginMenuScripts\Utils.cs" />
     <Compile Include="Assets\Scripts\PlayerMovement.cs" />
-    <Compile Include="Assets\Scripts\ResetAuthentication.cs" />
-    <Compile Include="Assets\Scripts\StatViewer.cs" />
-    <Compile Include="Assets\Scripts\StatusBoxHandler.cs" />
-    <Compile Include="Assets\Scripts\TextFieldHandler.cs" />
-    <Compile Include="Assets\Scripts\Utils.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\SyntaxTree\UnityVS\2015\UnityVS.CSharp.targets" />
 </Project>
