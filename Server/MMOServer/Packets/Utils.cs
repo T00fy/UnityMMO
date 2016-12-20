@@ -5,7 +5,7 @@ using System.Text;
 
 namespace MMOServer
 {
-    static class Utils
+    public static class Utils
     {
         private static readonly uint[] _lookup32 = CreateLookup32();
 

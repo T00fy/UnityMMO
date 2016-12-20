@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace MMOServer
 {
-    class Database
+    public class Database
     {
         private static MySqlConnection conn;
         private static string connString = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString.ToString();

@@ -6,7 +6,7 @@ using System.Net;
 
 namespace MMOServer
 {
-    class ClientConnection
+    public class ClientConnection
     {
         public Blowfish blowfish;
         public Socket socket;

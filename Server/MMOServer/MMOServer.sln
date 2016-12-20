@@ -8,6 +8,10 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Packets", "Packets\Packets.csproj", "{A6560A9E-9A19-4DF8-9311-D894FD0CEB0A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MMOWorldServer", "MMOWorldServer\MMOWorldServer\MMOWorldServer.csproj", "{546BD421-26AF-4E9A-B33B-3CB42DCD5ACA}"
+	ProjectSection(ProjectDependencies) = postProject
+		{A6560A9E-9A19-4DF8-9311-D894FD0CEB0A} = {A6560A9E-9A19-4DF8-9311-D894FD0CEB0A}
+		{ABDC82C5-A40E-4170-B446-8872B8E535B1} = {ABDC82C5-A40E-4170-B446-8872B8E535B1}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
