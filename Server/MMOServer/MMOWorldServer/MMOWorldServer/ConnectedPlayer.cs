@@ -24,8 +24,29 @@ namespace MMOWorldServer
         public List<Actor> actorInstanceList = new List<Actor>();
 
         private uint lastPingPacket = Utils.UnixTimeStampUTC();
+        private string clientAddress;
 
         public string errorMessage = "";
+
+        public string ClientAddress
+        {
+            get
+            {
+                return clientAddress;
+            }
+
+            set
+            {
+                clientAddress = value;
+            }
+        }
+
+        public ConnectedPlayer(int actorId)
+        {
+            this.actorId = (uint)actorId;
+            playerActor = new Player(this, (uint)actorId);
+            actorInstanceList.Add(playerActor);
+        }
 
         public ConnectedPlayer(uint actorId)
         {

@@ -8,6 +8,6 @@ public enum Menus
 
 public enum MenuPrefabs
 {
-    StatusBox, ModalStatusBox, CharacterCreate
+    StatusBox, ModalStatusBox, CharacterCreate,MessageOnly
 
 }

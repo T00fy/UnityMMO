@@ -18,9 +18,9 @@ namespace MMOWorldServer
 
         private Socket mServerSocket;
 
-        private Dictionary<uint, ConnectedPlayer> mConnectedPlayerList = new Dictionary<uint, ConnectedPlayer>();
-        private List<ClientConnection> mConnectionList = new List<ClientConnection>();
-   //     private LuaEngine mLuaEngine = new LuaEngine();
+        public static Dictionary<uint, ConnectedPlayer> mConnectedPlayerList = new Dictionary<uint, ConnectedPlayer>();
+
+        private static List<ClientConnection> mConnectionList = new List<ClientConnection>();
 
         private static WorldManager mWorldManager;
         private static Dictionary<uint, Item> gamedataItems;
@@ -125,7 +125,7 @@ namespace MMOWorldServer
             Console.WriteLine("Map Server has started @ {0}:{1}", (mServerSocket.LocalEndPoint as IPEndPoint).Address, (mServerSocket.LocalEndPoint as IPEndPoint).Port);
             Console.ForegroundColor = ConsoleColor.Gray;
 
-            mProcessor = new PacketProcessor(this, mConnectedPlayerList, mConnectionList);
+            mProcessor = new PacketProcessor();
 
             return true;
         }
@@ -134,7 +134,6 @@ namespace MMOWorldServer
         {
             ClientConnection conn = null;
             Socket socket = (Socket)result.AsyncState;
-
             try
             {
 
@@ -146,7 +145,8 @@ namespace MMOWorldServer
                 {
                     mConnectionList.Add(conn);
                 }
-
+                mProcessor.ClientIpAddress = (conn.socket.RemoteEndPoint as IPEndPoint).Address;
+                mProcessor.ClientPort = (conn.socket.RemoteEndPoint as IPEndPoint).Port;
                 Console.WriteLine("Connection {0}:{1} has connected.", (conn.socket.RemoteEndPoint as IPEndPoint).Address, (conn.socket.RemoteEndPoint as IPEndPoint).Port);
                 //Queue recieving of data from the connection
                 conn.socket.BeginReceive(conn.buffer, 0, conn.buffer.Length, SocketFlags.None, new AsyncCallback(ReceiveCallback), conn);
@@ -207,14 +207,12 @@ namespace MMOWorldServer
             //Check if disconnected
             if ((conn.socket.Poll(1, SelectMode.SelectRead) && conn.socket.Available == 0))
             {
-                if (mConnectedPlayerList.ContainsKey(conn.owner))
-                    mConnectedPlayerList.Remove(conn.owner);
                 lock (mConnectionList)
                 {
                     mConnectionList.Remove(conn);
                 }
                 if (conn.connType == BasePacket.TYPE_ZONE)
-                    Console.WriteLine("{0} has disconnected.", conn.owner == 0 ? conn.GetAddress() : "User " + conn.owner);
+                    Console.WriteLine("{0} has disconnected.", conn.owner == 0 ? conn.GetFullAddress() : "User " + conn.owner);
                 return;
             }
 
@@ -258,7 +256,7 @@ namespace MMOWorldServer
                 }
                 else
                 {
-                    Console.WriteLine("{0} has disconnected.", conn.owner == 0 ? conn.GetAddress() : "User " + conn.owner);
+                    Console.WriteLine("{0} has disconnected.", conn.owner == 0 ? conn.GetFullAddress() : "User " + conn.owner);
 
                     lock (mConnectionList)
                     {
@@ -270,7 +268,7 @@ namespace MMOWorldServer
             {
                 if (conn.socket != null)
                 {
-                    Console.WriteLine("{0} has disconnected.", conn.owner == 0 ? conn.GetAddress() : "User " + conn.owner);
+                    Console.WriteLine("{0} has disconnected.", conn.owner == 0 ? conn.GetFullAddress() : "User " + conn.owner);
 
                     lock (mConnectionList)
                     {
@@ -321,14 +319,14 @@ namespace MMOWorldServer
             return mWorldManager;
         }
 
-        public Dictionary<uint, ConnectedPlayer> GetConnectedPlayerList()
-        {
-            return mConnectedPlayerList;
-        }
-
         public static Dictionary<uint, Item> GetGamedataItems()
         {
             return gamedataItems;
+        }
+
+        public static List<ClientConnection> GetClientConnections()
+        {
+            return mConnectionList;
         }
 
 

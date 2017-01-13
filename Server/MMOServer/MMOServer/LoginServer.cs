@@ -14,7 +14,7 @@ namespace MMOServer
 
     public class LoginServer
     {
-        private static List<ClientConnection> mConnectionList = new List<ClientConnection>();
+        public static List<ClientConnection> mConnectionList = new List<ClientConnection>();
         public static ManualResetEvent allDone = new ManualResetEvent(false);
         public const int BUFFER_SIZE = 65535;
         private Socket listener;
@@ -162,7 +162,7 @@ namespace MMOServer
                 }
                 else
                 {
-                    Console.WriteLine("Client at {0} has disconnected", client.GetAddress());
+                    Console.WriteLine("Client at {0} has disconnected", client.GetFullAddress());
 
                     lock (mConnectionList)
                     {
@@ -177,7 +177,7 @@ namespace MMOServer
             {
                 if (client.socket != null)
                 {
-                    Console.WriteLine("Client at {0} has disconnected", client.GetAddress());
+                    Console.WriteLine("Client at {0} has disconnected", client.GetFullAddress());
 
                     lock (mConnectionList)
                     {
@@ -188,8 +188,6 @@ namespace MMOServer
 
 
         }
-
-
 
         /// <summary>
         /// Builds a packet from the incoming buffer + offset. If a packet can be built, it is returned else null.
@@ -219,9 +217,10 @@ namespace MMOServer
                 
                 newPacket = new BasePacket(buffer, ref offset);
             }
-            catch (OverflowException)
+            catch (OverflowException e)
             {
-                Console.WriteLine("something fucked up fam overflow exception");
+
+                Console.WriteLine(e.ToString());
                 return null;
             }
 

@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net;
+using System.Net.Sockets;
+using System.Text;
 
 namespace MMOServer
 {
@@ -21,7 +24,6 @@ namespace MMOServer
             List<SubPacket> subPackets = packet.GetSubpackets();
             foreach (SubPacket subPacket in subPackets)
             {
-                Console.WriteLine("OPCODE: "+ subPacket.gameMessage.opcode);
                 subPacket.debugPrintSubPacket();
 
                 if (subPacket.header.type == (ushort)SubPacketTypes.Account)
@@ -47,10 +49,68 @@ namespace MMOServer
                         case (ushort)GamePacketOpCode.CharacterDeleteQuery:
                             ProcessCharacterDeleteRequest(subPacket);
                             break;
+
+                        case (ushort)GamePacketOpCode.Handshake:
+                            ProcessHandshake(subPacket);
+                            break;
                     }
                 }
 
             }
+        }
+
+        //client in this case will be WorldServer
+        private void ProcessHandshake(SubPacket receivedPacket)
+        {
+            //search connected clients for address 
+            //send characterid and address from receivedPacket back to worldserver
+            HandshakePacket received = new HandshakePacket(receivedPacket.data);
+            foreach (var connection in LoginServer.mConnectionList)
+            {
+                //Console.WriteLine("id present: "+characterIdPresentInClient(received.CharacterId, connection));
+                //Console.WriteLine("client id: " + received.CharacterId);
+                //Console.WriteLine("connection id: " + connection.CharacterId[0]);
+                
+                if (connection.GetIp() == received.ClientAddress && characterIdPresentInClient(received.CharacterId, connection))
+                {
+                    //TODO: Separate this into a method
+                    AcknowledgePacket ack = new AcknowledgePacket(true, received.ClientAddress, received.CharacterId);
+                    SubPacket sp = new SubPacket(GamePacketOpCode.Acknowledgement, 0, 0, ack.GetBytes(), SubPacketTypes.GamePacket);
+                    BasePacket successPacketToSend = BasePacket.CreatePacket(sp, true, false);
+                    AckResponseToWorldServer(successPacketToSend);
+                    return;
+                }
+            }
+            AcknowledgePacket ackFailure = new AcknowledgePacket(true, received.ClientAddress, received.CharacterId);
+            SubPacket fail = new SubPacket(GamePacketOpCode.Acknowledgement, 0, 0, ackFailure.GetBytes(), SubPacketTypes.GamePacket);
+            BasePacket failPacketToSend = BasePacket.CreatePacket(fail, true, false);
+            AckResponseToWorldServer(failPacketToSend);
+        }
+
+        private void AckResponseToWorldServer(BasePacket packetToSend)
+        {
+            
+            packetToSend.header.connectionType = (ushort)BasePacketConnectionTypes.Generic;
+            IPAddress[] ip = Dns.GetHostAddresses("127.0.0.1");
+            IPEndPoint remoteEP = new IPEndPoint(ip[0], 3435);
+            Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            socket.Connect(remoteEP);
+            ClientConnection temp = new ClientConnection();
+            temp.socket = socket;
+            temp.QueuePacket(packetToSend);
+            temp.FlushQueuedSendPackets();
+        }
+
+        private bool characterIdPresentInClient(int characterId, ClientConnection temp)
+        {
+            foreach (var id in temp.CharacterId)
+            {
+                if (id == characterId)
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
         private void ProcessCharacterDeleteRequest(SubPacket receivedPacket)
@@ -77,11 +137,17 @@ namespace MMOServer
             Database db = new Database();
             CharacterQueryPacket cq = new CharacterQueryPacket();
             string accountName = cq.ReadAccountName(receivedPacket);
-            var characterList = db.GetListOfCharacters(accountName);
+            var accountId = db.GetAccountIdFromAccountName(accountName);
+            var characterList = db.GetListOfCharacters(accountId);
             var packets = cq.BuildResponsePacket(characterList);
             Console.WriteLine("Character packeted authenticated = " + client.authenticated);
             BasePacket packetsToSend = BasePacket.CreatePacket(packets, client.authenticated, false);
             Console.WriteLine("---Character Query Packet---");
+            for(var i = 0; i < characterList.Count; i++)
+            {
+                int characterId = int.Parse(characterList[i][0]);
+                client.CharacterId[i] = characterId;
+            }
             packetsToSend.debugPrintPacket();
             client.QueuePacket(packetsToSend);
         }

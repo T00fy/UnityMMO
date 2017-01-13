@@ -19,29 +19,6 @@ public class Connection : MonoBehaviour{
     [HideInInspector]
     public int lastPartialSize = 0;
     private PacketProcessor packetProcessor;
-    //  private BasePacket packetToSend;
-
-
-    //used mainly for logging in and registering, will display a statusbox with packet 
-
-    /*    public EstablishConnection(BasePacket packetToSend, CursorInput.menuHandler CursorInput.menuHandler) {
-            this.packetToSend = packetToSend;
-            loggedIn = packetToSend.isAuthenticated();
-            this.CursorInput.menuHandler = CursorInput.menuHandler;
-        }
-
-        public EstablishConnection(BasePacket packetToSend)
-        {
-            this.packetToSend = packetToSend;
-            loggedIn = packetToSend.isAuthenticated();
-        }*/
-
-    //check that connection is already established
-    //if not establish connection
-    //send packet and then start receiving packets
-    //get subpackets
-    //store into basepacket and send when ready
-    //
 
     void Start()
     {
@@ -61,6 +38,11 @@ public class Connection : MonoBehaviour{
     public void QueuePacket(BasePacket packet)
     {
         sendPacketQueue.Enqueue(packet);
+    }
+
+    public Socket GetSocket()
+    {
+        return socket;
     }
 
     public byte[] GetNextPacketInQueue()
@@ -94,19 +76,18 @@ public class Connection : MonoBehaviour{
             return true;
     }
 
-    public void EstablishConnection()
+    public void EstablishConnection(string ipAddress, int port)
     {
 
         socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         try
         {
-            IPAddress[] ip = Dns.GetHostAddresses("127.0.0.1");
+            IPAddress[] ip = Dns.GetHostAddresses(ipAddress);
 
 
             StatusBoxHandler.statusText = "Connecting...";
 
-            IPEndPoint remoteEP = new IPEndPoint(ip[0], 3425);
-         //   socket.Connect(remoteEP, new AsyncCallback(ConnectCallBack), socket);
+            IPEndPoint remoteEP = new IPEndPoint(ip[0], port);
             socket.Connect(remoteEP);
 
             StatusBoxHandler.statusText = "Established Connection";
@@ -120,30 +101,6 @@ public class Connection : MonoBehaviour{
         }
 
     }
-
-
-
-    /*   private void ConnectCallBack(IAsyncResult aSyncResult)
-       {
-           clientConnection = new ClientConnect();
-           try
-           {
-               socket = (Socket)aSyncResult.AsyncState;
-
-               clientConnection.socket = socket.EndAccept(aSyncResult);
-
-           }
-           catch (Exception e)
-           {
-               CursorInput.menuHandler.SetDestroyStatusBox();
-               CursorInput.menuHandler.SetStatusText(e.Message);
-               Debug.Log(e);
-               clientConnection.socket.Shutdown(SocketShutdown.Both);
-               clientConnection.socket.Close();
-           }
-
-
-       }*/
 
     public void Send(BasePacket packetToSend)
     {

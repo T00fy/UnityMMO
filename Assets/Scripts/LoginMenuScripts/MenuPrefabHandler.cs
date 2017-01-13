@@ -108,7 +108,6 @@ public class MenuPrefabHandler : MonoBehaviour {
         prefab.transform.FindChild("StatusText").GetComponentInChildren<Text>().text = statusText;
     }
 
-
     /// <summary>
     /// Instantiates a generic menu prefab directly from a gameobject, ready to close needs to be set manually
     /// </summary>
@@ -122,6 +121,19 @@ public class MenuPrefabHandler : MonoBehaviour {
         prefab = Instantiate(prefab) as GameObject;
         menuHandler.AddMenuAsChild(prefab);
         menuHandler.SetMenuObject(prefab);
+    }
+
+    public void InstantiateMessageOnlyStatusBox()
+    {
+        prefab = prefabs[(int)MenuPrefabs.MessageOnly];
+        menuHandler.ToggleCursor(false);
+        prefab = Instantiate(prefab) as GameObject;
+    }
+
+    public void DestroyMessageOnlyStatusBox(GameObject messageStatusBox)
+    {
+        Destroy(messageStatusBox);
+        menuHandler.ToggleCursor(true);
     }
 
     /// <summary>

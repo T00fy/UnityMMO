@@ -165,7 +165,7 @@ namespace MMOServer
             }
             catch (Exception e)
             {
-                Console.WriteLine("Error in reading character loading packets: " + e.Message);
+                Console.WriteLine("Error in reading handshake packet: " + e.Message);
 
             }
 

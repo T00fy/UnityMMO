@@ -41,6 +41,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AcknowledgePacket.cs" />
+    <Compile Include="HandshakePacket.cs" />
     <Compile Include="LoginMenuPackets\CharacterDeletePacket.cs" />
     <Compile Include="LoginMenuPackets\AccountPacket.cs" />
     <Compile Include="BasePacket.cs" />

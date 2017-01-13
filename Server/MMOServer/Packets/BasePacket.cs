@@ -23,8 +23,8 @@ namespace MMOServer
     public class BasePacket
     {
         public const int BASEPACKET_SIZE = 0x10;
-        public const int TYPE_ZONE = 1;
-        public const int TYPE_CHAT = 2;
+        public const int TYPE_ZONE = 0;
+        public const int TYPE_CHAT = 1;
         public BasePacketHeader header;
         public byte[] data;
 

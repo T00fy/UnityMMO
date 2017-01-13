@@ -7,6 +7,13 @@ using UnityEngine;
 public static class Utils
 {
     private static string accountName;
+    private static Dictionary<ushort, Character> characterDictionary;
+
+    public static void SetCharacterDictionary(Dictionary<ushort, Character> temp)
+    {
+        characterDictionary = temp;
+    }
+
 
     public static string GetAccountName()
     {
@@ -53,6 +60,19 @@ public static class Utils
                 return child.gameObject;
             }
         }
+        return null;
+    }
+
+    public static Character GetCharacter(ushort slot)
+    {
+        Character character;
+        var blah = characterDictionary.TryGetValue(slot, out character);
+
+        if (blah)
+        {
+            return character;
+        }
+        Debug.Log("null value");
         return null;
     }
 

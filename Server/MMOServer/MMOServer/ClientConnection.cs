@@ -15,16 +15,21 @@ namespace MMOServer
         public CircularBuffer<byte> incomingStream = new CircularBuffer<byte>(1024);
         public BlockingCollection<BasePacket> sendPacketQueue = new BlockingCollection<BasePacket>(100);
         public int lastPartialSize = 0;
+        private int accountId;
+        private int[] characterId = new int[3];
 
-
-
-  /*      public void ProcessIncoming(int bytesIn)
+        public int[] CharacterId
         {
-            if (bytesIn == 0)
-                return;
+            get
+            {
+                return characterId;
+            }
 
-            incomingStream.Put(buffer, 0, bytesIn);
-        }*/
+            set
+            {
+                characterId = value;
+            }
+        }
 
         public void QueuePacket(BasePacket packet)
         {
@@ -53,9 +58,19 @@ namespace MMOServer
             }
         }
 
-        public string GetAddress()
+        public string GetFullAddress()
         {
             return string.Format("{0}:{1}", (socket.RemoteEndPoint as IPEndPoint).Address, (socket.RemoteEndPoint as IPEndPoint).Port);
+        }
+
+        public string GetIp()
+        {
+            return (socket.RemoteEndPoint as IPEndPoint).Address + "";
+        }
+
+        public int GetPort()
+        {
+            return (socket.RemoteEndPoint as IPEndPoint).Port;
         }
 
         public void Disconnect()
@@ -63,6 +78,16 @@ namespace MMOServer
             authenticated = false;
             socket.Shutdown(SocketShutdown.Both);
             socket.Disconnect(false);
+        }
+
+        public int GetAccountId()
+        {
+            return accountId;
+        }
+
+        public void SetAccountId(int accountId)
+        {
+            this.accountId = accountId;
         }
 
     }

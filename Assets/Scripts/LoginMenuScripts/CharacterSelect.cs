@@ -12,6 +12,7 @@ public class CharacterSelect : MonoBehaviour {
     public static ushort selectedSlot;
     private bool allowedToCreateCharacter;
     private bool allowedToDeleteCharacter;
+    private bool allowedToEnterWorld;
     public static bool deleting;
     
     //TODO: Refuse character creation if character already created on that slot
@@ -37,6 +38,7 @@ public class CharacterSelect : MonoBehaviour {
             cm.menuObjects[6].GetComponent<Text>().color = Color.white;
             //Set enter to valid 
             //Set create character invalid
+            allowedToEnterWorld = true;
             allowedToCreateCharacter = false;
             allowedToDeleteCharacter = true;
         }
@@ -47,6 +49,7 @@ public class CharacterSelect : MonoBehaviour {
             cm.menuObjects[3].GetComponent<Text>().color = Color.white;
             allowedToCreateCharacter = true;
             allowedToDeleteCharacter = false;
+            allowedToEnterWorld = false;
             //set enter to invalid
             //Set create character to valid
         }
@@ -118,6 +121,11 @@ public class CharacterSelect : MonoBehaviour {
         {
             selectedSlot = 2;
         }
+    }
+
+    public bool AllowedToEnterWorld()
+    {
+        return allowedToEnterWorld;
     }
 
     private bool IsASlotItem()

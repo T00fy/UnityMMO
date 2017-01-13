@@ -5,11 +5,12 @@ using MMOServer;
 using System.Collections.Generic;
 
 
-//going to have to change this whole structure so its not a static class and uses monobehaviour ;_;
 public class PacketProcessor : MonoBehaviour{
     public static Connection connect;
     public static bool isAuthenticated;
     public static bool loggedInSuccessfully;
+    private static bool handshakeSuccessful;
+    private static bool handshakeResponseReceived;
     public CharacterLoader characterLoader;
 
 
@@ -22,7 +23,7 @@ public class PacketProcessor : MonoBehaviour{
         if (!packetToSend.isAuthenticated())
         {
             connect = GameObject.FindGameObjectWithTag("Connection").GetComponent<Connection>();
-            connect.EstablishConnection();
+            connect.EstablishConnection("127.0.0.1", 3425);
             connect.Send(packetToSend);
 
         }
@@ -143,13 +144,20 @@ public class PacketProcessor : MonoBehaviour{
                         StatusBoxHandler.readyToClose = true;
                         break;
 
+                    case ((ushort)GamePacketOpCode.Acknowledgement):
+                        Debug.Log("Gets here");
+                        AcknowledgePacket ack = new AcknowledgePacket(subPacket.data);
+                        GameEventManager.TriggerHandshakeResponseReceived(new GameEventArgs { serverResponse = ack.AckSuccessful });
+                        //ackpacket has other data which is useful which i'm currently unsure on how to use atm
+                        //anything set here won't be visible when scene is changed to world map.
+                        break;
+
+
                     default:
                         Debug.Log("Unknown or corrupted packet");
                         break;
                     }
             }
-
-     //       StatusBoxHandler.readyToClose = true;
 
         }
     }

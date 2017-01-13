@@ -12,12 +12,13 @@ namespace MMOServer
 
     public enum BasePacketConnectionTypes
     {
-        Zone,Chat
+        Zone,Chat,Generic
     }
 
     public enum GamePacketOpCode
     {
-        AccountError,AccountSuccess,CreateCharacter,RegisterSuccess,CreateCharacterError,CreateCharacterSuccess,CharacterListQuery,CharacterDeleteQuery,CharacterDeleteSuccess
+        AccountError,AccountSuccess,CreateCharacter,RegisterSuccess,CreateCharacterError,CreateCharacterSuccess,CharacterListQuery,CharacterDeleteQuery,CharacterDeleteSuccess,
+        Handshake, Acknowledgement
     }
 
     public enum ErrorCodes

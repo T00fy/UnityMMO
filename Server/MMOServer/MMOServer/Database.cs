@@ -120,6 +120,7 @@ namespace MMOServer
                 //        Console.WriteLine("Connecting to MYSQL server...");
                 conn.Open();
                 status = "OK";
+                conn.Close();
                 //        Console.WriteLine("Connected to DB");
             }
             catch (MySqlException e)
@@ -134,17 +135,9 @@ namespace MMOServer
 
         }
 
-
-        /// <summary>
-        /// Returns a list of string arrays corresponding to character information. Each array is a character
-        /// </summary>
-        /// <param name="accountName"></param>
-        /// <returns></returns>
-        public List<string[]> GetListOfCharacters(string accountName)
+        public string GetAccountIdFromAccountName(string accountName)
         {
-            //get accountid with account name
             MySqlDataReader rdr = null;
-            List<string[]> characters = new List<string[]>();
             try
             {
                 conn.Open();
@@ -159,15 +152,44 @@ namespace MMOServer
                     {
                         accountId = rdr.GetString(0);
                     }
-                    
+
                 }
                 else
                 {
                     Console.WriteLine("Could not find your username.");
-                    return characters;
+                    return "-1";
                     //set is authenticated to false
                 }
                 rdr.Close();
+                return accountId;
+            }
+            catch (MySqlException e)
+            {
+                return "-1";
+            }
+            finally
+            {
+                conn.Dispose();
+            }
+            
+        }
+
+
+        /// <summary>
+        /// Returns a list of string arrays corresponding to character information. Each array is a character
+        /// </summary>
+        /// <param name="accountId"></param>
+        /// <returns></returns>
+        public List<string[]> GetListOfCharacters(string accountId)
+        {
+            //get accountid with account name
+            MySqlDataReader rdr = null;
+            List<string[]> characters = new List<string[]>();
+            try
+            {
+                conn.Open();
+                MySqlCommand command = conn.CreateCommand();
+
                 command = conn.CreateCommand();
                 command.CommandText = "SELECT CharID, CharacterSlot, AccountID, Name, Strength, Agility, Intellect, Vitality, Dexterity FROM `chars` left join account on account.id = chars.AccountID and account.id=@accountId";
                 command.Parameters.AddWithValue("@accountId", accountId);

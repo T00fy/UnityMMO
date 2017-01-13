@@ -5,16 +5,16 @@ using UnityEngine;
 public class CameraFollow : MonoBehaviour {
 
     public Transform target;
-    private Camera camera;
+    private Camera cam;
 
 	// Use this for initialization
 	void Start () {
-        camera = GetComponent<Camera>();
+        cam = GetComponent<Camera>();
 	}
 	
 	// Update is called once per frame
 	void Update () {
-        camera.orthographicSize = (Screen.height / 35f) / 2f;
+        cam.orthographicSize = (Screen.height / 35f) / 2f;
 
         if (target)
         {

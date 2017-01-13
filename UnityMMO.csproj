@@ -5,7 +5,7 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{BC4CFBC8-9B09-892A-C21D-6698E5A4F593}</ProjectGuid>
+    <ProjectGuid>{AA2D4040-DD77-6ED2-3A1C-D3243A6C19C4}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AssemblyName>Assembly-CSharp</AssemblyName>
     <FileAlignment>512</FileAlignment>
@@ -94,6 +94,8 @@
     <Compile Include="Assets\Scripts\LoginMenuScripts\CursorInput.cs" />
     <Compile Include="Assets\Scripts\LoginMenuScripts\CursorMover.cs" />
     <Compile Include="Assets\Scripts\LoginMenuScripts\EnterWorld.cs" />
+    <Compile Include="Assets\Scripts\LoginMenuScripts\GameEventArgs.cs" />
+    <Compile Include="Assets\Scripts\LoginMenuScripts\GameEventManager.cs" />
     <Compile Include="Assets\Scripts\LoginMenuScripts\MenuHandler.cs" />
     <Compile Include="Assets\Scripts\LoginMenuScripts\MenuLink.cs" />
     <Compile Include="Assets\Scripts\LoginMenuScripts\MenuPrefabHandler.cs" />
@@ -106,6 +108,8 @@
     <Compile Include="Assets\Scripts\LoginMenuScripts\TextFieldHandler.cs" />
     <Compile Include="Assets\Scripts\LoginMenuScripts\Utils.cs" />
     <Compile Include="Assets\Scripts\PlayerMovement.cs" />
+    <Compile Include="Assets\Scripts\WorldPacketProcessor.cs" />
   </ItemGroup>
-
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Target Name="GenerateTargetFrameworkMonikerAttribute" />
 </Project>
