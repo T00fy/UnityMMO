@@ -17,8 +17,39 @@ namespace MMOServer
         public int lastPartialSize = 0;
         private int accountId;
         private int[] characterId = new int[3];
+        private IPAddress clientIpAddress;
+        private int clientPort;
 
-        public int[] CharacterId
+        public IPAddress ClientIpAddress
+        {
+            get
+            {
+                return clientIpAddress;
+            }
+
+            set
+            {
+                clientIpAddress = value;
+            }
+        }
+
+        public int ClientPort
+        {
+            get
+            {
+                return clientPort;
+            }
+
+            set
+            {
+                clientPort = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets/sets character id array that is associated with this connection
+        /// </summary>
+        public int[] CharacterIds
         {
             get
             {

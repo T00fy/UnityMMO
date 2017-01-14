@@ -108,6 +108,7 @@ public class PacketProcessor : MonoBehaviour{
                 }
                 switch (subPacket.gameMessage.opcode)
                 {
+                    //TODO: Refactor statusbox ready to close to use event system
                     case ((ushort)GamePacketOpCode.AccountSuccess):
                         StatusBoxHandler.statusText = Encoding.Unicode.GetString(subPacket.data);
                         isAuthenticated = true;
@@ -115,16 +116,19 @@ public class PacketProcessor : MonoBehaviour{
                         StatusBoxHandler.readyToClose = true;
                         break;
 
+                    //TODO: Refactor statusbox ready to close to use event system
                     case ((ushort)GamePacketOpCode.CreateCharacter):
                         StatusBoxHandler.statusText = Encoding.Unicode.GetString(subPacket.data);
                         StatusBoxHandler.readyToClose = true;
                         break;
 
+                    //TODO: Refactor statusbox ready to close to use event system
                     case ((ushort)GamePacketOpCode.CreateCharacterSuccess):
                         StatusBoxHandler.statusText = Encoding.Unicode.GetString(subPacket.data);
                         StatusBoxHandler.readyToClose = true;
                         break;
 
+                        //TODO: Refactor this to use event system
                     case ((ushort)GamePacketOpCode.CharacterListQuery):
                         if (BitConverter.ToInt32(subPacket.data, 0) == -1)
                         {

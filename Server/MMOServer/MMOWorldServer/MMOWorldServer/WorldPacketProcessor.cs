@@ -12,42 +12,15 @@ namespace MMOWorldServer
     /// <summary>
     /// 
     /// </summary>
-    class PacketProcessor
+    class WorldPacketProcessor
     {
-        private ClientConnection client;
+        private WorldClientConnection client;
         //List<ClientConnection> mConnections;
         private const string LOGIN_SERVER_IP = "127.0.0.1";
         private const int LOGIN_SERVER_PORT = 3425;
-        private IPAddress clientIpAddress;
-        private int clientPort;
 
-        public IPAddress ClientIpAddress
-        {
-            get
-            {
-                return clientIpAddress;
-            }
 
-            set
-            {
-                clientIpAddress = value;
-            }
-        }
-
-        public int ClientPort
-        {
-            get
-            {
-                return clientPort;
-            }
-
-            set
-            {
-                clientPort = value;
-            }
-        }
-
-        public void ProcessPacket(ClientConnection client, BasePacket packet)
+        public void ProcessPacket(WorldClientConnection client, BasePacket packet)
         {
             this.client = client;
             packet.debugPrintPacket();
@@ -97,7 +70,7 @@ namespace MMOWorldServer
                             //Console.WriteLine("CHARACTER ID FROM CLIENT: " + client.CharacterId);
                             SubPacket sp = new SubPacket(GamePacketOpCode.Handshake, 0, 0, packet.GetBytes(), SubPacketTypes.GamePacket);
                             BasePacket packetToSend = BasePacket.CreatePacket(sp, true, false);
-                            ClientConnection loginServer = new ClientConnection();
+                            WorldClientConnection loginServer = new WorldClientConnection();
                             loginServer.socket = socket;
                             loginServer.QueuePacket(packetToSend);
                             loginServer.FlushQueuedSendPackets();

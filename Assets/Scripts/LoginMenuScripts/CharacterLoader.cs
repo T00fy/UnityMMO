@@ -48,7 +48,7 @@ public class CharacterLoader : MonoBehaviour {
             //load character here
             //will have to change/add a lot more later to this when you can edit race/face/etc
             StatusBoxHandler.statusText = "Status: Loading characters";
-            Dictionary<ushort, Character> temp = new Dictionary<ushort, Character>();
+            Dictionary<ushort, Character> tempCharacterDictionaryToSet = new Dictionary<ushort, Character>();
             for (int i = 0; i < characterServerResponse.Count; i++)
             {
                 CharacterQueryPacket cq = new CharacterQueryPacket();
@@ -59,12 +59,12 @@ public class CharacterLoader : MonoBehaviour {
                     GameObject characterSprite = new GameObject();
                     Character character = characterSprite.AddComponent<Character>();
                     character.SetCharacterInfoFromPacket(cq);
-                    temp.Add(cq.GetCharacterSlot(), character);
+                    tempCharacterDictionaryToSet.Add(cq.GetCharacterSlot(), character);
                     LoadCharacterInSlot(characterSprite, characterHolder);
                     LoadCharacterSnippet(characterHolder, cq);
                 }
             }
-            Utils.SetCharacterDictionary(temp);
+            Utils.SetCharacterDictionary(tempCharacterDictionaryToSet);
         }
         statusBoxHandler.DestroyStatusBox();
     }

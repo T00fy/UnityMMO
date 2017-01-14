@@ -20,12 +20,12 @@ namespace MMOWorldServer
 
         public static Dictionary<uint, ConnectedPlayer> mConnectedPlayerList = new Dictionary<uint, ConnectedPlayer>();
 
-        private static List<ClientConnection> mConnectionList = new List<ClientConnection>();
+        private static List<WorldClientConnection> mConnectionList = new List<WorldClientConnection>();
 
         private static WorldManager mWorldManager;
         private static Dictionary<uint, Item> gamedataItems;
 
-        private PacketProcessor mProcessor;
+        private WorldPacketProcessor mProcessor;
 
         private Thread mConnectionHealthThread;
         private bool killHealthThread = false;
@@ -125,19 +125,19 @@ namespace MMOWorldServer
             Console.WriteLine("Map Server has started @ {0}:{1}", (mServerSocket.LocalEndPoint as IPEndPoint).Address, (mServerSocket.LocalEndPoint as IPEndPoint).Port);
             Console.ForegroundColor = ConsoleColor.Gray;
 
-            mProcessor = new PacketProcessor();
+            mProcessor = new WorldPacketProcessor();
 
             return true;
         }
 
         private void AcceptCallback(IAsyncResult result)
         {
-            ClientConnection conn = null;
+            WorldClientConnection conn = null;
             Socket socket = (Socket)result.AsyncState;
             try
             {
 
-                conn = new ClientConnection();
+                conn = new WorldClientConnection();
                 conn.socket = socket.EndAccept(result);
                 conn.buffer = new byte[BUFFER_SIZE];
 
@@ -145,8 +145,8 @@ namespace MMOWorldServer
                 {
                     mConnectionList.Add(conn);
                 }
-                mProcessor.ClientIpAddress = (conn.socket.RemoteEndPoint as IPEndPoint).Address;
-                mProcessor.ClientPort = (conn.socket.RemoteEndPoint as IPEndPoint).Port;
+                conn.ClientIpAddress = (conn.socket.RemoteEndPoint as IPEndPoint).Address;
+                conn.ClientPort = (conn.socket.RemoteEndPoint as IPEndPoint).Port;
                 Console.WriteLine("Connection {0}:{1} has connected.", (conn.socket.RemoteEndPoint as IPEndPoint).Address, (conn.socket.RemoteEndPoint as IPEndPoint).Port);
                 //Queue recieving of data from the connection
                 conn.socket.BeginReceive(conn.buffer, 0, conn.buffer.Length, SocketFlags.None, new AsyncCallback(ReceiveCallback), conn);
@@ -202,7 +202,7 @@ namespace MMOWorldServer
         /// <param name="result"></param>
         private void ReceiveCallback(IAsyncResult result)
         {
-            ClientConnection conn = (ClientConnection)result.AsyncState;
+            WorldClientConnection conn = (WorldClientConnection)result.AsyncState;
 
             //Check if disconnected
             if ((conn.socket.Poll(1, SelectMode.SelectRead) && conn.socket.Available == 0))
@@ -324,7 +324,7 @@ namespace MMOWorldServer
             return gamedataItems;
         }
 
-        public static List<ClientConnection> GetClientConnections()
+        public static List<WorldClientConnection> GetClientConnections()
         {
             return mConnectionList;
         }

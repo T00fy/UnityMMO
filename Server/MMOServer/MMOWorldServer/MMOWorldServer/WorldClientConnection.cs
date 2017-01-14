@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace MMOWorldServer
 {
-    class ClientConnection
+    class WorldClientConnection
     {
         //Connection stuff
         public Socket socket;
@@ -23,6 +23,34 @@ namespace MMOWorldServer
         //Instance Stuff
         public uint owner = 0;
         public int connType = 0;
+        private IPAddress clientIpAddress;
+        private int clientPort;
+
+        public IPAddress ClientIpAddress
+        {
+            get
+            {
+                return clientIpAddress;
+            }
+
+            set
+            {
+                clientIpAddress = value;
+            }
+        }
+
+        public int ClientPort
+        {
+            get
+            {
+                return clientPort;
+            }
+
+            set
+            {
+                clientPort = value;
+            }
+        }
 
         public int CharacterId
         {

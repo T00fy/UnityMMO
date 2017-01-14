@@ -16,8 +16,8 @@ namespace MMOWorldServer
     /// </summary>
     class ConnectedPlayer
     {
-        public ClientConnection zoneConnection;
-        public ClientConnection chatConnection;
+        public WorldClientConnection zoneConnection;
+        public WorldClientConnection chatConnection;
         public uint actorId = 0;
 
         Player playerActor;
@@ -55,7 +55,7 @@ namespace MMOWorldServer
             actorInstanceList.Add(playerActor);
         }
 
-        public void SetConnection(int type, ClientConnection conn)
+        public void SetConnection(int type, WorldClientConnection conn)
         {
             conn.connType = type;
             switch (type)

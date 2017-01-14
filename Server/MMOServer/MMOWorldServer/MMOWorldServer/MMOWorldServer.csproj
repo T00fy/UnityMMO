@@ -62,14 +62,14 @@
     <Compile Include="Actors\Character.cs" />
     <Compile Include="Actors\Npc.cs" />
     <Compile Include="Actors\Player.cs" />
-    <Compile Include="ClientConnection.cs" />
+    <Compile Include="WorldClientConnection.cs" />
     <Compile Include="ConnectedPlayer.cs" />
     <Compile Include="Data\Items\AccessoryItem.cs" />
     <Compile Include="Data\Items\ArmourItem.cs" />
     <Compile Include="Data\Items\EquipmentItem.cs" />
     <Compile Include="Data\Items\Item.cs" />
     <Compile Include="Data\Items\WeaponItem.cs" />
-    <Compile Include="PacketProcessor.cs" />
+    <Compile Include="WorldPacketProcessor.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="WorldManager.cs" />

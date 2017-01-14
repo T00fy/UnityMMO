@@ -103,7 +103,7 @@ namespace MMOServer
 
         private bool characterIdPresentInClient(int characterId, ClientConnection temp)
         {
-            foreach (var id in temp.CharacterId)
+            foreach (var id in temp.CharacterIds)
             {
                 if (id == characterId)
                 {
@@ -146,7 +146,7 @@ namespace MMOServer
             for(var i = 0; i < characterList.Count; i++)
             {
                 int characterId = int.Parse(characterList[i][0]);
-                client.CharacterId[i] = characterId;
+                client.CharacterIds[i] = characterId;
             }
             packetsToSend.debugPrintPacket();
             client.QueuePacket(packetsToSend);
