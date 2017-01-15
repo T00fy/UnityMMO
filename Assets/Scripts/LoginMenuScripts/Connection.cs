@@ -104,13 +104,22 @@ public class Connection : MonoBehaviour{
 
     public void Send(BasePacket packetToSend)
     {
-        if (socket == null)
+        try
         {
-            Debug.Log("null as bro");
+            if (socket == null)
+            {
+                Debug.Log("sockt is null/missing");
+            }
+
+            socket.BeginSend(packetToSend.GetPacketBytes(), 0, packetToSend.GetPacketBytes().Length, 0,
+                new AsyncCallback(SendCallBack), socket);
+        }
+        catch
+        {
+            Debug.Log("should boot back to login menu");
+            //boot back to login menu
         }
 
-        socket.BeginSend(packetToSend.GetPacketBytes(), 0, packetToSend.GetPacketBytes().Length, 0,
-            new AsyncCallback(SendCallBack), socket);
     }
 
     private void SendCallBack(IAsyncResult aSyncResult)

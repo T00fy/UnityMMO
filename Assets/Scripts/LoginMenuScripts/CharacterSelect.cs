@@ -14,8 +14,6 @@ public class CharacterSelect : MonoBehaviour {
     private bool allowedToDeleteCharacter;
     private bool allowedToEnterWorld;
     public static bool deleting;
-    
-    //TODO: Refuse character creation if character already created on that slot
 
     void Start()
     {
@@ -24,10 +22,12 @@ public class CharacterSelect : MonoBehaviour {
         selectedGameObject = cm.GetSelectedOption();
         selectedCharacter = selectedGameObject;
         selectedText = selectedGameObject.GetComponent<Text>();
-    //    selectedSlot = 0;
+        //    selectedSlot = 0;
     }
-	// Update is called once per frame
-	void Update () {
+
+
+    // Update is called once per frame
+    void Update () {
 
         selectedText.color = Color.red;
         selectedGameObject = cm.menuObjects[selectedSlot];
@@ -79,12 +79,16 @@ public class CharacterSelect : MonoBehaviour {
                 deleting = true;
                 allowedToDeleteCharacter = false;
                 deleteHandler.InstantiatePrefab(MenuPrefabs.ModalStatusBox, "Are you sure you want to delete this character?");
-                
+
                 var sibling = Utils.FindSiblingGameObjectByName(refToPreviousSlot, "CharacterView");
                 var character = Utils.FindComponentInChildWithTag<Character>(sibling, "Character");
 
                 deleteHandler.HandleDeleteDecision(character);
 
+            }
+            else if (selectedGameObject == cm.menuObjects[4] && allowedToEnterWorld)
+            {
+                GameEventManager.TriggerClientWantsToEnter(new GameEventArgs { clientSelectedEnterWorld = true });
             }
 
         }

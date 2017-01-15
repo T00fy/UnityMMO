@@ -130,9 +130,9 @@ public class MenuPrefabHandler : MonoBehaviour {
         prefab = Instantiate(prefab) as GameObject;
     }
 
-    public void DestroyMessageOnlyStatusBox(GameObject messageStatusBox)
+    public void DestroyMessageOnlyStatusBox()
     {
-        Destroy(messageStatusBox);
+        Destroy(prefab);
         menuHandler.ToggleCursor(true);
     }
 

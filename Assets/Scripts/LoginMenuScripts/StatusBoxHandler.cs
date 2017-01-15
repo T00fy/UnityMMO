@@ -30,6 +30,7 @@ public class StatusBoxHandler : MenuPrefabHandler {
                     menuHandler.EnterMenu(statusBoxLink);
                     PacketProcessor.loggedInSuccessfully = false;
                 }
+                GameEventManager.TriggerStatusBoxClosed(new GameEventArgs { statusBoxClosed = true });
                 readyToClose = false;
                 statusBoxLink = null;
             }
@@ -38,6 +39,7 @@ public class StatusBoxHandler : MenuPrefabHandler {
 
 
                 DestroyStatusBox();
+                readyToClose = false;
                 statusBoxLink = null;
             }
             
