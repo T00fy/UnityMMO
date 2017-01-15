@@ -5,7 +5,6 @@ using System;
 
 public class AccountHandler : MonoBehaviour {
     public StatusBoxHandler statusBoxHandler;
-    private MenuHandler menuHandler;
     private PacketProcessor packetProcessor;
 
     //split this up into two methods, one for registering and one for logging in
@@ -17,7 +16,6 @@ public class AccountHandler : MonoBehaviour {
         GameObject userGameObj = GameObject.Find(findUser);
         InputField usernameInput = userGameObj.GetComponent<InputField>();
 
-        GameObject subObj = ml.GetMenuItem();
         string password = passwordInput.text;
         string userName = usernameInput.text;
 
@@ -68,7 +66,6 @@ public class AccountHandler : MonoBehaviour {
     }
     // Use this for initialization
     void Start () {
-        menuHandler = CursorInput.menuHandler;
 	}
 	
 	// Update is called once per frame

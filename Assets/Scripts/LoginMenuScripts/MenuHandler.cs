@@ -124,7 +124,7 @@ public class MenuHandler : MonoBehaviour
                 var parent = root.FindMenuTree(node => node.Data == activeMenu).Parent.Data;
                 activeMenu = parent;
             }
-            catch (NullReferenceException e)
+            catch (NullReferenceException)
             {
                 Debug.Log("Missing menu");
             }

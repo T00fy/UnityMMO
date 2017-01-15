@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class EnterWorld : MonoBehaviour
 {
@@ -14,7 +15,7 @@ public class EnterWorld : MonoBehaviour
     private bool? handShakeSuccessful;
     private bool clientActivatedEnterWorld;
     private const float TIMEOUT_DURATION = 30.0f;
-    private bool enterHandshakeStatusBoxClosed;
+    private float countDown;
     private CharacterSelect characterSelect;
 
     // Use this for initialization
@@ -23,6 +24,7 @@ public class EnterWorld : MonoBehaviour
         GameEventManager.HandshakeResponse += new GameEventManager.GameEvent(ServerResponse);
         GameEventManager.ClientWantsToEnter += new GameEventManager.GameEvent(InputFromCharacterSelect);
         GameEventManager.StatusBoxClosed += new GameEventManager.GameEvent(StatusBoxResponse);
+        countDown = TIMEOUT_DURATION;
     }
 
     private void ServerResponse(GameEventArgs eventArgs)
@@ -41,7 +43,6 @@ public class EnterWorld : MonoBehaviour
 
     private void StatusBoxResponse(GameEventArgs eventArgs)
     {
-        enterHandshakeStatusBoxClosed = eventArgs.statusBoxClosed;
         characterSelect.enabled = true;
     }
 
@@ -71,23 +72,24 @@ public class EnterWorld : MonoBehaviour
         }
     }
 
-    public void StartEnteringWorld()
-    {
-
-    }
-
     private IEnumerator WaitForServerResponse()
     {
-        while (true)
+        while (!handShakeSuccessful.HasValue)
         {
-            yield return new WaitForSeconds(TIMEOUT_DURATION);
-            break;
+            countDown -= Time.deltaTime;
+            if (countDown < 0)
+            {
+                break;
+            }
+            yield return null;
         }
+        countDown = TIMEOUT_DURATION; //reset coutdown;
         if (handShakeSuccessful.HasValue)
         {
             if ((bool)handShakeSuccessful)
             {
                 Debug.Log("Load World");
+                SceneManager.LoadScene("test", LoadSceneMode.Single);
                 //load world instantly
             }
             else
