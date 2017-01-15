@@ -191,7 +191,7 @@ namespace MMOServer
                 MySqlCommand command = conn.CreateCommand();
 
                 command = conn.CreateCommand();
-                command.CommandText = "SELECT CharID, CharacterSlot, AccountID, Name, Strength, Agility, Intellect, Vitality, Dexterity FROM `chars` left join account on account.id = chars.AccountID and account.id=@accountId";
+                command.CommandText = "SELECT CharID, CharacterSlot, AccountID, Name, Strength, Agility, Intellect, Vitality, Dexterity FROM `chars` left join account on account.id = chars.AccountID WHERE account.id=@accountId";
                 command.Parameters.AddWithValue("@accountId", accountId);
                 rdr = command.ExecuteReader();
                 

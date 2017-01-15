@@ -137,7 +137,9 @@ namespace MMOServer
             Database db = new Database();
             CharacterQueryPacket cq = new CharacterQueryPacket();
             string accountName = cq.ReadAccountName(receivedPacket);
+            Console.WriteLine("account name for CL: " + accountName);
             var accountId = db.GetAccountIdFromAccountName(accountName);
+            Console.WriteLine("ID for CL: " + accountId);
             var characterList = db.GetListOfCharacters(accountId);
             var packets = cq.BuildResponsePacket(characterList);
             Console.WriteLine("Character packeted authenticated = " + client.authenticated);

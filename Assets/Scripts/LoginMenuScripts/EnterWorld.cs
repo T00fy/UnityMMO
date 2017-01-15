@@ -43,7 +43,12 @@ public class EnterWorld : MonoBehaviour
 
     private void StatusBoxResponse(GameEventArgs eventArgs)
     {
-        characterSelect.enabled = true;
+        try
+        {
+            characterSelect.enabled = true;
+        }
+        catch (NullReferenceException) { } //this is a hack until I change all instances of 'statusboxclosed' boolean to using an event
+        
     }
 
     // Update is called once per frame

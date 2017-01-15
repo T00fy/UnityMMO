@@ -21,6 +21,7 @@ public class CharacterLoader : MonoBehaviour {
     {
         serverResponseFinished = false;
         characterServerResponse = new List<SubPacket>();
+        Debug.Log(Utils.GetAccountName());
         CharacterQueryPacket cq = new CharacterQueryPacket(Utils.GetAccountName());
         SubPacket sp = cq.BuildQueryPacket();
         BasePacket packetToSend = BasePacket.CreatePacket(sp, PacketProcessor.isAuthenticated, false);
