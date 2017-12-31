@@ -105,7 +105,7 @@ public class MenuPrefabHandler : MonoBehaviour {
         prefab = Instantiate(prefab) as GameObject;
         menuHandler.AddMenuAsChild(prefab);
         menuHandler.SetMenuObject(prefab);
-        prefab.transform.FindChild("StatusText").GetComponentInChildren<Text>().text = statusText;
+        prefab.transform.Find("StatusText").GetComponentInChildren<Text>().text = statusText;
     }
 
     /// <summary>

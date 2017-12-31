@@ -78,7 +78,7 @@ public class StatusBoxHandler : MenuPrefabHandler {
     public void InstantiateStatusBoxPrefabWithNoMenuLink(MenuPrefabs prefabToInstantiate)
     {
         prefab = prefabs[(int)prefabToInstantiate];
-        parentCursor = menuHandler.GetActiveMenu().transform.FindChild("Cursor").gameObject;
+        parentCursor = menuHandler.GetActiveMenu().transform.Find("Cursor").gameObject;
         menuHandler.SetCursor(parentCursor);
         menuHandler.ToggleCursor(false);
         prefab = Instantiate(prefab) as GameObject;
