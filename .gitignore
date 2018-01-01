@@ -20,6 +20,9 @@ sysinfo.txt
 /*.unityproj
 /*.booproj
 App.config
+bin
+obj
+packages
 
 # ============ #
 # OS generated #
