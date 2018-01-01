@@ -50,33 +50,10 @@ namespace MMOWorldServer
                 Console.WriteLine(subPacket.gameMessage.opcode);
                 switch (subPacket.gameMessage.opcode)
                 {
-
-                    //contact login server and ensure that ipaddress of player is currently connected to 
-
                     case ((ushort)GamePacketOpCode.Handshake):
-                        Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                         try
                         {
-
-                            IPAddress[] ip = Dns.GetHostAddresses(LOGIN_SERVER_IP);
-                            int characterId = BitConverter.ToInt32(subPacket.data, 0);
-                            client.CharacterId = characterId;
-                            client.WorldServerToClient = true;
-                            IPEndPoint remoteEP = new IPEndPoint(ip[0], LOGIN_SERVER_PORT);
-                            socket.Connect(remoteEP);
-                            HandshakePacket packet = new HandshakePacket(client.GetIp(), client.GetPort(), characterId);
-                            //Console.WriteLine("PORT FROM CLIENT:" + client.GetPort());
-                            //Console.WriteLine("IP FROM CLIENT:" + client.GetIp());
-                            //Console.WriteLine("CHARACTER ID FROM CLIENT: " + client.CharacterId);
-                            SubPacket sp = new SubPacket(GamePacketOpCode.Handshake, 0, 0, packet.GetBytes(), SubPacketTypes.GamePacket);
-                            BasePacket packetToSend = BasePacket.CreatePacket(sp, true, false);
-                            WorldClientConnection loginServer = new WorldClientConnection();
-                            loginServer.socket = socket;
-                            loginServer.QueuePacket(packetToSend);
-                            loginServer.FlushQueuedSendPackets();
-
-
-
+                            ConfirmClientConnectionWithLoginServer(new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp), subPacket);
                         }
                         catch (Exception e)
                         {
@@ -94,7 +71,7 @@ namespace MMOWorldServer
                             foreach (var mClient in WorldServer.GetClientConnections()) //check this if any performance issues
                             {
                                 Console.WriteLine(ack.CharacterId);
-                                if (mClient.CharacterId == ack.CharacterId && mClient.WorldServerToClient)//this is getting the wrong client
+                                if (mClient.CharacterId == ack.CharacterId && mClient.HasHandshakedWorldServerToClient)//this is getting the wrong client
                                 {           //maybe set a boolean in clientconnection that tells whether or not client is created from a server to server communication
                                     ConnectedPlayer connectedPlayer = new ConnectedPlayer(ack.CharacterId);
                                     connectedPlayer.ClientAddress = ack.ClientAddress;
@@ -110,20 +87,42 @@ namespace MMOWorldServer
 
 
                         }
-
                         break;
 
 
 
                     //if everything okay 
-
-
                     default:
                         break;
                 }
             }
 
 
+        }
+
+        /// <summary>
+        /// contact login server and ensure that the ipaddress of player is currently connected to it
+        /// </summary>
+        /// <param name="socket"></param>
+        /// <param name="subPacket"></param>
+        private void ConfirmClientConnectionWithLoginServer(Socket socket, SubPacket subPacket)
+        {
+            IPAddress[] ip = Dns.GetHostAddresses(LOGIN_SERVER_IP);
+            int characterId = BitConverter.ToInt32(subPacket.data, 0);
+            client.CharacterId = characterId;
+            client.HasHandshakedWorldServerToClient = true;
+            IPEndPoint remoteEP = new IPEndPoint(ip[0], LOGIN_SERVER_PORT);
+            socket.Connect(remoteEP);
+            HandshakePacket packet = new HandshakePacket(client.GetIp(), client.GetPort(), characterId);
+            //Console.WriteLine("PORT FROM CLIENT:" + client.GetPort());
+            //Console.WriteLine("IP FROM CLIENT:" + client.GetIp());
+            //Console.WriteLine("CHARACTER ID FROM CLIENT: " + client.CharacterId);
+            SubPacket sp = new SubPacket(GamePacketOpCode.Handshake, 0, 0, packet.GetBytes(), SubPacketTypes.GamePacket);
+            BasePacket packetToSend = BasePacket.CreatePacket(sp, true, false);
+            WorldClientConnection server = new WorldClientConnection();
+            server.socket = socket;
+            server.QueuePacket(packetToSend);
+            server.FlushQueuedSendPackets();
         }
 
         /*     private void ProcessChatPackets(List<SubPacket> subPackets)

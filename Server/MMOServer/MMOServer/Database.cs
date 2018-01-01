@@ -191,7 +191,7 @@ namespace MMOServer
                 MySqlCommand command = conn.CreateCommand();
 
                 command = conn.CreateCommand();
-                command.CommandText = "SELECT CharID, CharacterSlot, AccountID, Name, Strength, Agility, Intellect, Vitality, Dexterity FROM `chars` left join account on account.id = chars.AccountID WHERE account.id=@accountId";
+                command.CommandText = "select a.id, a.characterSlot, a.accountId, a.name, b.strength, b.agility, b.intellect, b.vitality, b.dexterity from characters a join character_info b on a.accountId = @accountId and b.charId = a.id";
                 command.Parameters.AddWithValue("@accountId", accountId);
                 rdr = command.ExecuteReader();
                 
@@ -224,27 +224,19 @@ namespace MMOServer
 
         public int GetNumberOfCharactersForAccount(string userName)
         {
-            //SELECT  `CharacterSlot` FROM  `chars` LEFT JOIN account ON account.id = chars.AccountID AND account.username = 'toofy'
             try
             {
                 conn.Open();
                 MySqlCommand command = conn.CreateCommand();
-                command.CommandText = "SELECT  `CharacterSlot` FROM  `chars` LEFT JOIN account ON account.id = chars.AccountID AND account.username=@username";
+                command.CommandText = "select COUNT(*) as 'numberOfCharacters' from characters JOIN account ON account.id = characters.accountId AND account.username=@username";
                 command.Parameters.AddWithValue("@username", userName);
 
                 MySqlDataReader rdr = command.ExecuteReader();
-
-                int amountOfRows=0;
-                if (rdr.HasRows)
-                {
-                    while (rdr.Read())
-                    {
-                        amountOfRows++;
-                    }
-                }
+                rdr.Read();
+                var numberOfCharacters = rdr.GetInt32(0);
                 rdr.Close();
                 conn.Close();
-                return amountOfRows;
+                return numberOfCharacters;
             }
             catch (MySqlException e)
             {
@@ -262,7 +254,7 @@ namespace MMOServer
             {
                 conn.Open();
                 MySqlCommand command = conn.CreateCommand();
-                command.CommandText = "SELECT  `CharacterSlot` FROM  `chars` LEFT JOIN account ON account.id = chars.AccountID AND account.username=@username";
+                command.CommandText = "SELECT  characterSlot FROM `characters` JOIN account ON account.id = characters.accountId AND account.username=@username";
                 command.Parameters.AddWithValue("@username", userName);
 
                 MySqlDataReader rdr = command.ExecuteReader();
@@ -294,7 +286,7 @@ namespace MMOServer
             {
                 conn.Open();
                 MySqlCommand command = conn.CreateCommand();
-                command.CommandText = "DELETE FROM `login`.`chars` WHERE `chars`.`CharID` =@charId";
+                command.CommandText = "DELETE FROM  character_info where charId = @charId; DELETE FROM `login`.`characters` WHERE `characters`.`id` =@charId;";
                 command.Parameters.AddWithValue("@charId", charId);
 
                 MySqlDataReader rdr = command.ExecuteReader();
@@ -322,8 +314,10 @@ namespace MMOServer
             {
                 conn.Open();
                 MySqlCommand command = conn.CreateCommand();
-                command.CommandText = "INSERT INTO  `chars` (`AccountID`,`CharacterSlot`,`Name`,`Strength`,`Agility`,`Intellect`,`Vitality`,`Dexterity`)"
-                    + "SELECT id, @selectedSlot, @characterName, @str,@agi,@int,@vit,@dex FROM account WHERE username = @user";
+                command.CommandText = "INSERT INTO `characters`(`characterSlot`, `accountId`, `name`)" +
+                    "SELECT @selectedSlot, account.id, @characterName FROM account WHERE username = @user; " +
+                    "INSERT INTO `character_info`(`charId`, `strength`, `agility`, `intellect`, `vitality`, `dexterity`)" +
+                    "SELECT characters.id, @str,@agi,@int,@vit,@dex FROM characters WHERE characters.name = @characterName;";
                 command.Parameters.AddWithValue("@user", accountName);
                 command.Parameters.AddWithValue("@characterName", cp.characterName);
                 command.Parameters.AddWithValue("@selectedSlot", cp.selectedSlot);

@@ -8,7 +8,6 @@ public class CharacterMenuPrefabHandler : MenuPrefabHandler {
     private GameObject priorMenu;
     private GameObject characterCreateMenu;
     private PacketProcessor packetProcessor;
-    public GameObject characterMenuCursor;
 
 
     /// <summary>

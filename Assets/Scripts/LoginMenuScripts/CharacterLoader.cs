@@ -130,7 +130,7 @@ public class CharacterLoader : MonoBehaviour {
     {
         characterSprite.name = characterSprite.GetComponent<Character>().CharacterName;
         characterSprite.transform.SetParent(characterHolder.transform);
-        characterSprite.transform.localPosition = Vector3.zero;
+        characterSprite.transform.localPosition = new Vector3(0, 0, -1f);
         SpriteRenderer spriteRenderer = characterSprite.AddComponent<SpriteRenderer>();
         characterSprite.tag = "Character";
         spriteRenderer.sprite = characterModel;

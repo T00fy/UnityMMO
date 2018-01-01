@@ -65,7 +65,10 @@ namespace MMOWorldServer
             }
         }
 
-        public bool WorldServerToClient
+        /// <summary>
+        /// 
+        /// </summary>
+        public bool HasHandshakedWorldServerToClient
         {
             get
             {
