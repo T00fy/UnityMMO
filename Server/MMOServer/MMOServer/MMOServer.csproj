@@ -72,7 +72,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ClientConnection.cs" />
-    <Compile Include="Database.cs" />
+    <Compile Include="LoginDatabase.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="PacketProcessor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

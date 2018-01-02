@@ -13,9 +13,9 @@ namespace MMOWorldServer.Actors
     {
 
         uint actorId;
-        ConnectedPlayer playerSession;
+        WorldClientConnection playerSession;
 
-        public Player(ConnectedPlayer cp, uint actorId) : base(actorId)
+        public Player(WorldClientConnection cp, uint actorId) : base(actorId)
         {
             playerSession = cp;
             this.actorId = actorId;

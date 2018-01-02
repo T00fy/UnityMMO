@@ -10,7 +10,7 @@ namespace MMOServer
         {
             Console.WriteLine("Setting up server...");
             Console.WriteLine("Checking DB connection");
-            Database db = new Database();
+            LoginDatabase db = new LoginDatabase();
             string connStatus = db.CheckDbConnection();
             if (connStatus == "OK")
             {

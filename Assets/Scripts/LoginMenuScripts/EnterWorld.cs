@@ -8,8 +8,8 @@ using UnityEngine.SceneManagement;
 
 public class EnterWorld : MonoBehaviour
 {
-    //    public CursorMover cm;
     public Connection worldServerConnection;
+    public Connection loginServerConnection;
     public MenuPrefabHandler genericBoxHandler;
     public StatusBoxHandler statusBoxHandler;
     private bool? handShakeSuccessful;
@@ -25,6 +25,7 @@ public class EnterWorld : MonoBehaviour
         GameEventManager.ClientWantsToEnter += new GameEventManager.GameEvent(InputFromCharacterSelect);
         GameEventManager.StatusBoxClosed += new GameEventManager.GameEvent(StatusBoxResponse);
         countDown = TIMEOUT_DURATION;
+        DontDestroyOnLoad(worldServerConnection);
     }
 
     private void ServerResponse(GameEventArgs eventArgs)
@@ -57,7 +58,6 @@ public class EnterWorld : MonoBehaviour
         if (clientActivatedEnterWorld) //if is entering
         {
             worldServerConnection.EstablishConnection("127.0.0.1", 3435);
-            //   EnterWorldPacket packet = new EnterWorldPacket()
             int characterId = Utils.GetCharacter(CharacterSelect.selectedSlot).CharId;
             var characterIdBytes = BitConverter.GetBytes(characterId);
             if (!BitConverter.IsLittleEndian)
@@ -66,7 +66,7 @@ public class EnterWorld : MonoBehaviour
             }
             SubPacket packetToSend = new SubPacket(GamePacketOpCode.Handshake, 0, 0, characterIdBytes, SubPacketTypes.GamePacket);
             BasePacket test = BasePacket.CreatePacket(packetToSend, PacketProcessor.isAuthenticated, false);
-            test.header.connectionType = (ushort)BasePacketConnectionTypes.Generic;
+            test.header.connectionType = (ushort)BasePacketConnectionTypes.Connect;
             worldServerConnection.Send(test);
             genericBoxHandler.InstantiateMessageOnlyStatusBox();
             var boxText = genericBoxHandler.GetPrefab().GetComponentInChildren<Text>();
@@ -93,6 +93,7 @@ public class EnterWorld : MonoBehaviour
         {
             if ((bool)handShakeSuccessful)
             {
+                loginServerConnection.SendDisconnectPacket();
                 Debug.Log("Load World");
                 SceneManager.LoadScene("test", LoadSceneMode.Single);
                 //load world instantly

@@ -11,6 +11,7 @@ namespace MMOServer
         private int characterId;
         private string clientAddress;
         private bool ackSuccessful;
+        private uint sessionId;
 
         public bool AckSuccessful
         {
@@ -51,6 +52,8 @@ namespace MMOServer
             }
         }
 
+        public uint SessionId { get => sessionId; set => sessionId = value; }
+
         public AcknowledgePacket(bool ackSuccessful, string clientAddress, int characterId)
         {
             this.ackSuccessful = ackSuccessful;
@@ -58,16 +61,45 @@ namespace MMOServer
             this.characterId = characterId;
         }
 
+        public AcknowledgePacket(bool ackSuccessful, uint sessionId)
+        {
+            this.ackSuccessful = ackSuccessful;
+            this.sessionId = sessionId;
+        }
+
+        public AcknowledgePacket() { }
+
         public AcknowledgePacket(byte[] received)
+          {
+              MemoryStream mem = new MemoryStream(received);
+              BinaryReader br = new BinaryReader(mem);
+              try
+              {
+                  ackSuccessful = BitConverter.ToBoolean(br.ReadBytes(sizeof(bool)), 0);
+                  var lengthAddress = BitConverter.ToUInt16(br.ReadBytes(sizeof(ushort)), 0);
+                  clientAddress = Encoding.Unicode.GetString(br.ReadBytes(lengthAddress));
+                  characterId = BitConverter.ToInt32(br.ReadBytes(sizeof(int)), 0);
+              }
+              catch (Exception e)
+              {
+                  Console.WriteLine("Error in reading ack packet: " + e.Message);
+
+              }
+          }
+
+        /// <summary>
+        /// Currently a bit of a hack. Too lazy to fix this up properly right now.
+        /// This will only populate fields ackSuccessful and sessionId (only ones required for client anyway)
+        /// </summary>
+        /// <param name="received"></param>
+        public void GetWorldResponse(byte[] received)
         {
             MemoryStream mem = new MemoryStream(received);
             BinaryReader br = new BinaryReader(mem);
             try
             {
                 ackSuccessful = BitConverter.ToBoolean(br.ReadBytes(sizeof(bool)), 0);
-                var lengthAddress = BitConverter.ToUInt16(br.ReadBytes(sizeof(ushort)), 0);
-                clientAddress = Encoding.Unicode.GetString(br.ReadBytes(lengthAddress));
-                characterId = BitConverter.ToInt32(br.ReadBytes(sizeof(int)), 0);
+                sessionId = BitConverter.ToUInt16(br.ReadBytes(sizeof(ushort)), 0);
             }
             catch (Exception e)
             {
@@ -110,6 +142,34 @@ namespace MMOServer
                 Console.WriteLine(e.ToString());
             }
             return data;
+        }
+
+        public byte[] GetResponseFromWorldServerBytes()
+        {
+            MemoryStream mem = new MemoryStream();
+            BinaryWriter bw = new BinaryWriter(mem);
+            byte[] successBytes = BitConverter.GetBytes(ackSuccessful);
+            byte[] sessionIdBytes = BitConverter.GetBytes(sessionId);
+
+            byte[] data = new byte[successBytes.Length + sessionIdBytes.Length];
+
+            try
+            {
+                bw.Write(successBytes);
+                bw.Write(sessionIdBytes);
+                data = mem.GetBuffer();
+                mem.Dispose();
+                mem.Close();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Something went wrong with response from world server AckPacket");
+                Console.WriteLine(e.ToString());
+            }
+            return data;
+
+
+
         }
     }
 }

@@ -18,8 +18,10 @@ namespace MMOWorldServer
 
         private Socket mServerSocket;
 
-        public static Dictionary<uint, ConnectedPlayer> mConnectedPlayerList = new Dictionary<uint, ConnectedPlayer>();
+        //key is sessionId
+        public static Dictionary<uint, WorldClientConnection> mConnectedPlayerList = new Dictionary<uint, WorldClientConnection>();
 
+        //raw connections
         private static List<WorldClientConnection> mConnectionList = new List<WorldClientConnection>();
 
         private static WorldManager mWorldManager;
@@ -30,7 +32,7 @@ namespace MMOWorldServer
         private Thread mConnectionHealthThread;
         private bool killHealthThread = false;
 
-        private void ConnectionHealth()
+/*        private void ConnectionHealth()
         {
             Console.WriteLine("Connection Health thread started; it will run every {0} seconds.", HEALTH_THREAD_SLEEP_TIME);
             while (!killHealthThread)
@@ -49,7 +51,7 @@ namespace MMOWorldServer
                 }
                 Thread.Sleep(HEALTH_THREAD_SLEEP_TIME * 1000);
             }
-        }
+        }*/
 
         public WorldServer()
         {
@@ -63,8 +65,8 @@ namespace MMOWorldServer
 
         public bool StartServer()
         {
-            mConnectionHealthThread = new Thread(new ThreadStart(ConnectionHealth));
-            mConnectionHealthThread.Name = "MapThread:Health";
+          //  mConnectionHealthThread = new Thread(new ThreadStart(ConnectionHealth));
+         //   mConnectionHealthThread.Name = "MapThread:Health";
             //mConnectionHealthThread.Start();
 
 

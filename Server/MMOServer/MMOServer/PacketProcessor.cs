@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MySql.Data.MySqlClient;
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
@@ -78,6 +79,7 @@ namespace MMOServer
                     SubPacket sp = new SubPacket(GamePacketOpCode.Acknowledgement, 0, 0, ack.GetBytes(), SubPacketTypes.GamePacket);
                     BasePacket successPacketToSend = BasePacket.CreatePacket(sp, true, false);
                     AckResponseToWorldServer(successPacketToSend);
+                    connection.Disconnect(); //remove the client from login server as it is now in the world
                     return;
                 }
             }
@@ -90,7 +92,7 @@ namespace MMOServer
         private void AckResponseToWorldServer(BasePacket packetToSend)
         {
             
-            packetToSend.header.connectionType = (ushort)BasePacketConnectionTypes.Generic;
+            packetToSend.header.connectionType = (ushort)BasePacketConnectionTypes.Connect;
             IPAddress[] ip = Dns.GetHostAddresses("127.0.0.1");
             IPEndPoint remoteEP = new IPEndPoint(ip[0], 3435);
             Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
@@ -115,7 +117,7 @@ namespace MMOServer
 
         private void ProcessCharacterDeleteRequest(SubPacket receivedPacket)
         {
-            Database db = new Database();
+            LoginDatabase db = new LoginDatabase();
             CharacterDeletePacket deletePacket = new CharacterDeletePacket(receivedPacket);
             int error = db.DeleteCharacterFromDb(deletePacket.CharId);
 
@@ -134,7 +136,7 @@ namespace MMOServer
 
         private void ProcessCharacterListQueryPacket(SubPacket receivedPacket)
         {
-            Database db = new Database();
+            LoginDatabase db = new LoginDatabase();
             CharacterQueryPacket cq = new CharacterQueryPacket();
             string accountName = cq.ReadAccountName(receivedPacket);
             Console.WriteLine("account name for CL: " + accountName);
@@ -161,7 +163,7 @@ namespace MMOServer
             ap.Read(packet.GetAccountHeaderBytes(), packet.data);
             if (!ap.register)//if account is logging in
             {
-                Database db = new Database();
+                LoginDatabase db = new LoginDatabase();
                 List<string> account = db.CheckUserInDb(ap.userName, ap.password);
                 switch (account.Count)
                 {
@@ -193,7 +195,7 @@ namespace MMOServer
             }
             else //account is registering
             {
-                Database db = new Database();
+                LoginDatabase db = new LoginDatabase();
                 var succeeded = db.AddUserToDb(ap.userName, ap.password);
                 if (succeeded)
                 {
@@ -220,7 +222,7 @@ namespace MMOServer
 
         private bool CheckCharacterCreatePacket(SubPacket subPacket)
         {
-            Database db = new Database();
+            LoginDatabase db = new LoginDatabase();
             CharacterCreatePacket cp = new CharacterCreatePacket(subPacket.data);
             var summedStats = cp.GetStr() + cp.GetAgi() + cp.GetInt() + cp.GetVit() + cp.GetDex();
             Console.WriteLine(ap.userName);
@@ -248,29 +250,31 @@ namespace MMOServer
 
         private void PerformCharacterCreate(SubPacket subPacket)
         {
-            Database db = new Database();
+            LoginDatabase db = new LoginDatabase();
             CharacterCreatePacket cp = new CharacterCreatePacket(subPacket.data);
-            int error = db.AddCharacterToDb(ap.userName, cp);
-            if (error == -1)
+            try
             {
+                db.AddCharacterToDb(ap.userName, cp);
                 SubPacket success = new SubPacket(GamePacketOpCode.CreateCharacterSuccess, 0, 0, System.Text.Encoding.Unicode.GetBytes("Character created successfully"), SubPacketTypes.GamePacket);
                 BasePacket basePacket = BasePacket.CreatePacket(success, client.authenticated, false);
                 client.QueuePacket(basePacket);
-                //created successfully
             }
-            else
+            catch (MySqlException e)
             {
                 ErrorPacket ep = new ErrorPacket();
-                if (error == (int)ErrorCodes.DuplicateCharacter)
+                SubPacket packetToSend;
+                if (e.Number == (int)ErrorCodes.DuplicateCharacter)
                 {
-                    var packetToSend = ep.buildPacket(GamePacketOpCode.CreateCharacterError, ErrorCodes.DuplicateCharacter, "Character with that name already exists");
+                    packetToSend = ep.buildPacket(GamePacketOpCode.CreateCharacterError, ErrorCodes.DuplicateCharacter, "Character with that name already exists");
                 }
-                if (error == (int)ErrorCodes.UnknownDatabaseError)
+                else
                 {
-                    var packetToSend = ep.buildPacket(GamePacketOpCode.CreateCharacterError, ErrorCodes.UnknownDatabaseError, "Unknown database error occurred");
-                    QueueErrorPacket(packetToSend);
+                    packetToSend = ep.buildPacket(GamePacketOpCode.CreateCharacterError, ErrorCodes.UnknownDatabaseError, "Unknown database error occurred");
                 }
+
+                QueueErrorPacket(packetToSend);
             }
+         
         }
     }
 }

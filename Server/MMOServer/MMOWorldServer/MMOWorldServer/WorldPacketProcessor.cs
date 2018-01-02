@@ -25,29 +25,18 @@ namespace MMOWorldServer
             this.client = client;
             packet.debugPrintPacket();
             List<SubPacket> subPackets = packet.GetSubpackets();
-            /*            if (packet.header.connectionType == (ushort)BasePacketConnectionTypes.Zone)
-                        {
-                            ProcessZonePackets(subPackets);
-                            //do zone stuff here
-                        }
-                        if (packet.header.connectionType == (ushort)BasePacketConnectionTypes.Chat)
-                        {
-                            ProcessChatPackets(subPackets);
-                            //do chat stuff here
-                        }*/
 
-            if (packet.header.connectionType == (ushort)BasePacketConnectionTypes.Generic)
+            if (packet.header.connectionType == (ushort)BasePacketConnectionTypes.Connect)
             {
-                ProcessGenericPackets(subPackets);
+                ProcessConnectPackets(subPackets);
             }
         }
 
-        private void ProcessGenericPackets(List<SubPacket> subPackets)
+        private void ProcessConnectPackets(List<SubPacket> subPackets)
         {
             foreach (SubPacket subPacket in subPackets)
             {
                 subPacket.debugPrintSubPacket();
-                Console.WriteLine(subPacket.gameMessage.opcode);
                 switch (subPacket.gameMessage.opcode)
                 {
                     case ((ushort)GamePacketOpCode.Handshake):
@@ -68,19 +57,31 @@ namespace MMOWorldServer
                         if (ack.AckSuccessful)
                         {
                             
-                            foreach (var mClient in WorldServer.GetClientConnections()) //check this if any performance issues
+                            foreach (var matchedClient in WorldServer.GetClientConnections()) //check this if any performance issues
                             {
-                                Console.WriteLine(ack.CharacterId);
-                                if (mClient.CharacterId == ack.CharacterId && mClient.HasHandshakedWorldServerToClient)//this is getting the wrong client
+                                
+                                if (matchedClient.CharacterId == ack.CharacterId)//this is getting the wrong client
                                 {           //maybe set a boolean in clientconnection that tells whether or not client is created from a server to server communication
-                                    ConnectedPlayer connectedPlayer = new ConnectedPlayer(ack.CharacterId);
-                                    connectedPlayer.ClientAddress = ack.ClientAddress;
-                                    WorldServer.mConnectedPlayerList.Add(connectedPlayer.actorId, connectedPlayer);
-                                    client = mClient;
-                                    SubPacket sp = new SubPacket(GamePacketOpCode.Acknowledgement, 0, 0, subPacket.data, SubPacketTypes.GamePacket);
-                                    client.QueuePacket(BasePacket.CreatePacket(sp, true, false));
-                                    client.FlushQueuedSendPackets();
+
+                                    Console.WriteLine("got here. char id: " + ack.CharacterId);
+                                    matchedClient.CharacterId = ack.CharacterId;
+                                    matchedClient.ClientIpAddress = IPAddress.Parse(ack.ClientAddress);
+                                    WorldDatabase.AddToOnlinePlayerList(matchedClient.CharacterId, matchedClient.ClientIpAddress);
+                                    uint sessionId = (uint)matchedClient.GetSessionId();
+                                    if (!WorldServer.mConnectedPlayerList.ContainsKey(sessionId))
+                                    {
+                                        WorldServer.mConnectedPlayerList.Add(sessionId, matchedClient);
+                                    }
+                                    else
+                                    {
+                                        Console.WriteLine("WARNING! : Connected player already exists and trying to add them into list");
+                                    }
+                                    client = matchedClient;
                                     Console.WriteLine("Sending ack back to: " + client.GetFullAddress());
+                                    AcknowledgePacket responseAck = new AcknowledgePacket(ack.AckSuccessful, sessionId);
+                                    SubPacket sp = new SubPacket(GamePacketOpCode.Acknowledgement, 0, 0, responseAck.GetResponseFromWorldServerBytes(), SubPacketTypes.GamePacket);
+                                    client.QueuePacket(BasePacket.CreatePacket(sp, true, false));
+                                    client.FlushQueuedSendPackets();                                    
                                     break;
                                 }
                             }
@@ -89,7 +90,18 @@ namespace MMOWorldServer
                         }
                         break;
 
-
+                    case (((ushort)GamePacketOpCode.Disconnect)):
+                        DisconnectPacket dc = new DisconnectPacket(subPacket.data);
+                        Console.WriteLine("Got DC packet");
+                        if (WorldServer.mConnectedPlayerList.TryGetValue(dc.SessionId, out WorldClientConnection playerToDc))
+                        {
+                            Console.WriteLine("Disconnecting player " + playerToDc.ClientIpAddress);
+                            playerToDc.Disconnect();
+                        }
+                        
+                        WorldDatabase.RemoveFromOnlinePlayerList(dc.SessionId);
+                        WorldServer.mConnectedPlayerList.Remove(dc.SessionId);
+                        break;
 
                     //if everything okay 
                     default:
@@ -119,10 +131,13 @@ namespace MMOWorldServer
             //Console.WriteLine("CHARACTER ID FROM CLIENT: " + client.CharacterId);
             SubPacket sp = new SubPacket(GamePacketOpCode.Handshake, 0, 0, packet.GetBytes(), SubPacketTypes.GamePacket);
             BasePacket packetToSend = BasePacket.CreatePacket(sp, true, false);
-            WorldClientConnection server = new WorldClientConnection();
-            server.socket = socket;
-            server.QueuePacket(packetToSend);
-            server.FlushQueuedSendPackets();
+
+            //send packet to login server for confirmation
+            WorldClientConnection connectionToLoginServer = new WorldClientConnection();
+            connectionToLoginServer.socket = socket;
+            connectionToLoginServer.QueuePacket(packetToSend);
+            connectionToLoginServer.FlushQueuedSendPackets();
+            connectionToLoginServer.Disconnect();
         }
 
         /*     private void ProcessChatPackets(List<SubPacket> subPackets)

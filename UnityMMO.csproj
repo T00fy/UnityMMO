@@ -13,11 +13,13 @@
     <TargetFrameworkIdentifier>.NETFramework</TargetFrameworkIdentifier>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <TargetFrameworkProfile>Unity Subset v3.5</TargetFrameworkProfile>
-    <CompilerResponseFile></CompilerResponseFile>
+    <CompilerResponseFile>
+    </CompilerResponseFile>
     <UnityProjectType>Game:1</UnityProjectType>
     <UnityBuildTarget>StandaloneWindows:5</UnityBuildTarget>
     <UnityVersion>2017.3.0f3</UnityVersion>
-    <RootNamespace></RootNamespace>
+    <RootNamespace>
+    </RootNamespace>
     <LangVersion>4</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -303,6 +305,7 @@
     <Compile Include="Assets\Scripts\LoginMenuScripts\Connection.cs" />
     <Compile Include="Assets\Scripts\LoginMenuScripts\CursorInput.cs" />
     <Compile Include="Assets\Scripts\LoginMenuScripts\CursorMover.cs" />
+    <Compile Include="Assets\Scripts\LoginMenuScripts\Data.cs" />
     <Compile Include="Assets\Scripts\LoginMenuScripts\EnterWorld.cs" />
     <Compile Include="Assets\Scripts\LoginMenuScripts\GameEventArgs.cs" />
     <Compile Include="Assets\Scripts\LoginMenuScripts\GameEventManager.cs" />

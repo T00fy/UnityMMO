@@ -150,7 +150,9 @@ public class PacketProcessor : MonoBehaviour{
 
                     case ((ushort)GamePacketOpCode.Acknowledgement):
                         Debug.Log("Gets here");
-                        AcknowledgePacket ack = new AcknowledgePacket(subPacket.data);
+                        AcknowledgePacket ack = new AcknowledgePacket();
+                        ack.GetWorldResponse(subPacket.data);
+                        Data.SESSION_ID = ack.SessionId;
                         GameEventManager.TriggerHandshakeResponseReceived(new GameEventArgs { serverResponse = ack.AckSuccessful });
                         //ackpacket has other data which is useful which i'm currently unsure on how to use atm
                         //anything set here won't be visible when scene is changed to world map.
@@ -158,7 +160,7 @@ public class PacketProcessor : MonoBehaviour{
 
 
                     default:
-                        Debug.Log("Unknown or corrupted packet");
+                        Debug.Log("Unknown or corrupted packet " + subPacket.gameMessage.opcode);
                         break;
                     }
             }

@@ -14,8 +14,7 @@ namespace MMOWorldServer
         {
             Console.WriteLine("-----MMO World Server-----");
             Console.WriteLine("Checking DB connection");
-            Database db = new Database();
-            string databaseStatus = db.CheckDbConnection();
+            string databaseStatus = WorldDatabase.SetupConnection();
             if (databaseStatus == "OK")
             {
                 Console.WriteLine("Connected to DB.");

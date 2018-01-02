@@ -7,6 +7,7 @@ using System.Text;
 using MMOServer;
 using System.Threading;
 using System.Collections.Generic;
+using System.Collections;
 
 public class Connection : MonoBehaviour{
     private Socket socket;
@@ -19,6 +20,7 @@ public class Connection : MonoBehaviour{
     [HideInInspector]
     public int lastPartialSize = 0;
     private PacketProcessor packetProcessor;
+    private bool allowQuitting;
 
     void Start()
     {
@@ -47,7 +49,7 @@ public class Connection : MonoBehaviour{
 
     public byte[] GetNextPacketInQueue()
     {
-        if (!SocketConnected(socket))
+        if (!SocketConnected())
         {
             return null;
         }
@@ -66,11 +68,11 @@ public class Connection : MonoBehaviour{
     }
 
 
-    bool SocketConnected(Socket s)
+    public bool SocketConnected()
     {
-        bool part1 = s.Poll(1000, SelectMode.SelectRead);
-        bool part2 = (s.Available == 0);
-        if ((part1 && part2) || !s.Connected)
+        bool part1 = socket.Poll(1000, SelectMode.SelectRead);
+        bool part2 = (socket.Available == 0);
+        if ((part1 && part2) || !socket.Connected)
             return false;
         else
             return true;
@@ -187,7 +189,7 @@ public class Connection : MonoBehaviour{
 
         }
         catch (Exception e) {
-            Debug.Log("something went wrong");
+            Debug.Log("something went wrong ");
             Debug.Log(e);
         }
             
@@ -236,5 +238,23 @@ public class Connection : MonoBehaviour{
         socket.Close();
     }
 
+    void OnApplicationQuit()
+    {
 
+        SendDisconnectPacket();
+
+    }
+
+    public void SendDisconnectPacket()
+    {
+        if (Data.SESSION_ID != 0)
+        {
+            Debug.Log("got here " + gameObject.name + " " + Data.SESSION_ID);
+            DisconnectPacket dcPacket = new DisconnectPacket(Data.SESSION_ID);
+            SubPacket packet = new SubPacket(GamePacketOpCode.Disconnect, 0, 0, dcPacket.GetBytes(), SubPacketTypes.GamePacket);
+            var packetToSend = BasePacket.CreatePacket(packet, PacketProcessor.isAuthenticated, false);
+            packetToSend.header.connectionType = (ushort)BasePacketConnectionTypes.Connect;
+            socket.Send(packetToSend.GetPacketBytes());
+        }
+    }
 }

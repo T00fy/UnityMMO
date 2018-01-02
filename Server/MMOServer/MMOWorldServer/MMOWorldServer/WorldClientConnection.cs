@@ -25,6 +25,7 @@ namespace MMOWorldServer
         public int connType = 0;
         private IPAddress clientIpAddress;
         private int clientPort;
+        private uint? sessionId;
 
         public IPAddress ClientIpAddress
         {
@@ -62,6 +63,22 @@ namespace MMOWorldServer
             set
             {
                 chracterId = value;
+            }
+        }
+
+        /// <summary>
+        /// Returns the current session id. If it is not set yet, will do a DB lookup and return it
+        /// </summary>
+        public uint? GetSessionId()
+        {
+            if (sessionId.HasValue)
+            {
+                return sessionId;
+            }
+            else
+            {
+                sessionId = WorldDatabase.GetSessionId(CharacterId);
+                return sessionId;
             }
         }
 
@@ -137,6 +154,40 @@ namespace MMOWorldServer
         {
             if (socket.Connected)
                 socket.Disconnect(false);
+        }
+
+        public void Ping()
+        {
+           // lastPingPacket = Utils.UnixTimeStampUTC();
+        }
+
+        public bool CheckIfDCing()
+        {
+            throw new NotImplementedException();
+            /*    uint currentTime = Utils.UnixTimeStampUTC();
+                if (currentTime - lastPingPacket >= 5000) //Show D/C flag
+                    playerActor.SetDCFlag(true);
+                else if (currentTime - lastPingPacket >= 30000) //DCed
+                    return true;
+                else
+                    playerActor.SetDCFlag(false);
+                return false;*/
+        }
+
+        public void UpdatePlayerActorPosition(float x, float y, ushort moveState)
+        {
+            throw new NotImplementedException();
+            /*   playerActor.oldPositionX = playerActor.positionX;
+               playerActor.oldPositionY = playerActor.positionY;
+               playerActor.oldPositionZ = playerActor.positionZ;
+               playerActor.oldRotation = playerActor.rotation;
+
+               playerActor.positionX = x;
+               playerActor.positionY = y;
+               playerActor.moveState = moveState;
+
+               GetActor().zone.UpdateActorPosition(GetActor());*/
+
         }
     }
 }

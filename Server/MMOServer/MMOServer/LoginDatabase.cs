@@ -8,16 +8,19 @@ using System.Threading.Tasks;
 
 namespace MMOServer
 {
-    public class Database
+    public class LoginDatabase
     {
-        private static MySqlConnection conn;
+        private MySqlConnection conn;
         private static string connString = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString.ToString();
 
+        public LoginDatabase()
+        {
+            conn = new MySqlConnection(connString);
+        }
 
 
         public bool AddUserToDb(string userName, string password)
         {
-            var conn = new MySqlConnection(connString);
             try
             {
                 conn.Open();
@@ -48,7 +51,6 @@ namespace MMOServer
 
         public List<string> CheckUserInDb(string userName, string password)
         {
-            var conn = new MySqlConnection(connString);
             List<string> list = new List<string>();
             try
             {
@@ -113,7 +115,6 @@ namespace MMOServer
 
         public string CheckDbConnection()
         {
-            conn = new MySqlConnection(connString);
             string status;
             try
             {
@@ -307,46 +308,25 @@ namespace MMOServer
         /// </summary>
         /// <param name="accountName"></param>
         /// <param name="cp"></param>
-        /// <returns>Returns an int corresponding to ErrorCodes. If no error found will return -1</returns>
-        public int AddCharacterToDb(string accountName, CharacterCreatePacket cp)
+        public void AddCharacterToDb(string accountName, CharacterCreatePacket cp)
         {
-            try
-            {
-                conn.Open();
-                MySqlCommand command = conn.CreateCommand();
-                command.CommandText = "INSERT INTO `characters`(`characterSlot`, `accountId`, `name`)" +
-                    "SELECT @selectedSlot, account.id, @characterName FROM account WHERE username = @user; " +
-                    "INSERT INTO `character_info`(`charId`, `strength`, `agility`, `intellect`, `vitality`, `dexterity`)" +
-                    "SELECT characters.id, @str,@agi,@int,@vit,@dex FROM characters WHERE characters.name = @characterName;";
-                command.Parameters.AddWithValue("@user", accountName);
-                command.Parameters.AddWithValue("@characterName", cp.characterName);
-                command.Parameters.AddWithValue("@selectedSlot", cp.selectedSlot);
-                command.Parameters.AddWithValue("@str", cp.str);
-                command.Parameters.AddWithValue("@agi", cp.agi);
-                command.Parameters.AddWithValue("@int", cp.inte);
-                command.Parameters.AddWithValue("@vit", cp.vit);
-                command.Parameters.AddWithValue("@dex", cp.dex);
+            conn.Open();
+            MySqlCommand command = conn.CreateCommand();
+            command.CommandText = "INSERT INTO `characters`(`characterSlot`, `accountId`, `name`)" +
+                "SELECT @selectedSlot, account.id, @characterName FROM account WHERE username = @user; " +
+                "INSERT INTO `character_info`(`charId`, `strength`, `agility`, `intellect`, `vitality`, `dexterity`)" +
+                "SELECT characters.id, @str,@agi,@int,@vit,@dex FROM characters WHERE characters.name = @characterName;";
+            command.Parameters.AddWithValue("@user", accountName);
+            command.Parameters.AddWithValue("@characterName", cp.characterName);
+            command.Parameters.AddWithValue("@selectedSlot", cp.selectedSlot);
+            command.Parameters.AddWithValue("@str", cp.str);
+            command.Parameters.AddWithValue("@agi", cp.agi);
+            command.Parameters.AddWithValue("@int", cp.inte);
+            command.Parameters.AddWithValue("@vit", cp.vit);
+            command.Parameters.AddWithValue("@dex", cp.dex);
 
-                MySqlDataReader rdr = command.ExecuteReader();
-                rdr.Close();
-                conn.Close();
-                return -1;
-            }
-            catch (MySqlException e)
-            {
-                conn.Close();
-                switch (e.Number)
-                {
-                    case (1062):
-                        Console.WriteLine("Duplicate character name attempted to be created");
-                        return (int)ErrorCodes.DuplicateCharacter;
-                    default:
-                        Console.WriteLine("Got a MySQL error and not sure how to handle it");
-                        Console.WriteLine("Error code is " + e.Number);
-                        return (int)ErrorCodes.UnknownDatabaseError;
-                }
-
-            }
+            command.ExecuteNonQuery();
+            conn.Close();
         }
     }
 }
