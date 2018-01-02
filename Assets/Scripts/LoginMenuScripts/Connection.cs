@@ -20,7 +20,7 @@ public class Connection : MonoBehaviour{
     [HideInInspector]
     public int lastPartialSize = 0;
     private PacketProcessor packetProcessor;
-    private bool allowQuitting;
+    private bool disconnecting;
 
     void Start()
     {
@@ -249,7 +249,6 @@ public class Connection : MonoBehaviour{
     {
         if (Data.SESSION_ID != 0)
         {
-            Debug.Log("got here " + gameObject.name + " " + Data.SESSION_ID);
             DisconnectPacket dcPacket = new DisconnectPacket(Data.SESSION_ID);
             SubPacket packet = new SubPacket(GamePacketOpCode.Disconnect, 0, 0, dcPacket.GetBytes(), SubPacketTypes.GamePacket);
             var packetToSend = BasePacket.CreatePacket(packet, PacketProcessor.isAuthenticated, false);

@@ -62,8 +62,6 @@ namespace MMOWorldServer
                                 
                                 if (matchedClient.CharacterId == ack.CharacterId)//this is getting the wrong client
                                 {           //maybe set a boolean in clientconnection that tells whether or not client is created from a server to server communication
-
-                                    Console.WriteLine("got here. char id: " + ack.CharacterId);
                                     matchedClient.CharacterId = ack.CharacterId;
                                     matchedClient.ClientIpAddress = IPAddress.Parse(ack.ClientAddress);
                                     WorldDatabase.AddToOnlinePlayerList(matchedClient.CharacterId, matchedClient.ClientIpAddress);
