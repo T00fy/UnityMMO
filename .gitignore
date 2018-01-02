@@ -19,7 +19,6 @@ sysinfo.txt
 /*.user
 /*.unityproj
 /*.booproj
-App.config
 bin
 obj
 packages
