@@ -9,7 +9,8 @@ using System.Threading;
 using System.Collections.Generic;
 using System.Collections;
 
-public class Connection : MonoBehaviour{
+public class Connection : MonoBehaviour
+{
     private Socket socket;
     [HideInInspector]
     public const int BUFFER_SIZE = 65535;
@@ -29,13 +30,14 @@ public class Connection : MonoBehaviour{
 
     public Connection()
     {
-       
+
     }
 
     public void Disconnect()
     {
         socket.Shutdown(SocketShutdown.Both);
         socket.Disconnect(false);
+        
     }
     public void QueuePacket(BasePacket packet)
     {
@@ -141,8 +143,7 @@ public class Connection : MonoBehaviour{
         try
         {
             int bytesRead = socket.EndReceive(aSyncResult);
-
-
+            
             if (bytesRead > 0)
             {
                 int offset = 0;
@@ -182,20 +183,22 @@ public class Connection : MonoBehaviour{
             }
             else
             {
-                Debug.Log("Lost connection to server");
+                if (socket.RemoteEndPoint.ToString() != Data.LOGIN_IP)
+                {
+                    Debug.Log("Disconnected from world server");
+                }
             }
-
-
-
         }
-        catch (Exception e) {
+        catch (Exception e)
+        {
             Debug.Log("something went wrong ");
             Debug.Log(e);
         }
-            
-   }
 
-        /// <summary>
+
+    }
+
+    /// <summary>
     /// Builds a packet from the incoming buffer + offset. If a packet can be built, it is returned else null.
     /// </summary>
     /// <param name="offset">Current offset in buffer.</param>
@@ -230,19 +233,10 @@ public class Connection : MonoBehaviour{
         return newPacket;
     }
 
-    private void CloseSocket(Socket socket)
-    {
-        //might be able to remove all these readytoclose checks in statusboxhandler and in here
-        StatusBoxHandler.readyToClose = true;
-        socket.Shutdown(SocketShutdown.Both);
-        socket.Close();
-    }
-
     void OnApplicationQuit()
     {
 
         SendDisconnectPacket();
-
     }
 
     public void SendDisconnectPacket()

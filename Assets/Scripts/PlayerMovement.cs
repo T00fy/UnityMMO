@@ -7,9 +7,24 @@ public class PlayerMovement : MonoBehaviour {
     private Rigidbody2D rb;
     private Animator animator;
     public float speed;
+    [HideInInspector]
+    private bool moving;
 
-	// Use this for initialization
-	void Start () {
+    public bool IsMoving
+    {
+        get
+        {
+            return moving;
+        }
+
+        set
+        {
+            moving = value;
+        }
+    }
+
+    // Use this for initialization
+    void Start () {
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
 	}
@@ -20,20 +35,23 @@ public class PlayerMovement : MonoBehaviour {
 
         if (movementVector.x != 0)
         {
-            animator.SetBool("isWalking", true);
+            moving = true;
+            animator.SetBool("isWalking", moving);
 
             animator.SetFloat("input_x", movementVector.x);
         }
 
         if (movementVector.y != 0)
         {
-            animator.SetBool("isWalking", true);
+            moving = true;
+            animator.SetBool("isWalking", moving);
             animator.SetFloat("input_y", movementVector.y);
         }
 
         if(movementVector == Vector2.zero)
         {
-            animator.SetBool("isWalking", false);
+            moving = false;
+            animator.SetBool("isWalking", moving);
         }
         rb.MovePosition(rb.position + (speed * movementVector.normalized * Time.deltaTime));
         //diagonal input fails at times

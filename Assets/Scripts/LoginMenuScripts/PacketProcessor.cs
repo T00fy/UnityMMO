@@ -23,7 +23,7 @@ public class PacketProcessor : MonoBehaviour{
         if (!packetToSend.isAuthenticated())
         {
             connect = GameObject.FindGameObjectWithTag("Connection").GetComponent<Connection>();
-            connect.EstablishConnection("127.0.0.1", 3425);
+            connect.EstablishConnection(Data.LOGIN_ADDRESS, Data.LOGIN_PORT);
             connect.Send(packetToSend);
 
         }
@@ -149,7 +149,6 @@ public class PacketProcessor : MonoBehaviour{
                         break;
 
                     case ((ushort)GamePacketOpCode.Acknowledgement):
-                        Debug.Log("Gets here");
                         AcknowledgePacket ack = new AcknowledgePacket();
                         ack.GetWorldResponse(subPacket.data);
                         Data.SESSION_ID = ack.SessionId;

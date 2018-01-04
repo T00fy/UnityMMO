@@ -94,7 +94,6 @@ public class EnterWorld : MonoBehaviour
             if ((bool)handShakeSuccessful)
             {
                 loginServerConnection.SendDisconnectPacket();
-                Debug.Log("Load World");
                 SceneManager.LoadScene("test", LoadSceneMode.Single);
                 //load world instantly
             }

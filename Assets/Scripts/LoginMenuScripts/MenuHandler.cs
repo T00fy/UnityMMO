@@ -113,11 +113,8 @@ public class MenuHandler : MonoBehaviour
 
     public void GoUpMenu()
     {
-        if (activeMenu.name == "CharacterCreation(Clone)")
+        if (activeMenu.name != "CharacterCreation(Clone)")
         {
-
-        }
-        else {
             activeMenu.SetActive(false);
             try
             {
@@ -128,7 +125,6 @@ public class MenuHandler : MonoBehaviour
             {
                 Debug.Log("Missing menu");
             }
-
 
             activeMenu.SetActive(true);
         }

@@ -30,6 +30,23 @@ namespace MMOWorldServer
             {
                 ProcessConnectPackets(subPackets);
             }
+            if (packet.header.connectionType == (ushort)BasePacketConnectionTypes.Zone)
+            {
+                processZonePackets(subPackets);
+            }
+        }
+
+        private void processZonePackets(List<SubPacket> subPackets)
+        {
+            foreach (SubPacket subPacket in subPackets)
+            {
+                subPacket.debugPrintSubPacket();
+                switch (subPacket.gameMessage.opcode)
+                {
+                    case ((ushort)GamePacketOpCode.PositionPacket):
+                        break;
+                }
+            }
         }
 
         private void ProcessConnectPackets(List<SubPacket> subPackets)

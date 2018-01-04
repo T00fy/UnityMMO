@@ -21,7 +21,6 @@ public class CharacterLoader : MonoBehaviour {
     {
         serverResponseFinished = false;
         characterServerResponse = new List<SubPacket>();
-        Debug.Log(Utils.GetAccountName());
         CharacterQueryPacket cq = new CharacterQueryPacket(Utils.GetAccountName());
         SubPacket sp = cq.BuildQueryPacket();
         BasePacket packetToSend = BasePacket.CreatePacket(sp, PacketProcessor.isAuthenticated, false);
@@ -31,10 +30,6 @@ public class CharacterLoader : MonoBehaviour {
 
         packetProcessor.SendPacket(packetToSend);
         StartCoroutine(WaitForServerResponseThenDisplayCharacters());
-        //send character query packet to server
-        //open status box you cant close until received response from server
-        //receive what characters are avaiable for this account if any
-        //draw them on character select boxes
     }
     private IEnumerator WaitForServerResponseThenDisplayCharacters()
     {
