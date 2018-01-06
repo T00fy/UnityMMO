@@ -8,7 +8,7 @@ namespace MMOServer
 {
     public class AcknowledgePacket
     {
-        private int characterId;
+        private uint characterId;
         private string clientAddress;
         private bool ackSuccessful;
         private uint sessionId;
@@ -26,7 +26,7 @@ namespace MMOServer
             }
         }
 
-        public int CharacterId
+        public uint CharacterId
         {
             get
             {
@@ -54,7 +54,7 @@ namespace MMOServer
 
         public uint SessionId { get => sessionId; set => sessionId = value; }
 
-        public AcknowledgePacket(bool ackSuccessful, string clientAddress, int characterId)
+        public AcknowledgePacket(bool ackSuccessful, string clientAddress, uint characterId)
         {
             this.ackSuccessful = ackSuccessful;
             this.clientAddress = clientAddress;
@@ -78,7 +78,7 @@ namespace MMOServer
                   ackSuccessful = BitConverter.ToBoolean(br.ReadBytes(sizeof(bool)), 0);
                   var lengthAddress = BitConverter.ToUInt16(br.ReadBytes(sizeof(ushort)), 0);
                   clientAddress = Encoding.Unicode.GetString(br.ReadBytes(lengthAddress));
-                  characterId = BitConverter.ToInt32(br.ReadBytes(sizeof(int)), 0);
+                  characterId = BitConverter.ToUInt32(br.ReadBytes(sizeof(uint)), 0);
               }
               catch (Exception e)
               {

@@ -11,10 +11,13 @@ namespace MMOWorldServer.Actors
     /// </summary>
     class Character : Actor
     {
+        public uint CharacterId {get;set;}
+        public WorldClientConnection WorldClientConnection { get; set; }
+
         public Character(uint actorID) : base(actorID)
         {
-            
-        }   
+            CharacterId = actorID;
+        }
 
 
     }

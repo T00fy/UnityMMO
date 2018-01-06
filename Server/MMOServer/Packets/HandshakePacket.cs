@@ -9,7 +9,7 @@ namespace MMOServer
     public class HandshakePacket
     {
         private string clientAddress;
-        private int characterId;
+        private uint characterId;
         private int clientPort;
 
         public string ClientAddress
@@ -25,7 +25,7 @@ namespace MMOServer
             }
         }
 
-        public int CharacterId
+        public uint CharacterId
         {
             get
             {
@@ -51,7 +51,7 @@ namespace MMOServer
             }
         }
 
-        public HandshakePacket(string clientAddress, int clientPort, int characterId)
+        public HandshakePacket(string clientAddress, int clientPort, uint characterId)
         {
             this.clientAddress = clientAddress;
             this.characterId = characterId;
@@ -66,7 +66,7 @@ namespace MMOServer
             {
                 var lengthAddress = BitConverter.ToUInt16(br.ReadBytes(sizeof(ushort)), 0);
                 clientAddress = Encoding.Unicode.GetString(br.ReadBytes(lengthAddress));
-                characterId = BitConverter.ToInt32(br.ReadBytes(sizeof(int)), 0);
+                characterId = BitConverter.ToUInt32(br.ReadBytes(sizeof(uint)), 0);
                 clientPort = BitConverter.ToInt32(br.ReadBytes(sizeof(int)), 0);
             }
             catch (Exception e)

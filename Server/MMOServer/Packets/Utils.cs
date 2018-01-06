@@ -114,6 +114,18 @@ namespace MMOServer
                     ((input << 24) & 0xff000000);
         }
 
+        public static byte[] CombineBytes(params byte[][] arrays)
+        {
+            byte[] rv = new byte[arrays.Sum(a => a.Length)];
+            int offset = 0;
+            foreach (byte[] array in arrays)
+            {
+                System.Buffer.BlockCopy(array, 0, rv, offset, array.Length);
+                offset += array.Length;
+            }
+            return rv;
+        }
+
         public static int swapEndian(int input)
         {
             uint inputAsUint = (uint)input;

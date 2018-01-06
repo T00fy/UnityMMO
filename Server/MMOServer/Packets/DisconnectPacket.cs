@@ -12,7 +12,7 @@ namespace MMOServer
             BinaryReader br = new BinaryReader(mem);
             try
             {
-                SessionId = BitConverter.ToUInt32(br.ReadBytes(sizeof(uint)), 0);
+                CharacterId = BitConverter.ToUInt32(br.ReadBytes(sizeof(uint)), 0);
             }
             catch (Exception e)
             {
@@ -23,16 +23,16 @@ namespace MMOServer
             mem.Close();
         }
 
-        public DisconnectPacket(uint sessionId)
+        public DisconnectPacket(uint characterId)
         {
-            this.SessionId = sessionId;
+            this.CharacterId = characterId;
         }
 
-        public uint SessionId { get; set; }
+        public uint CharacterId { get; set; }
 
         public byte[] GetBytes()
         {
-            return BitConverter.GetBytes(SessionId);
+            return BitConverter.GetBytes(CharacterId);
         }
 
 

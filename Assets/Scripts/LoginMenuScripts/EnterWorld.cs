@@ -59,6 +59,7 @@ public class EnterWorld : MonoBehaviour
         {
             worldServerConnection.EstablishConnection("127.0.0.1", 3435);
             int characterId = Utils.GetCharacter(CharacterSelect.selectedSlot).CharId;
+            Data.CHARACTER_ID = (uint)characterId;
             var characterIdBytes = BitConverter.GetBytes(characterId);
             if (!BitConverter.IsLittleEndian)
             {

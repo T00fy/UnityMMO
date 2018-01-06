@@ -1,4 +1,5 @@
 ﻿using MMOServer;
+using MMOWorldServer.Actors;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -59,6 +60,7 @@ namespace MMOWorldServer
                     case ((ushort)GamePacketOpCode.Handshake):
                         try
                         {
+                            Console.WriteLine("100% CORRECT CLIENT CONNECTION: " + client.GetFullAddress());
                             ConfirmClientConnectionWithLoginServer(new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp), subPacket);
                         }
                         catch (Exception e)
@@ -73,49 +75,41 @@ namespace MMOWorldServer
                         AcknowledgePacket ack = new AcknowledgePacket(subPacket.data);
                         if (ack.AckSuccessful)
                         {
-                            
-                            foreach (var matchedClient in WorldServer.GetClientConnections()) //check this if any performance issues
+                            if (WorldServer.mConnectedPlayerList.TryGetValue(ack.CharacterId, out Character character))
                             {
-                                
-                                if (matchedClient.CharacterId == ack.CharacterId)//this is getting the wrong client
-                                {           //maybe set a boolean in clientconnection that tells whether or not client is created from a server to server communication
-                                    matchedClient.CharacterId = ack.CharacterId;
-                                    matchedClient.ClientIpAddress = IPAddress.Parse(ack.ClientAddress);
-                                    WorldDatabase.AddToOnlinePlayerList(matchedClient.CharacterId, matchedClient.ClientIpAddress);
-                                    uint sessionId = (uint)matchedClient.GetSessionId();
-                                    if (!WorldServer.mConnectedPlayerList.ContainsKey(sessionId))
-                                    {
-                                        WorldServer.mConnectedPlayerList.Add(sessionId, matchedClient);
-                                    }
-                                    else
-                                    {
-                                        Console.WriteLine("WARNING! : Connected player already exists and trying to add them into list");
-                                    }
-                                    client = matchedClient;
-                                    Console.WriteLine("Sending ack back to: " + client.GetFullAddress());
-                                    AcknowledgePacket responseAck = new AcknowledgePacket(ack.AckSuccessful, sessionId);
-                                    SubPacket sp = new SubPacket(GamePacketOpCode.Acknowledgement, 0, 0, responseAck.GetResponseFromWorldServerBytes(), SubPacketTypes.GamePacket);
-                                    client.QueuePacket(BasePacket.CreatePacket(sp, true, false));
-                                    client.FlushQueuedSendPackets();                                    
-                                    break;
-                                }
+                                client.Disconnect(); //this is 100% login server connection, don't doubt this
+                                client = character.WorldClientConnection;
+                                Console.WriteLine("Client looks legit: " + (ack.ClientAddress == client.GetIp()));
+                                Console.WriteLine(character.WorldClientConnection.GetFullAddress());
+                                 
+                                WorldDatabase.AddToOnlinePlayerList(character.CharacterId, ack.ClientAddress);
+                                client.SessionId = WorldDatabase.GetSessionId(character.CharacterId);
+                                Console.WriteLine("Sending ack received from login server back to: " + client.GetFullAddress());
+                                AcknowledgePacket responseAck = new AcknowledgePacket(ack.AckSuccessful, client.SessionId);
+                                SubPacket sp = new SubPacket(GamePacketOpCode.Acknowledgement, 0, 0, responseAck.GetResponseFromWorldServerBytes(), SubPacketTypes.GamePacket);
+                                client.QueuePacket(BasePacket.CreatePacket(sp, true, false));
+                                client.FlushQueuedSendPackets();
+                                break;
                             }
-
-
+                            else
+                            {
+                                Console.WriteLine("Client has connected but is not in Connected Player List.. Not sure what to do here");
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine("Ack not successful, removing from connected player list");
+                            WorldServer.mConnectedPlayerList.Remove(ack.CharacterId);
+                            client.Disconnect();
                         }
                         break;
 
                     case (((ushort)GamePacketOpCode.Disconnect)):
                         DisconnectPacket dc = new DisconnectPacket(subPacket.data);
                         Console.WriteLine("Got DC packet");
-                        if (WorldServer.mConnectedPlayerList.TryGetValue(dc.SessionId, out WorldClientConnection playerToDc))
-                        {
-                            Console.WriteLine("Disconnecting player " + playerToDc.ClientIpAddress);
-                            playerToDc.Disconnect();
-                        }
-                        
-                        WorldDatabase.RemoveFromOnlinePlayerList(dc.SessionId);
-                        WorldServer.mConnectedPlayerList.Remove(dc.SessionId);
+                        WorldDatabase.RemoveFromOnlinePlayerList(dc.CharacterId);
+                        WorldServer.mConnectedPlayerList.Remove(dc.CharacterId);
+                        client.Disconnect();
                         break;
 
                     //if everything okay 
@@ -134,16 +128,27 @@ namespace MMOWorldServer
         /// <param name="subPacket"></param>
         private void ConfirmClientConnectionWithLoginServer(Socket socket, SubPacket subPacket)
         {
+            Console.WriteLine("Confirming client connection with login server");
             IPAddress[] ip = Dns.GetHostAddresses(LOGIN_SERVER_IP);
-            int characterId = BitConverter.ToInt32(subPacket.data, 0);
-            client.CharacterId = characterId;
+            Character character = new Character(BitConverter.ToUInt32(subPacket.data, 0));
             client.HasHandshakedWorldServerToClient = true;
+            character.WorldClientConnection = client;
+
+            if (!WorldServer.mConnectedPlayerList.ContainsKey(character.CharacterId))
+            {
+                WorldServer.mConnectedPlayerList.Add(character.CharacterId, character);
+            }
+            else
+            {
+                Console.WriteLine("WARNING! : Connected player already exists and trying to add them into list");
+            }
+
             IPEndPoint remoteEP = new IPEndPoint(ip[0], LOGIN_SERVER_PORT);
             socket.Connect(remoteEP);
-            HandshakePacket packet = new HandshakePacket(client.GetIp(), client.GetPort(), characterId);
-            //Console.WriteLine("PORT FROM CLIENT:" + client.GetPort());
-            //Console.WriteLine("IP FROM CLIENT:" + client.GetIp());
-            //Console.WriteLine("CHARACTER ID FROM CLIENT: " + client.CharacterId);
+            HandshakePacket packet = new HandshakePacket(client.GetIp(), client.GetPort(), character.CharacterId);
+            Console.WriteLine("PORT FROM CLIENT:" + client.GetPort());
+            Console.WriteLine("IP FROM CLIENT:" + client.GetIp());
+            Console.WriteLine("CHARACTER ID FROM CLIENT: " + character.CharacterId);
             SubPacket sp = new SubPacket(GamePacketOpCode.Handshake, 0, 0, packet.GetBytes(), SubPacketTypes.GamePacket);
             BasePacket packetToSend = BasePacket.CreatePacket(sp, true, false);
 

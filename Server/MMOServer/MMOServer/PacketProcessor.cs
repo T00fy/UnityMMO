@@ -68,22 +68,18 @@ namespace MMOServer
             HandshakePacket received = new HandshakePacket(receivedPacket.data);
             foreach (var connection in LoginServer.mConnectionList)
             {
-                //Console.WriteLine("id present: "+characterIdPresentInClient(received.CharacterId, connection));
-                //Console.WriteLine("client id: " + received.CharacterId);
-                //Console.WriteLine("connection id: " + connection.CharacterId[0]);
-                
                 if (connection.GetIp() == received.ClientAddress && characterIdPresentInClient(received.CharacterId, connection))
                 {
                     //TODO: Separate this into a method
-                    AcknowledgePacket ack = new AcknowledgePacket(true, received.ClientAddress, received.CharacterId);
+                    AcknowledgePacket ack = new AcknowledgePacket(true, connection.GetIp(), (uint)received.CharacterId);
                     SubPacket sp = new SubPacket(GamePacketOpCode.Acknowledgement, 0, 0, ack.GetBytes(), SubPacketTypes.GamePacket);
                     BasePacket successPacketToSend = BasePacket.CreatePacket(sp, true, false);
                     AckResponseToWorldServer(successPacketToSend);
-                    connection.Disconnect(); //remove the client from login server as it is now in the world
+                    connection.Disconnect(); //drop the client connection
                     return;
                 }
             }
-            AcknowledgePacket ackFailure = new AcknowledgePacket(true, received.ClientAddress, received.CharacterId);
+            AcknowledgePacket ackFailure = new AcknowledgePacket(true, received.ClientAddress, (uint)received.CharacterId);
             SubPacket fail = new SubPacket(GamePacketOpCode.Acknowledgement, 0, 0, ackFailure.GetBytes(), SubPacketTypes.GamePacket);
             BasePacket failPacketToSend = BasePacket.CreatePacket(fail, true, false);
             AckResponseToWorldServer(failPacketToSend);
@@ -103,7 +99,7 @@ namespace MMOServer
             temp.FlushQueuedSendPackets();
         }
 
-        private bool characterIdPresentInClient(int characterId, ClientConnection temp)
+        private bool characterIdPresentInClient(uint characterId, ClientConnection temp)
         {
             foreach (var id in temp.CharacterIds)
             {

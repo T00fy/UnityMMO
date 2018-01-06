@@ -5,6 +5,7 @@ using System.Net.Sockets;
 using System.Threading;
 using MMOServer;
 using MMOWorldServer.Data;
+using MMOWorldServer.Actors;
 
 namespace MMOWorldServer
 {
@@ -19,7 +20,7 @@ namespace MMOWorldServer
         private Socket mServerSocket;
 
         //key is sessionId
-        public static Dictionary<uint, WorldClientConnection> mConnectedPlayerList = new Dictionary<uint, WorldClientConnection>();
+        public static Dictionary<uint, Character> mConnectedPlayerList = new Dictionary<uint, Character>();
 
         //raw connections
         private static List<WorldClientConnection> mConnectionList = new List<WorldClientConnection>();

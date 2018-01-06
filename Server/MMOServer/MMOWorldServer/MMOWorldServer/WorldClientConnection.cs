@@ -1,4 +1,5 @@
 ﻿using MMOServer;
+using MMOWorldServer.Actors;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -14,7 +15,6 @@ namespace MMOWorldServer
     {
         //Connection stuff
         public Socket socket;
-        private int chracterId;
         public byte[] buffer;
         private BlockingCollection<BasePacket> SendPacketQueue = new BlockingCollection<BasePacket>(1000);
         public int lastPartialSize = 0;
@@ -25,7 +25,13 @@ namespace MMOWorldServer
         public int connType = 0;
         private IPAddress clientIpAddress;
         private int clientPort;
-        private uint? sessionId;
+        
+        public uint SessionId
+        {
+            get;
+
+            set;
+        }
 
         public IPAddress ClientIpAddress
         {
@@ -50,35 +56,6 @@ namespace MMOWorldServer
             set
             {
                 clientPort = value;
-            }
-        }
-
-        public int CharacterId
-        {
-            get
-            {
-                return chracterId;
-            }
-
-            set
-            {
-                chracterId = value;
-            }
-        }
-
-        /// <summary>
-        /// Returns the current session id. If it is not set yet, will do a DB lookup and return it
-        /// </summary>
-        public uint? GetSessionId()
-        {
-            if (sessionId.HasValue)
-            {
-                return sessionId;
-            }
-            else
-            {
-                sessionId = WorldDatabase.GetSessionId(CharacterId);
-                return sessionId;
             }
         }
 

@@ -241,9 +241,9 @@ public class Connection : MonoBehaviour
 
     public void SendDisconnectPacket()
     {
-        if (Data.SESSION_ID != 0)
+        if (Data.CHARACTER_ID != 0)
         {
-            DisconnectPacket dcPacket = new DisconnectPacket(Data.SESSION_ID);
+            DisconnectPacket dcPacket = new DisconnectPacket(Data.CHARACTER_ID);
             SubPacket packet = new SubPacket(GamePacketOpCode.Disconnect, 0, 0, dcPacket.GetBytes(), SubPacketTypes.GamePacket);
             var packetToSend = BasePacket.CreatePacket(packet, PacketProcessor.isAuthenticated, false);
             packetToSend.header.connectionType = (ushort)BasePacketConnectionTypes.Connect;

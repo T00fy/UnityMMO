@@ -41,7 +41,7 @@ namespace MMOWorldServer
             command.ExecuteNonQuery();
         }
 
-        public static uint GetSessionId(int characterId)
+        public static uint GetSessionId(uint characterId)
         {
             MySqlCommand command = conn.CreateCommand();
             command.CommandText = "SELECT sessionId from online_players where charId=@characterId";
@@ -61,12 +61,12 @@ namespace MMOWorldServer
             }
         }
 
-        public static void AddToOnlinePlayerList(int characterId, IPAddress clientAddress)
+        public static void AddToOnlinePlayerList(uint characterId, string clientAddress)
         {
             MySqlCommand command = conn.CreateCommand();
             command.CommandText = "INSERT INTO online_players(`charId`, `accountId`, `name`, `ipAddress`) SELECT id,accountId,name,@ipAddress from login.characters where id=@characterId;";
             command.Parameters.AddWithValue("@characterId", characterId);
-            command.Parameters.AddWithValue("@ipAddress", clientAddress.ToString());
+            command.Parameters.AddWithValue("@ipAddress", clientAddress);
             command.ExecuteNonQuery();
         }
     }
