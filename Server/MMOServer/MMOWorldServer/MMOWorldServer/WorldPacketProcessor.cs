@@ -79,9 +79,8 @@ namespace MMOWorldServer
                             {
                                 client.Disconnect(); //this is 100% login server connection, don't doubt this
                                 client = character.WorldClientConnection;
-                                Console.WriteLine("Client looks legit: " + (ack.ClientAddress == client.GetIp()));
-                                Console.WriteLine(character.WorldClientConnection.GetFullAddress());
-                                 
+                                Console.WriteLine("Client looks legit: " + (ack.ClientAddress == client.GetIp()));    
+                                
                                 WorldDatabase.AddToOnlinePlayerList(character.CharacterId, ack.ClientAddress);
                                 client.SessionId = WorldDatabase.GetSessionId(character.CharacterId);
                                 Console.WriteLine("Sending ack received from login server back to: " + client.GetFullAddress());
