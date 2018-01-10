@@ -117,7 +117,14 @@ namespace MMOServer
         }
 
         #region Utility Functions
-        public static BasePacket CreatePacket(List<SubPacket> subpackets, bool isAuthed, bool isEncrypted)
+        /// <summary>
+        /// Default BasePacketConnectionType = zone
+        /// </summary>
+        /// <param name="subpackets"></param>
+        /// <param name="isAuthed"></param>
+        /// <param name="isEncrypted"></param>
+        /// <returns></returns>
+        public static BasePacket CreatePacket(List<SubPacket> subpackets, bool isAuthed, bool isEncrypted, BasePacketConnectionTypes connectionType = BasePacketConnectionTypes.Zone)
         {
             //Create Header
             BasePacketHeader header = new BasePacketHeader();
@@ -128,6 +135,7 @@ namespace MMOServer
             header.numSubpackets = (ushort)subpackets.Count;
             header.packetSize = BASEPACKET_SIZE;
             header.timestamp = Utils.MilisUnixTimeStampUTC();
+            header.connectionType = (ushort)connectionType;
 
             //Get packet size
             foreach (SubPacket subpacket in subpackets)
@@ -177,6 +185,7 @@ namespace MMOServer
             return packet;
         }
 
+        [System.Obsolete("This is buggy, use CreatePacket(SubPacket subpacket, bool isAuthed, bool isEncrypted)")]
         public static BasePacket CreatePacket(byte[] data, bool isAuthed, bool isEncrypted)
         {
 

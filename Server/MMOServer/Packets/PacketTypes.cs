@@ -7,7 +7,7 @@ namespace MMOServer
 {
     public enum SubPacketTypes
     {
-        Account, GamePacket, ErrorPacket
+        Account, GamePacket, ErrorPacket, BoundsMessage
     }
 
     public enum BasePacketConnectionTypes
@@ -18,7 +18,7 @@ namespace MMOServer
     public enum GamePacketOpCode
     {
         AccountError,AccountSuccess,CreateCharacter,RegisterSuccess,CreateCharacterError,CreateCharacterSuccess,CharacterListQuery,CharacterDeleteQuery,CharacterDeleteSuccess,
-        Handshake,Acknowledgement,Disconnect,PositionPacket
+        Handshake,Acknowledgement,Disconnect,PositionPacket,NearbyActorsQuery
     }
 
     public enum ErrorCodes

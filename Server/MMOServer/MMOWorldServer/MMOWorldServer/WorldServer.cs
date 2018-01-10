@@ -19,7 +19,7 @@ namespace MMOWorldServer
 
         private Socket mServerSocket;
 
-        //key is sessionId
+        //key is characterId
         public static Dictionary<uint, Character> mConnectedPlayerList = new Dictionary<uint, Character>();
 
         //raw connections

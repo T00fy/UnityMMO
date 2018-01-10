@@ -41,13 +41,65 @@ namespace MMOWorldServer
         {
             foreach (SubPacket subPacket in subPackets)
             {
-                subPacket.debugPrintSubPacket();
+                if (subPacket.gameMessage.opcode != (ushort)GamePacketOpCode.PositionPacket)
+                {
+                    subPacket.debugPrintSubPacket();
+                }
+
+
                 switch (subPacket.gameMessage.opcode)
                 {
                     case ((ushort)GamePacketOpCode.PositionPacket):
+                        HandlePositionPacket(subPacket);
+                        break;
+
+                    case ((ushort)GamePacketOpCode.NearbyActorsQuery):
+                        HandleNearbyActorsQuery(subPacket);
                         break;
                 }
             }
+        }
+
+        private void HandleNearbyActorsQuery(SubPacket subPacket)
+        {
+            PositionsInBoundsPacket posInBoundsPacket = new PositionsInBoundsPacket(subPacket.data);
+            if (WorldServer.mConnectedPlayerList.TryGetValue(subPacket.header.sourceId, out Character character))
+            {
+                character.SetCharacterCameraBounds(posInBoundsPacket.XMin, posInBoundsPacket.XMax, posInBoundsPacket.YMin, posInBoundsPacket.YMax);
+                List<SubPacket> nearbyCharacters = new List<SubPacket>();
+                bool foundNearby = false;
+                foreach (KeyValuePair<uint, Character> entry in WorldServer.mConnectedPlayerList)
+                {
+                    if ((entry.Key != subPacket.header.sourceId) && entry.Value.XPos > character.BoundsXMin &&
+                        entry.Value.XPos < character.BoundsXMax && entry.Value.YPos > character.BoundsYMin &&
+                        entry.Value.YPos < character.BoundsYMax)
+                    {
+                        Console.WriteLine("FOUND NEARBY PLAYER!");
+                        foundNearby = true;
+                        PositionPacket packet = new PositionPacket(entry.Value.XPos, entry.Value.YPos, entry.Value.CharacterId);
+                        SubPacket sp = new SubPacket(GamePacketOpCode.NearbyActorsQuery, entry.Value.CharacterId, 0, packet.GetBytes(), SubPacketTypes.GamePacket);
+                        nearbyCharacters.Add(sp);
+                    }
+                }
+                if (foundNearby)
+                {
+                    client.QueuePacket(BasePacket.CreatePacket(nearbyCharacters, true, false));
+                    client.FlushQueuedSendPackets();
+                }                
+            }
+            else
+            {
+                //DC player?
+            }
+
+        }
+
+        private void HandlePositionPacket(SubPacket subPacket)
+        {
+            PositionPacket packet = new PositionPacket(subPacket.data);
+            WorldServer.mConnectedPlayerList.TryGetValue(subPacket.header.sourceId, out Character character);
+            character.SavePositions(packet.XPos, packet.YPos);
+            //Console.WriteLine("Character position: " + character.XPos + "," + character.YPos);
         }
 
         private void ProcessConnectPackets(List<SubPacket> subPackets)

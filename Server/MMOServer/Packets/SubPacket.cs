@@ -222,20 +222,23 @@ namespace MMOServer
         public void debugPrintSubPacket()
         {
 #if DEBUG
-            Console.BackgroundColor = ConsoleColor.DarkRed;
-            Console.WriteLine("Size: 0x{0:X}", header.subpacketSize);
-            Console.WriteLine("Packet Type: 0x{0:X}", header.type);
-            Console.WriteLine("Opcode: 0x{0:X}", gameMessage.opcode);
-            if (header.type == (ushort)SubPacketTypes.GamePacket)
+            if (gameMessage.opcode != (ushort)GamePacketOpCode.PositionPacket)
+            {
+                Console.BackgroundColor = ConsoleColor.DarkRed;
+                Console.WriteLine("Size: 0x{0:X}", header.subpacketSize);
+                Console.WriteLine("Packet Type: 0x{0:X}", header.type);
                 Console.WriteLine("Opcode: 0x{0:X}", gameMessage.opcode);
-            if (header.type == (ushort)SubPacketTypes.Account)
-                Console.WriteLine("account header register: 0x{0:X}", accountHeader.setForRegister);
-            Console.WriteLine("raw header bytes: {0}", Utils.ByteArrayToHex(getHeaderBytes()));
-            if (header.type == (ushort)SubPacketTypes.GamePacket)
-                Console.WriteLine("{0}", Utils.ByteArrayToHex(getGameMessageBytes()));
-            Console.BackgroundColor = ConsoleColor.DarkMagenta;
-            Console.WriteLine("{0}", Utils.ByteArrayToHex(data));
-            Console.BackgroundColor = ConsoleColor.Black;
+                if (header.type == (ushort)SubPacketTypes.GamePacket)
+                    Console.WriteLine("Opcode: 0x{0:X}", gameMessage.opcode);
+                if (header.type == (ushort)SubPacketTypes.Account)
+                    Console.WriteLine("account header register: 0x{0:X}", accountHeader.setForRegister);
+                Console.WriteLine("raw header bytes: {0}", Utils.ByteArrayToHex(getHeaderBytes()));
+                if (header.type == (ushort)SubPacketTypes.GamePacket)
+                    Console.WriteLine("{0}", Utils.ByteArrayToHex(getGameMessageBytes()));
+                Console.BackgroundColor = ConsoleColor.DarkMagenta;
+                Console.WriteLine("{0}", Utils.ByteArrayToHex(data));
+                Console.BackgroundColor = ConsoleColor.Black;
+            }
 #endif
         }
     }
