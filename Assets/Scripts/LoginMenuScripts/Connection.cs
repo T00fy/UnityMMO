@@ -17,10 +17,10 @@ public class Connection : MonoBehaviour
     [HideInInspector]
     public byte[] buffer = new byte[0xffff];
     //       public CircularBuffer<byte> incomingStream = new CircularBuffer<byte>(1024);
-    public Queue<BasePacket> sendPacketQueue = new Queue<BasePacket>(100);
+    public List<SubPacket> sendPacketQueue = new List<SubPacket>(100);
     [HideInInspector]
     public int lastPartialSize = 0;
-    private PacketProcessor packetProcessor;
+    private Processor packetProcessor;
     private bool disconnecting;
 
     void Start()
@@ -39,36 +39,20 @@ public class Connection : MonoBehaviour
         socket.Disconnect(false);
         
     }
-    public void QueuePacket(BasePacket packet)
+    public void QueuePacket(SubPacket packet)
     {
-        sendPacketQueue.Enqueue(packet);
+        sendPacketQueue.Add(packet);
+    }
+
+    public List<SubPacket> GetQueue()
+    {
+        return sendPacketQueue;
     }
 
     public Socket GetSocket()
     {
         return socket;
     }
-
-    public byte[] GetNextPacketInQueue()
-    {
-        if (!SocketConnected())
-        {
-            return null;
-        }
-
-
-        while (sendPacketQueue.Count > 0)
-        {
-            BasePacket packet = sendPacketQueue.Dequeue();
-            byte[] packetBytes = packet.GetPacketBytes();
-            byte[] buffer = new byte[0xffff];
-            Array.Copy(packetBytes, buffer, packetBytes.Length);
-            return buffer;
-        }
-        throw new Exception("Something happened in getting queued packet");
-
-    }
-
 
     public bool SocketConnected()
     {
@@ -136,7 +120,32 @@ public class Connection : MonoBehaviour
     }
 
 
+    public void FlushQueuedSendPackets(BasePacketConnectionTypes header = BasePacketConnectionTypes.Zone)
+    {
+        if (!socket.Connected)
+            return;
 
+        while (sendPacketQueue.Count > 0)
+        {
+            BasePacket packet = BasePacket.CreatePacket(sendPacketQueue, PacketProcessor.isAuthenticated, false);
+            packet.header.connectionType = (ushort)header;
+
+            try
+            {
+                socket.Send(packet.GetPacketBytes());
+                sendPacketQueue.Clear();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Weird case, socket was d/ced: {0}", e);
+            }
+        }
+    }
+
+    public void SetPacketProcessor(Processor processor)
+    {
+        packetProcessor = processor;
+    }
 
     private void ReceiveCallBack(IAsyncResult aSyncResult)
     {
@@ -163,6 +172,10 @@ public class Connection : MonoBehaviour
                     }
 
                 }
+
+                //Build any queued subpackets into basepackets and send
+                FlushQueuedSendPackets();
+
                 //Not all bytes consumed, transfer leftover to beginning
                 if (offset < bytesRead)
                 {
@@ -179,13 +192,6 @@ public class Connection : MonoBehaviour
                 else
                 {
                     socket.BeginReceive(buffer, 0, buffer.Length, SocketFlags.None, new AsyncCallback(ReceiveCallBack), socket);
-                }
-            }
-            else
-            {
-                if (socket.RemoteEndPoint.ToString() != Data.LOGIN_IP)
-                {
-                    Debug.Log("Disconnected from world server");
                 }
             }
         }
@@ -244,7 +250,7 @@ public class Connection : MonoBehaviour
         if (Data.CHARACTER_ID != 0)
         {
             DisconnectPacket dcPacket = new DisconnectPacket(Data.CHARACTER_ID);
-            SubPacket packet = new SubPacket(GamePacketOpCode.Disconnect, 0, 0, dcPacket.GetBytes(), SubPacketTypes.GamePacket);
+            SubPacket packet = new SubPacket(GamePacketOpCode.Disconnect, Data.CHARACTER_ID, 0, dcPacket.GetBytes(), SubPacketTypes.GamePacket);
             var packetToSend = BasePacket.CreatePacket(packet, PacketProcessor.isAuthenticated, false);
             packetToSend.header.connectionType = (ushort)BasePacketConnectionTypes.Connect;
             socket.Send(packetToSend.GetPacketBytes());

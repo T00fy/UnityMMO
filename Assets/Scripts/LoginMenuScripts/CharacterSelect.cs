@@ -88,7 +88,7 @@ public class CharacterSelect : MonoBehaviour {
             }
             else if (selectedGameObject == cm.menuObjects[4] && allowedToEnterWorld)
             {
-                GameEventManager.TriggerClientWantsToEnter(new GameEventArgs { clientSelectedEnterWorld = true });
+                GameEventManager.TriggerClientWantsToEnter(new GameEventArgs { ClientSelectedEnterWorld = true });
             }
 
         }

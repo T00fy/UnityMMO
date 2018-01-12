@@ -14,7 +14,7 @@ public class CameraFollow : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-        cam.orthographicSize = (Screen.height / 25f) / 2f;
+        cam.orthographicSize = (Screen.height / 35f) / 2f;
 
         if (target)
         {

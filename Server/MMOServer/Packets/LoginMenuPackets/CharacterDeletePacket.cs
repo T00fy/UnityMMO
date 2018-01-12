@@ -9,13 +9,13 @@ namespace MMOServer
 
     public class CharacterDeletePacket
     {
-        private int charId;
+        private uint charId;
 
         public CharacterDeletePacket(SubPacket receivedPacket)
         {
             try
             {
-                charId = BitConverter.ToInt32(receivedPacket.data, 0);
+                charId = BitConverter.ToUInt32(receivedPacket.data, 0);
             }
             catch (Exception e)
             {
@@ -25,12 +25,12 @@ namespace MMOServer
             
         }
 
-        public CharacterDeletePacket(int charId)
+        public CharacterDeletePacket(uint charId)
         {
             this.charId = charId; 
         }
 
-        public int CharId
+        public uint CharId
         {
             get
             {

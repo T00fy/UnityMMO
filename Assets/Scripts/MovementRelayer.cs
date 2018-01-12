@@ -1,5 +1,7 @@
-﻿using System.Collections;
+﻿using MMOServer;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 /// <summary>
@@ -10,24 +12,44 @@ public class MovementRelayer : MonoBehaviour {
     private bool actorMoving;
     private PlayerMovement mover;
     private Connection connection;
+    public float networkTick = 0.6f;
 
-	void Start () {
-        connection = GameObject.Find("WorldPacketProcessor").GetComponent<Connection>();
+    void Start()
+    {
+        connection = GameObject.Find("WorldServerConnection").GetComponent<Connection>();
         mover = gameObject.GetComponent<PlayerMovement>();
-        InvokeRepeating("CheckMovement", 0.0f, 0.03f);
+        InvokeRepeating("Flush", 0.0f, networkTick);
 
     }
 
-    private void CheckMovement()
+    void Update()
     {
         if (mover.IsMoving)
         {
-            SendPositionPacket();
+            var packets = connection.GetQueue();
+            PositionPacket posPacket = new PositionPacket(gameObject.transform.position.x, gameObject.transform.position.y, true, Data.CHARACTER_ID);
+            if (packets.Any())
+            {
+                PositionPacket lastPacket = new PositionPacket(packets.Last().data);
+                if (posPacket.XPos != lastPacket.XPos || posPacket.YPos != lastPacket.YPos)
+                {
+                    SubPacket sp = new SubPacket(GamePacketOpCode.PositionPacket, Data.CHARACTER_ID, 0, posPacket.GetBytes(), SubPacketTypes.GamePacket);
+                    connection.QueuePacket(sp);
+                }
+            }
+            else
+            {
+                SubPacket sp = new SubPacket(GamePacketOpCode.PositionPacket, Data.CHARACTER_ID, 0, posPacket.GetBytes(), SubPacketTypes.GamePacket);
+                connection.QueuePacket(sp);
+            }
         }
     }
 
-    private void SendPositionPacket()
+
+    //this whole queue stuff might be unnecessary, it's only the latest position set that really matters
+    public void Flush()
     {
-        //PositionPacket posPacket = new PositionPacket();
-    }	
+        connection.FlushQueuedSendPackets();
+    }
+
 }

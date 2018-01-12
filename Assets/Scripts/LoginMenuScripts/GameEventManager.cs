@@ -12,6 +12,7 @@ public static class GameEventManager
     public static event GameEvent HandshakeResponse;
     public static event GameEvent StatusBoxClosed;
     public static GameEvent ClientWantsToEnter;
+    public static event GameEvent ActorNeedsDrawing;
 
     public static void TriggerHandshakeResponseReceived(GameEventArgs eventArgs = null)
     {
@@ -34,6 +35,14 @@ public static class GameEventManager
         if (ClientWantsToEnter != null)
         {
             ClientWantsToEnter(eventArgs);
+        }
+    }
+
+    public static void TriggerActorNeedsDrawing(GameEventArgs eventArgs = null)
+    {
+        if (ActorNeedsDrawing != null)
+        {
+            ActorNeedsDrawing(eventArgs);
         }
     }
 }

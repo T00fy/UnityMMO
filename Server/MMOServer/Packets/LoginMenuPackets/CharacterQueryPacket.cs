@@ -12,8 +12,8 @@ namespace MMOServer
     /// </summary>
     public class CharacterQueryPacket
     {
-        private int charId;
-        private int accountId;
+        private uint charId;
+        private uint accountId;
         private string name;
         private ushort strength;
         private ushort agility;
@@ -60,9 +60,9 @@ namespace MMOServer
                 List<byte[]> list = new List<byte[]>();
                 foreach (string[] s in characterList)
                 {
-                    charId = int.Parse(s[0]);
+                    charId = uint.Parse(s[0]);
                     characterSlot = ushort.Parse(s[1]);
-                    accountId = int.Parse(s[2]);
+                    accountId = uint.Parse(s[2]);
                     name = s[3];
                     strength = ushort.Parse(s[4]);
                     agility = ushort.Parse(s[5]);
@@ -151,9 +151,9 @@ namespace MMOServer
             BinaryReader binReader = new BinaryReader(mem);
             try
             {
-                charId = BitConverter.ToInt32(binReader.ReadBytes(sizeof(int)), 0);
+                charId = BitConverter.ToUInt32(binReader.ReadBytes(sizeof(uint)), 0);
                 characterSlot = BitConverter.ToUInt16(binReader.ReadBytes(sizeof(ushort)), 0);
-                accountId = BitConverter.ToInt32(binReader.ReadBytes(sizeof(int)), 0);
+                accountId = BitConverter.ToUInt32(binReader.ReadBytes(sizeof(uint)), 0);
                 var nameLength = BitConverter.ToUInt16(binReader.ReadBytes(sizeof(ushort)), 0);
                 name = Encoding.Unicode.GetString(binReader.ReadBytes(nameLength));
                 strength = BitConverter.ToUInt16(binReader.ReadBytes(sizeof(ushort)), 0); 
@@ -177,8 +177,8 @@ namespace MMOServer
         public ushort GetVitalty() { return vitality; }
         public ushort GetDexterity() { return dexterity; }
         public string GetName() { return name; }
-        public int GetCharId() { return charId; }
-        public int GetAccountId() { return accountId; }
+        public uint GetCharId() { return charId; }
+        public uint GetAccountId() { return accountId; }
         public ushort GetCharacterSlot() { return characterSlot; }
 
     }

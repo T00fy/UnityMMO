@@ -5,7 +5,7 @@ using MMOServer;
 using System.Collections.Generic;
 
 
-public class PacketProcessor : MonoBehaviour{
+public class PacketProcessor : Processor{
     public static Connection connect;
     public static bool isAuthenticated;
     public static bool loggedInSuccessfully;
@@ -42,7 +42,7 @@ public class PacketProcessor : MonoBehaviour{
     /// All incoming packets are handled through this and then directed to the appropriate function
     /// </summary>
     /// <param name="receivedPacket"></param>
-    public void ProcessPacket(BasePacket receivedPacket)
+    public override void ProcessPacket(BasePacket receivedPacket)
     {
         if (connect == null)
         {
@@ -151,7 +151,7 @@ public class PacketProcessor : MonoBehaviour{
                     case ((ushort)GamePacketOpCode.Acknowledgement):
                         AcknowledgePacket ack = new AcknowledgePacket();
                         ack.GetWorldResponse(subPacket.data);
-                        GameEventManager.TriggerHandshakeResponseReceived(new GameEventArgs { serverResponse = ack.AckSuccessful });
+                        GameEventManager.TriggerHandshakeResponseReceived(new GameEventArgs { ServerResponse = ack.AckSuccessful });
                         //ackpacket has other data which is useful which i'm currently unsure on how to use atm
                         //anything set here won't be visible when scene is changed to world map.
                         break;
@@ -166,7 +166,7 @@ public class PacketProcessor : MonoBehaviour{
         }
     }
 
-    private void DoAuthenticationChecks(BasePacket receivedPacket, SubPacket subPacket)
+    public override void DoAuthenticationChecks(BasePacket receivedPacket, SubPacket subPacket)
     {
 
         if (isAuthenticated && !receivedPacket.isAuthenticated() && subPacket.gameMessage.opcode != (ushort)GamePacketOpCode.RegisterSuccess)

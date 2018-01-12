@@ -76,7 +76,7 @@ namespace MMOWorldServer
                     {
                         Console.WriteLine("FOUND NEARBY PLAYER!");
                         foundNearby = true;
-                        PositionPacket packet = new PositionPacket(entry.Value.XPos, entry.Value.YPos, entry.Value.CharacterId);
+                        PositionPacket packet = new PositionPacket(entry.Value.XPos, entry.Value.YPos, true, entry.Value.CharacterId);
                         SubPacket sp = new SubPacket(GamePacketOpCode.NearbyActorsQuery, entry.Value.CharacterId, 0, packet.GetBytes(), SubPacketTypes.GamePacket);
                         nearbyCharacters.Add(sp);
                     }

@@ -6,7 +6,7 @@ using MMOServer;
 
 public class CharacterDeleteHandler : MenuPrefabHandler
 {
-    private int characterID;
+    private uint characterID;
     private Character character;
     // Use this for initialization
     void Start()
@@ -17,7 +17,7 @@ public class CharacterDeleteHandler : MenuPrefabHandler
     public void HandleDeleteDecision(Character character)
     {
         this.character = character;
-        characterID = character.CharId;
+        characterID = character.Id;
         StartCoroutine(WaitForDeleteConfirmation());
     }
 

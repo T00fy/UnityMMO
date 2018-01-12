@@ -6,7 +6,8 @@ using System.Text;
 
 public class GameEventArgs : EventArgs
 {
-    public bool serverResponse { get; set; }
-    public bool statusBoxClosed { get; set; }
-    public bool clientSelectedEnterWorld { get; set; }
+    public bool ServerResponse { get; set; }
+    public bool StatusBoxClosed { get; set; }
+    public bool ClientSelectedEnterWorld { get; set; }
+    public ActorWrapper Actor { get; set; }
 }

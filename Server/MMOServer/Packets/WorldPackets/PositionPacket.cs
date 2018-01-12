@@ -8,18 +8,20 @@ namespace MMOServer
 
         public float XPos { get; set; }
         public float YPos { get; set; }
-        public uint CharacterId { get; set; }
+        public uint ActorId { get; set; }
+        public bool Playable { get; set; }
 
 
 
         /// <summary>
         /// Used by the client
         /// </summary>
-        public PositionPacket(float xPos, float yPos, uint characterId)
+        public PositionPacket(float xPos, float yPos, bool playable, uint actorId)
         {
             XPos = xPos;
             YPos = yPos;
-            CharacterId = characterId;
+            Playable = playable;
+            ActorId = actorId;
         }
 
         /// <summary>
@@ -33,7 +35,8 @@ namespace MMOServer
             {
                 XPos = BitConverter.ToSingle(br.ReadBytes(sizeof(float)),0);
                 YPos = BitConverter.ToSingle(br.ReadBytes(sizeof(float)),0);
-                CharacterId = BitConverter.ToUInt32(br.ReadBytes(sizeof(uint)), 0);
+                Playable = BitConverter.ToBoolean(br.ReadBytes(sizeof(bool)), 0);
+                ActorId = BitConverter.ToUInt32(br.ReadBytes(sizeof(uint)), 0);
             }
             catch (Exception e)
             {
@@ -48,9 +51,10 @@ namespace MMOServer
         {
             byte[] xPosBytes = BitConverter.GetBytes(XPos);
             byte[] yPosBytes = BitConverter.GetBytes(YPos);
-            byte[] characterIdBytes = BitConverter.GetBytes(CharacterId);
+            byte[] playable = BitConverter.GetBytes(Playable);
+            byte[] characterIdBytes = BitConverter.GetBytes(ActorId);
 
-            return Utils.CombineBytes(xPosBytes, yPosBytes, characterIdBytes);
+            return Utils.CombineBytes(xPosBytes, yPosBytes, playable, characterIdBytes);
         }
     }
 }

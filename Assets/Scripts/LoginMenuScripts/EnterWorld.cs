@@ -30,12 +30,12 @@ public class EnterWorld : MonoBehaviour
 
     private void ServerResponse(GameEventArgs eventArgs)
     {
-        handShakeSuccessful = eventArgs.serverResponse;
+        handShakeSuccessful = eventArgs.ServerResponse;
     }
 
     private void InputFromCharacterSelect(GameEventArgs eventArgs)
     {
-        clientActivatedEnterWorld = eventArgs.clientSelectedEnterWorld;
+        clientActivatedEnterWorld = eventArgs.ClientSelectedEnterWorld;
         var selectGameObject = Utils.FindSiblingGameObjectByName(gameObject, "CharacterSlots");
         characterSelect = selectGameObject.GetComponent<CharacterSelect>();
         characterSelect.enabled = false;
@@ -58,14 +58,14 @@ public class EnterWorld : MonoBehaviour
         if (clientActivatedEnterWorld) //if is entering
         {
             worldServerConnection.EstablishConnection("127.0.0.1", 3435);
-            int characterId = Utils.GetCharacter(CharacterSelect.selectedSlot).CharId;
+            uint characterId = Utils.GetCharacter(CharacterSelect.selectedSlot).Id;
             Data.CHARACTER_ID = (uint)characterId;
             var characterIdBytes = BitConverter.GetBytes(characterId);
             if (!BitConverter.IsLittleEndian)
             {
                 Array.Reverse(characterIdBytes);
             }
-            SubPacket packetToSend = new SubPacket(GamePacketOpCode.Handshake, 0, 0, characterIdBytes, SubPacketTypes.GamePacket);
+            SubPacket packetToSend = new SubPacket(GamePacketOpCode.Handshake, Data.CHARACTER_ID, 0, characterIdBytes, SubPacketTypes.GamePacket);
             BasePacket test = BasePacket.CreatePacket(packetToSend, PacketProcessor.isAuthenticated, false);
             test.header.connectionType = (ushort)BasePacketConnectionTypes.Connect;
             worldServerConnection.Send(test);

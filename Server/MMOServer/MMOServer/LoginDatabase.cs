@@ -281,7 +281,7 @@ namespace MMOServer
         }
 
 
-        public int DeleteCharacterFromDb(int charId)
+        public int DeleteCharacterFromDb(uint charId)
         {
             try
             {
