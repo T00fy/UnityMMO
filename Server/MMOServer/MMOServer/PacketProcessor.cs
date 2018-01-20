@@ -1,17 +1,19 @@
 ﻿using MySql.Data.MySqlClient;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
 
 namespace MMOServer
 {
-    class PacketProcessor
+    public class PacketProcessor
     {
         //basically see what kind of packet it is and decide what to do with it
         private AccountPacket ap;
         private ClientConnection client;
+        private string WORLD_SERVER_IP = ConfigurationManager.ConnectionStrings["WorldServerConnectionString"].ConnectionString.ToString();
         private const int MAX_AMOUNT_OF_CHARACTERS_ALLOWED = 3;
 
         public void ProcessPacket(ClientConnection client, BasePacket packet)
@@ -89,9 +91,9 @@ namespace MMOServer
         {
             
             packetToSend.header.connectionType = (ushort)BasePacketConnectionTypes.Connect;
-            IPAddress[] ip = Dns.GetHostAddresses("127.0.0.1");
+            IPAddress[] ip = Dns.GetHostAddresses(WORLD_SERVER_IP);
             IPEndPoint remoteEP = new IPEndPoint(ip[0], 3435);
-            Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            Socket socket = new Socket(AddressFamily.InterNetworkV6, SocketType.Stream, ProtocolType.Tcp);
             socket.Connect(remoteEP);
             ClientConnection temp = new ClientConnection();
             temp.socket = socket;

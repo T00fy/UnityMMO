@@ -77,6 +77,11 @@ public class CharacterLoader : MonoBehaviour {
         }
     }
 
+    private void UnloadCharacterSnippet(GameObject slot)
+    {
+        Utils.FindSiblingGameObjectByTag(slot, "CharacterInfo").GetComponent<Text>().text = "";
+    }
+
     private GameObject GetCharacterModelHolder(ushort v)
     {
         switch (v)
@@ -103,11 +108,23 @@ public class CharacterLoader : MonoBehaviour {
     {
         
         if(slot1.transform.childCount > 0)
+        {
             Destroy(slot1.transform.GetChild(0).gameObject);
+            UnloadCharacterSnippet(slot1);
+        }
+            
         if (slot2.transform.childCount > 0)
+        {
             Destroy(slot2.transform.GetChild(0).gameObject);
+            UnloadCharacterSnippet(slot2);
+        }
+            
         if (slot3.transform.childCount > 0)
+        {
             Destroy(slot3.transform.GetChild(0).gameObject);
+            UnloadCharacterSnippet(slot3);
+        }
+            
     }
 
     private bool CharacterModelAlreadyLoaded(GameObject characterHolder)

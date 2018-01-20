@@ -20,16 +20,20 @@ public class CharacterMovement : MonoBehaviour
         poller = GetComponent<CharacterPositionPoller>();
     }
 
+    void FixedUpdate()
+    {
+        animator.SetBool("isWalking", IsMoving);
+    }
+
     public void HandleMovement(float posX, float posY)
     {
-        //This doesn't work properly.. just moves to the left jerkingly
-        Vector2 movementVector = Vector2.MoveTowards(transform.position, 
-            new Vector2(posX, posY), speed * Time.deltaTime);
+        Vector2 movementVector = Vector2.Lerp(transform.position, 
+           new Vector2(posX, posY), speed * Time.deltaTime);
 
         if (movementVector.x != 0)
         {
             IsMoving = true;
-            animator.SetBool("isWalking", IsMoving);
+        //    animator.SetBool("isWalking", IsMoving);
 
             animator.SetFloat("input_x", movementVector.x);
         }
@@ -37,15 +41,10 @@ public class CharacterMovement : MonoBehaviour
         if (movementVector.y != 0)
         {
             IsMoving = true;
-            animator.SetBool("isWalking", IsMoving);
-            animator.SetFloat("input_y", movementVector.y);
+            //       animator.SetBool("isWalking", IsMoving);
+            animator.SetFloat("input_x", movementVector.x);
         }
 
-        if (movementVector == Vector2.zero)
-        {
-            IsMoving = false;
-            animator.SetBool("isWalking", IsMoving);
-        }
         rb.MovePosition(movementVector);
         //diagonal input fails at times
         //moving diagonally moves faster

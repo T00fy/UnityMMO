@@ -19,6 +19,7 @@ namespace MMOServer
         private int[] characterId = new int[3];
         private IPAddress clientIpAddress;
         private int clientPort;
+        public PacketProcessor PacketProcessor{get;set;}
 
         public IPAddress ClientIpAddress
         {

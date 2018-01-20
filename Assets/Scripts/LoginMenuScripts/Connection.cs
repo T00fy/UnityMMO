@@ -8,6 +8,8 @@ using MMOServer;
 using System.Threading;
 using System.Collections.Generic;
 using System.Collections;
+using SharpConfig;
+using System.IO;
 
 public class Connection : MonoBehaviour
 {
@@ -26,6 +28,23 @@ public class Connection : MonoBehaviour
     void Start()
     {
         packetProcessor = GameObject.FindGameObjectWithTag("PacketProcessor").GetComponent<PacketProcessor>();
+        Configuration cfg = new Configuration();
+        if (!File.Exists("config.cfg"))
+        {
+            cfg["Connection"]["Login"].StringValue = Data.LOGIN_ADDRESS;
+            cfg["Connection"]["World"].StringValue = Data.WORLD_ADDRESS;
+            cfg.SaveToFile("config.cfg");
+        }
+        else
+        {
+            cfg = Configuration.LoadFromFile("config.cfg");
+            var section = cfg["Connection"];
+
+            Data.LOGIN_ADDRESS = section["Login"].StringValue;
+            Data.WORLD_ADDRESS = section["World"].StringValue;
+        }
+
+        
     }
 
     public Connection()
@@ -67,7 +86,7 @@ public class Connection : MonoBehaviour
     public void EstablishConnection(string ipAddress, int port)
     {
 
-        socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+        socket = new Socket(AddressFamily.InterNetworkV6, SocketType.Stream, ProtocolType.Tcp);
         try
         {
             IPAddress[] ip = Dns.GetHostAddresses(ipAddress);
@@ -76,6 +95,7 @@ public class Connection : MonoBehaviour
             StatusBoxHandler.statusText = "Connecting...";
 
             IPEndPoint remoteEP = new IPEndPoint(ip[0], port);
+            Debug.Log(ip[0]);
             socket.Connect(remoteEP);
 
             StatusBoxHandler.statusText = "Established Connection";

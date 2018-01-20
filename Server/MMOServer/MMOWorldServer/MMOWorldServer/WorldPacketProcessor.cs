@@ -3,6 +3,7 @@ using MMOWorldServer.Actors;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -18,9 +19,8 @@ namespace MMOWorldServer
     {
         private WorldClientConnection client;
         //List<ClientConnection> mConnections;
-        private const string LOGIN_SERVER_IP = "127.0.0.1";
+        private string LOGIN_SERVER_IP = ConfigurationManager.ConnectionStrings["LoginServerConnectionString"].ConnectionString.ToString();
         private const int LOGIN_SERVER_PORT = 3425;
-        private Object thisLock = new Object();
 
 
         public void ProcessPacket(WorldClientConnection client, BasePacket packet)
@@ -137,7 +137,7 @@ namespace MMOWorldServer
                         try
                         {
                             Console.WriteLine("100% CORRECT CLIENT CONNECTION: " + client.GetFullAddress());
-                            ConfirmClientConnectionWithLoginServer(new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp), subPacket);
+                            ConfirmClientConnectionWithLoginServer(new Socket(AddressFamily.InterNetworkV6, SocketType.Stream, ProtocolType.Tcp), subPacket);
                         }
                         catch (Exception e)
                         {
@@ -212,11 +212,8 @@ namespace MMOWorldServer
 
             if (!WorldServer.mConnectedPlayerList.ContainsKey(character.CharacterId))
             {
-                Console.WriteLine("Trying to insert " + character.CharacterId);
-                if (WorldServer.mConnectedPlayerList.TryAdd(character.CharacterId, character))
-                {
-                    Console.WriteLine("Couldn't add player...");
-                }
+                Console.WriteLine("Inserting character into dictionary:  " + character.CharacterId);
+                WorldServer.mConnectedPlayerList.TryAdd(character.CharacterId, character);
             }
             else
             {

@@ -8,7 +8,6 @@ using UnityEngine;
 public class Character : Actor
 {
     public uint AccountId { get; set; }
-    [SerializeField]
     public string CharacterName { get; set; }
     public ushort Strength { get; set; }
     public ushort Agility { get; set; }

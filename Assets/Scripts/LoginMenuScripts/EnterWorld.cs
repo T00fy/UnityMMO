@@ -56,7 +56,7 @@ public class EnterWorld : MonoBehaviour
     {
         if (clientActivatedEnterWorld) //if is entering
         {
-            worldServerConnection.EstablishConnection("127.0.0.1", 3435);
+            worldServerConnection.EstablishConnection(Data.WORLD_ADDRESS, Data.WORLD_PORT);
             characterEntering = Utils.GetCharacter(CharacterSelect.selectedSlot);
             Data.CHARACTER_ID = (uint)characterEntering.Id;
             var characterIdBytes = BitConverter.GetBytes(characterEntering.Id);

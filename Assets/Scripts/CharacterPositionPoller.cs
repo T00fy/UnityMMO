@@ -11,6 +11,7 @@ public class CharacterPositionPoller : MonoBehaviour
     private CharacterMovement movement;
     private PositionPacket posPacket;
     private Connection connection;
+    private bool posPacketReceived;
     // Use this for initialization
     void Start()
     {
@@ -18,35 +19,32 @@ public class CharacterPositionPoller : MonoBehaviour
         GameEventManager.PollerPositionPacket += new GameEventManager.GameEvent(PosPacketReceived);
         character = gameObject.GetComponent<Character>();
         movement = gameObject.GetComponent<CharacterMovement>();
-        StartCoroutine(WaitForPosPacket());
     }
 
     void Update()
     {
         SubPacket sp = new SubPacket(GamePacketOpCode.PositionQuery, Data.CHARACTER_ID, character.Id, new byte[0], SubPacketTypes.GamePacket);
         connection.Send(BasePacket.CreatePacket(sp, PacketProcessor.isAuthenticated, false));
+        if (posPacketReceived)
+        {
+            HandlePosPacket();
+            posPacketReceived = false;
+        }
     }
 
     private void PosPacketReceived(GameEventArgs eventArgs)
     {
         posPacket = eventArgs.PollerPositionPacket;
+        posPacketReceived = true;
     }
 
-    private IEnumerator WaitForPosPacket()
+    private void HandlePosPacket()
     {
-        while (true)
+        if (posPacket.ActorId != character.Id)
         {
-            if (posPacket != null)
-            {
-                if (posPacket.ActorId != character.Id)
-                {
-                    Debug.Log("Actorid : " + posPacket.ActorId + " " + character.Id);
-                    throw new Exception("Uh oh, server probably not configured properly");
-                }
-                movement.HandleMovement(posPacket.XPos, posPacket.YPos);
-                posPacket = null;
-            }
-            yield return null;
+            Debug.Log("Actorid : " + posPacket.ActorId + " " + character.Id);
+            throw new Exception("Uh oh, server probably not configured properly");
         }
+        movement.HandleMovement(posPacket.XPos, posPacket.YPos);
     }
 }

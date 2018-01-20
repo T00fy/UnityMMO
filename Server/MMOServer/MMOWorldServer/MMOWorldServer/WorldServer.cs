@@ -65,37 +65,7 @@ namespace MMOWorldServer
 
         public bool StartServer()
         {
-          //  mConnectionHealthThread = new Thread(new ThreadStart(ConnectionHealth));
-         //   mConnectionHealthThread.Name = "MapThread:Health";
-            //mConnectionHealthThread.Start();
-
-
-
-            /*
-                Load items, NPCS and shit here
-                        mStaticActors = new StaticActors(STATIC_ACTORS_PATH);
-
-            gamedataItems = Database.GetItemGamedata();
-            Console.WriteLine("Loaded {0} items.", gamedataItems.Count);
-            */
-
-
-
-            /*
-            
-            Load zones/map info and seamless boundaries and stuff here
-            mWorldManager = new WorldManager(this);
-            mWorldManager.LoadZoneList();
-            mWorldManager.LoadZoneEntranceList();
-            mWorldManager.LoadSeamlessBoundryList();
-            mWorldManager.LoadActorClasses();
-            mWorldManager.LoadSpawnLocations();
-            mWorldManager.SpawnAllActors();
-            */
-
-
-
-            IPEndPoint serverEndPoint = new IPEndPoint(IPAddress.Any, 3435);
+            IPEndPoint serverEndPoint = new IPEndPoint(IPAddress.IPv6Any, 3435);
 
             try
             {

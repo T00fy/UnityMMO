@@ -36,7 +36,6 @@ public class WorldPacketProcessor : Processor
                 switch (subPacket.gameMessage.opcode)
                 {
                     case ((ushort)GamePacketOpCode.NearbyActorsQuery):
-                        Debug.Log("Got nearby actors response!");
                         PositionPacket pos = new PositionPacket(subPacket.data);
                         ActorWrapper wrapper = new ActorWrapper(pos.XPos, pos.YPos, pos.Playable, pos.ActorId);
                         GameEventManager.TriggerActorNeedsDrawing(new GameEventArgs { Actor = wrapper });

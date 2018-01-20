@@ -18,7 +18,6 @@ namespace MMOServer
         public static ManualResetEvent allDone = new ManualResetEvent(false);
         public const int BUFFER_SIZE = 65535;
         private Socket listener;
-        private PacketProcessor packetProcessor;
 
         public void StartListening()
         {
@@ -30,15 +29,15 @@ namespace MMOServer
             // running the listener is "host.contoso.com".
 
             // Create a TCP/IP socket.
-            listener = new Socket(AddressFamily.InterNetwork,
+            listener = new Socket(AddressFamily.InterNetworkV6,
                 SocketType.Stream, ProtocolType.Tcp);
 
             // Bind the socket to the local endpoint and listen for incoming connections.
             try
             {
-                listener.Bind(new IPEndPoint(IPAddress.Any, 3425));
+                listener.Bind(new IPEndPoint(IPAddress.IPv6Any, 3425));
                 listener.Listen(100);
-                packetProcessor = new PacketProcessor();
+
                 while (true)
                 {
                     // Set the event to nonsignaled state.
@@ -67,14 +66,17 @@ namespace MMOServer
         private void AcceptCallback(IAsyncResult ar)
         {
             ClientConnection client = null;
-
+            
 
             try
             {
                 Socket s = (Socket)ar.AsyncState;
-                client = new ClientConnection();
-                client.socket = s.EndAccept(ar);
-                client.buffer = new byte[BUFFER_SIZE];
+                client = new ClientConnection()
+                {
+                    PacketProcessor = new PacketProcessor(),
+                    socket = s.EndAccept(ar),
+                    buffer = new byte[BUFFER_SIZE]
+                };
                 lock (mConnectionList)
                 {
                     mConnectionList.Add(client);
@@ -132,7 +134,7 @@ namespace MMOServer
                         else
                         {
                             
-                            packetProcessor.ProcessPacket(client, basePacket);
+                            client.PacketProcessor.ProcessPacket(client, basePacket);
                         }
 
                     }

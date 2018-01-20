@@ -40,7 +40,7 @@ public class ActorDrawer : MonoBehaviour
     private void QueryForNearybyActors()
     {
         PositionsInBoundsPacket packet = new PositionsInBoundsPacket(cameraBounds.min.x, cameraBounds.max.x, cameraBounds.min.y, cameraBounds.max.y);
-        Debug.Log(cameraBounds.min.x + "," + cameraBounds.min.y + "," + cameraBounds.max.x + "," + cameraBounds.max.y);
+        //Debug.Log(cameraBounds.min.x + "," + cameraBounds.min.y + "," + cameraBounds.max.x + "," + cameraBounds.max.y);
         SubPacket sp = new SubPacket(GamePacketOpCode.NearbyActorsQuery, Data.CHARACTER_ID, 0, packet.GetBytes(), SubPacketTypes.GamePacket);
         connection.Send(BasePacket.CreatePacket(sp, PacketProcessor.isAuthenticated, false));
     }
@@ -48,7 +48,6 @@ public class ActorDrawer : MonoBehaviour
     private void AddToDrawQueue(GameEventArgs eventArgs)
     {
         ActorWrapper actor = eventArgs.Actor;
-        Debug.Log("Adding actor to draw queue: " + actor.Id);
         actorsToDraw.Enqueue(actor);
     }
 
@@ -62,13 +61,12 @@ public class ActorDrawer : MonoBehaviour
             ActorWrapper actorToDraw = actorsToDraw.Dequeue();
             if (actorToDraw.Id == Data.CHARACTER_ID)
             { 
-                throw new Exception("WTF!!! Why does it keep getting here");
+                throw new Exception("Something went wrong, it's trying to draw the player as a new character");
             }
             GameObject obj; //has to be handled on the main thread
 
             if (actorToDraw.Playable)
             {
-                Debug.Log("Actor is a character");
                 obj = GetDrawnActor(Data.drawnCharacters, actorToDraw);
                 if (obj != null)
                 {
@@ -110,7 +108,7 @@ public class ActorDrawer : MonoBehaviour
         rb.isKinematic = true;
         Animator animator = actor.GetComponent<Animator>();
 
-        animator.runtimeAnimatorController = Resources.Load("Assets/Resources/Animation/player.controller") as RuntimeAnimatorController;
+        animator.runtimeAnimatorController = Resources.Load<RuntimeAnimatorController>("Animation/player");
 
     }
 
@@ -120,8 +118,6 @@ public class ActorDrawer : MonoBehaviour
         {
             if (actor.Value.gameObject.activeInHierarchy)
             {
-                Debug.Log("extents: "+cameraBounds.ClosestPoint(Vector3.zero));
-                Debug.Log("actor pos: " + actor.Value.transform.position);
                 if (!cam.ActorOnScreen(actor.Value.transform))
                 {
                     actor.Value.gameObject.SetActive(false);
@@ -143,7 +139,6 @@ public class ActorDrawer : MonoBehaviour
     {
         if (drawnActors.ContainsKey(actorToDraw.Id))
         {
-            Debug.Log("Actor is already within bounds!");
             T actor;
             drawnActors.TryGetValue(actorToDraw.Id, out actor);
             GameObject obj = actor.gameObject;

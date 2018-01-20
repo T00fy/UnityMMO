@@ -32,7 +32,6 @@ public class PlayerMovement : MonoBehaviour {
         {
             IsMoving = true;
             animator.SetBool("isWalking", IsMoving);
-            animator.SetFloat("input_y", movementVector.y);
         }
 
         if(movementVector == Vector2.zero)

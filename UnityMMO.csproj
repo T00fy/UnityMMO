@@ -13,13 +13,11 @@
     <TargetFrameworkIdentifier>.NETFramework</TargetFrameworkIdentifier>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <TargetFrameworkProfile>Unity Subset v3.5</TargetFrameworkProfile>
-    <CompilerResponseFile>
-    </CompilerResponseFile>
+    <CompilerResponseFile></CompilerResponseFile>
     <UnityProjectType>Game:1</UnityProjectType>
     <UnityBuildTarget>StandaloneWindows64:19</UnityBuildTarget>
     <UnityVersion>2017.3.0f3</UnityVersion>
-    <RootNamespace>
-    </RootNamespace>
+    <RootNamespace></RootNamespace>
     <LangVersion>4</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -291,9 +289,11 @@
     <Reference Include="Packets">
       <HintPath>Assets\Scripts\References\Packets.dll</HintPath>
     </Reference>
+    <Reference Include="SharpConfig">
+      <HintPath>Assets\Scripts\References\SharpConfig.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\Scripts\LoadPlayer.cs" />
     <Compile Include="Assets\Scripts\Actor.cs" />
     <Compile Include="Assets\Scripts\ActorDrawer.cs" />
     <Compile Include="Assets\Scripts\ActorWrapper.cs" />
@@ -302,6 +302,7 @@
     <Compile Include="Assets\Scripts\CameraFollow.cs" />
     <Compile Include="Assets\Scripts\CharacterMovement.cs" />
     <Compile Include="Assets\Scripts\CharacterPositionPoller.cs" />
+    <Compile Include="Assets\Scripts\LoadPlayer.cs" />
     <Compile Include="Assets\Scripts\LoginMenuScripts\AccountHandler.cs" />
     <Compile Include="Assets\Scripts\LoginMenuScripts\Character.cs" />
     <Compile Include="Assets\Scripts\LoginMenuScripts\CharacterCreateHandler.cs" />
