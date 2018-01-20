@@ -14,9 +14,9 @@ public class EnterWorld : MonoBehaviour
     public StatusBoxHandler statusBoxHandler;
     private bool? handShakeSuccessful;
     private bool clientActivatedEnterWorld;
-    private const float TIMEOUT_DURATION = 30.0f;
-    private float countDown;
+    public float handshakeTimeoutWait = 30.0f;
     private CharacterSelect characterSelect;
+    private Character characterEntering;
 
     // Use this for initialization
     void Start()
@@ -24,7 +24,6 @@ public class EnterWorld : MonoBehaviour
         GameEventManager.HandshakeResponse += new GameEventManager.GameEvent(ServerResponse);
         GameEventManager.ClientWantsToEnter += new GameEventManager.GameEvent(InputFromCharacterSelect);
         GameEventManager.StatusBoxClosed += new GameEventManager.GameEvent(StatusBoxResponse);
-        countDown = TIMEOUT_DURATION;
         DontDestroyOnLoad(worldServerConnection);
     }
 
@@ -58,9 +57,9 @@ public class EnterWorld : MonoBehaviour
         if (clientActivatedEnterWorld) //if is entering
         {
             worldServerConnection.EstablishConnection("127.0.0.1", 3435);
-            uint characterId = Utils.GetCharacter(CharacterSelect.selectedSlot).Id;
-            Data.CHARACTER_ID = (uint)characterId;
-            var characterIdBytes = BitConverter.GetBytes(characterId);
+            characterEntering = Utils.GetCharacter(CharacterSelect.selectedSlot);
+            Data.CHARACTER_ID = (uint)characterEntering.Id;
+            var characterIdBytes = BitConverter.GetBytes(characterEntering.Id);
             if (!BitConverter.IsLittleEndian)
             {
                 Array.Reverse(characterIdBytes);
@@ -82,18 +81,18 @@ public class EnterWorld : MonoBehaviour
     {
         while (!handShakeSuccessful.HasValue)
         {
-            countDown -= Time.deltaTime;
-            if (countDown < 0)
+            handshakeTimeoutWait -= Time.deltaTime;
+            if (handshakeTimeoutWait < 0)
             {
                 break;
             }
             yield return null;
         }
-        countDown = TIMEOUT_DURATION; //reset coutdown;
         if (handShakeSuccessful.HasValue)
         {
             if ((bool)handShakeSuccessful)
             {
+                Data.CHARACTER_ON_LOGIN = characterEntering;
                 loginServerConnection.SendDisconnectPacket();
                 SceneManager.LoadScene("test", LoadSceneMode.Single);
                 //load world instantly

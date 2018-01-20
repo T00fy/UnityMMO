@@ -222,7 +222,7 @@ namespace MMOServer
         public void debugPrintSubPacket()
         {
 #if DEBUG
-            if (gameMessage.opcode != (ushort)GamePacketOpCode.PositionPacket)
+            if (Utils.OpCodeNotPositionRelated(gameMessage.opcode))
             {
                 Console.BackgroundColor = ConsoleColor.DarkRed;
                 Console.WriteLine("Size: 0x{0:X}", header.subpacketSize);

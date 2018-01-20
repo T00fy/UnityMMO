@@ -25,6 +25,9 @@ namespace MMOWorldServer
         public int connType = 0;
         private IPAddress clientIpAddress;
         private int clientPort;
+
+        public WorldPacketProcessor PacketProcessor {get;set;}
+        public Character Character {get;set;}
         
         public uint SessionId
         {
@@ -136,35 +139,6 @@ namespace MMOWorldServer
         public void Ping()
         {
            // lastPingPacket = Utils.UnixTimeStampUTC();
-        }
-
-        public bool CheckIfDCing()
-        {
-            throw new NotImplementedException();
-            /*    uint currentTime = Utils.UnixTimeStampUTC();
-                if (currentTime - lastPingPacket >= 5000) //Show D/C flag
-                    playerActor.SetDCFlag(true);
-                else if (currentTime - lastPingPacket >= 30000) //DCed
-                    return true;
-                else
-                    playerActor.SetDCFlag(false);
-                return false;*/
-        }
-
-        public void UpdatePlayerActorPosition(float x, float y, ushort moveState)
-        {
-            throw new NotImplementedException();
-            /*   playerActor.oldPositionX = playerActor.positionX;
-               playerActor.oldPositionY = playerActor.positionY;
-               playerActor.oldPositionZ = playerActor.positionZ;
-               playerActor.oldRotation = playerActor.rotation;
-
-               playerActor.positionX = x;
-               playerActor.positionY = y;
-               playerActor.moveState = moveState;
-
-               GetActor().zone.UpdateActorPosition(GetActor());*/
-
         }
     }
 }

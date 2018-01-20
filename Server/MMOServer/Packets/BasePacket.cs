@@ -54,7 +54,6 @@ namespace MMOServer
             }
 
             int packetSize = header.packetSize;
-            Console.WriteLine("packetSize: " + packetSize);
             if (bytes.Length < offset + header.packetSize)
                 throw new OverflowException("Packet Error: Packet size didn't equal given size");
 
@@ -156,6 +155,41 @@ namespace MMOServer
 
             BasePacket packet = new BasePacket(header, data);
             return packet;
+        }
+
+        /// <summary>
+        /// Builds a packet from the incoming buffer + offset. If a packet can be built, it is returned else null.
+        /// </summary>
+        /// <param name="offset">Current offset in buffer.</param>
+        /// <param name="buffer">Incoming buffer.</param>
+        /// <returns>Returns either a BasePacket or null if not enough data.</returns>
+        public static BasePacket CreatePacket(ref int offset, byte[] buffer, int bytesRead)
+        {
+            BasePacket newPacket = null;
+
+            //Too small to even get length
+            if (bytesRead <= offset)
+                return null;
+
+            ushort packetSize = BitConverter.ToUInt16(buffer, offset);
+
+            //Too small to whole packet
+            if (bytesRead < offset + packetSize)
+                return null;
+
+            if (buffer.Length < offset + packetSize)
+                return null;
+
+            try
+            {
+                newPacket = new BasePacket(buffer, ref offset);
+            }
+            catch (OverflowException)
+            {
+                return null;
+            }
+
+            return newPacket;
         }
 
         public static BasePacket CreatePacket(SubPacket subpacket, bool isAuthed, bool isEncrypted)
@@ -264,11 +298,11 @@ namespace MMOServer
         public void debugPrintPacket()
         {
 #if DEBUG
-            Console.BackgroundColor = ConsoleColor.DarkYellow;
+          /*  Console.BackgroundColor = ConsoleColor.DarkYellow;
             Console.WriteLine("IsAuthed: {0}, IsEncrypted: {1}, Size: 0x{2:X}, Num Subpackets: {3}", header.isAuthenticated, header.isEncrypted, header.packetSize, header.numSubpackets);
             foreach (SubPacket sub in GetSubpackets())
                 sub.debugPrintSubPacket();
-            Console.BackgroundColor = ConsoleColor.Black;
+            Console.BackgroundColor = ConsoleColor.Black;*/
 #endif
         }
 

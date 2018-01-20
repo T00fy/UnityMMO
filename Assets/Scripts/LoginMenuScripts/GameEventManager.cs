@@ -12,6 +12,8 @@ public static class GameEventManager
     public static event GameEvent HandshakeResponse;
     public static event GameEvent StatusBoxClosed;
     public static GameEvent ClientWantsToEnter;
+    public static GameEvent PollerPositionPacket;
+
     public static event GameEvent ActorNeedsDrawing;
 
     public static void TriggerHandshakeResponseReceived(GameEventArgs eventArgs = null)
@@ -45,5 +47,14 @@ public static class GameEventManager
             ActorNeedsDrawing(eventArgs);
         }
     }
+
+    public static void TriggerPollerResponse(GameEventArgs eventArgs = null)
+    {
+        if (PollerPositionPacket != null)
+        {
+            PollerPositionPacket(eventArgs);
+        }
+    }
+
 }
 

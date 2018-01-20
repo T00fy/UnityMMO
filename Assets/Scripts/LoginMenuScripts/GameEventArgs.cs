@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MMOServer;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,4 +11,5 @@ public class GameEventArgs : EventArgs
     public bool StatusBoxClosed { get; set; }
     public bool ClientSelectedEnterWorld { get; set; }
     public ActorWrapper Actor { get; set; }
+    public PositionPacket PollerPositionPacket { get; set; }
 }

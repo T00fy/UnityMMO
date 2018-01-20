@@ -6,6 +6,7 @@ using System.Threading;
 using MMOServer;
 using MMOWorldServer.Data;
 using MMOWorldServer.Actors;
+using System.Collections.Concurrent;
 
 namespace MMOWorldServer
 {
@@ -20,15 +21,13 @@ namespace MMOWorldServer
         private Socket mServerSocket;
 
         //key is characterId
-        public static Dictionary<uint, Character> mConnectedPlayerList = new Dictionary<uint, Character>();
+        public static ConcurrentDictionary<uint, Character> mConnectedPlayerList = new ConcurrentDictionary<uint, Character>();
 
         //raw connections
         private static List<WorldClientConnection> mConnectionList = new List<WorldClientConnection>();
 
         private static WorldManager mWorldManager;
         private static Dictionary<uint, Item> gamedataItems;
-
-        private WorldPacketProcessor mProcessor;
 
         private Thread mConnectionHealthThread;
         private bool killHealthThread = false;
@@ -128,8 +127,6 @@ namespace MMOWorldServer
             Console.WriteLine("Map Server has started @ {0}:{1}", (mServerSocket.LocalEndPoint as IPEndPoint).Address, (mServerSocket.LocalEndPoint as IPEndPoint).Port);
             Console.ForegroundColor = ConsoleColor.Gray;
 
-            mProcessor = new WorldPacketProcessor();
-
             return true;
         }
 
@@ -206,6 +203,7 @@ namespace MMOWorldServer
         private void ReceiveCallback(IAsyncResult result)
         {
             WorldClientConnection conn = (WorldClientConnection)result.AsyncState;
+            conn.PacketProcessor = new WorldPacketProcessor();
 
             //Check if disconnected
             if ((conn.socket.Poll(1, SelectMode.SelectRead) && conn.socket.Available == 0))
@@ -214,8 +212,7 @@ namespace MMOWorldServer
                 {
                     mConnectionList.Remove(conn);
                 }
-                if (conn.connType == BasePacket.TYPE_ZONE)
-                    Console.WriteLine("{0} has disconnected.", conn.owner == 0 ? conn.GetFullAddress() : "User " + conn.owner);
+
                 return;
             }
 
@@ -232,13 +229,16 @@ namespace MMOWorldServer
                     //Build packets until can no longer or out of data
                     while (true)
                     {
-                        BasePacket basePacket = BuildPacket(ref offset, conn.buffer, bytesRead);
+                        BasePacket basePacket = BasePacket.CreatePacket(ref offset, conn.buffer, bytesRead);
 
                         //If can't build packet, break, else process another
                         if (basePacket == null)
                             break;
                         else
-                            mProcessor.ProcessPacket(conn, basePacket);
+                        {
+                            conn.PacketProcessor.ProcessPacket(conn, basePacket);
+                        }
+
                     }
 
                     //Not all bytes consumed, transfer leftover to beginning
@@ -259,7 +259,6 @@ namespace MMOWorldServer
                 }
                 else
                 {
-                    Console.WriteLine("{0} has disconnected.", conn.owner == 0 ? conn.GetFullAddress() : "User " + conn.owner);
 
                     lock (mConnectionList)
                     {
@@ -271,7 +270,6 @@ namespace MMOWorldServer
             {
                 if (conn.socket != null)
                 {
-                    Console.WriteLine("{0} has disconnected.", conn.owner == 0 ? conn.GetFullAddress() : "User " + conn.owner);
 
                     lock (mConnectionList)
                     {

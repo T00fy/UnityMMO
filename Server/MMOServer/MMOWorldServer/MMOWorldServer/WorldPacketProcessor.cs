@@ -1,6 +1,7 @@
 ﻿using MMOServer;
 using MMOWorldServer.Actors;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -19,6 +20,7 @@ namespace MMOWorldServer
         //List<ClientConnection> mConnections;
         private const string LOGIN_SERVER_IP = "127.0.0.1";
         private const int LOGIN_SERVER_PORT = 3425;
+        private Object thisLock = new Object();
 
 
         public void ProcessPacket(WorldClientConnection client, BasePacket packet)
@@ -46,6 +48,11 @@ namespace MMOWorldServer
                     subPacket.debugPrintSubPacket();
                 }
 
+                if (subPacket.header.type == (ushort)SubPacketTypes.ErrorPacket)
+                {
+                    throw new Exception("Debug error from client");
+                }
+
 
                 switch (subPacket.gameMessage.opcode)
                 {
@@ -54,52 +61,69 @@ namespace MMOWorldServer
                         break;
 
                     case ((ushort)GamePacketOpCode.NearbyActorsQuery):
-                        HandleNearbyActorsQuery(subPacket);
+                         HandleNearbyActorsQuery(subPacket);
+                         break;
+
+
+                    case ((ushort)GamePacketOpCode.PositionQuery):
+                        HandlePositionQuery(subPacket);
+
                         break;
                 }
             }
         }
 
+        private void HandlePositionQuery(SubPacket subPacket)
+        {
+            var targetActor = subPacket.header.targetId;
+            var sourceActor = subPacket.header.sourceId;
+
+            if (WorldServer.mConnectedPlayerList.TryGetValue(targetActor, out Character character))
+            {
+                PositionPacket positionQuery = new PositionPacket(character.XPos, character.YPos,
+                    true, character.CharacterId);
+                SubPacket positionQuerySp = new SubPacket(GamePacketOpCode.PositionQuery, 0, targetActor,
+                    positionQuery.GetBytes(), SubPacketTypes.GamePacket);
+                client.QueuePacket(positionQuerySp, true, false); //TODO: isAuthed
+            }
+            else
+            {
+                Console.WriteLine("Tell player to DC this target? Dunno yet");
+            }
+        }
+
         private void HandleNearbyActorsQuery(SubPacket subPacket)
         {
-            PositionsInBoundsPacket posInBoundsPacket = new PositionsInBoundsPacket(subPacket.data);
-            if (WorldServer.mConnectedPlayerList.TryGetValue(subPacket.header.sourceId, out Character character))
-            {
-                character.SetCharacterCameraBounds(posInBoundsPacket.XMin, posInBoundsPacket.XMax, posInBoundsPacket.YMin, posInBoundsPacket.YMax);
-                List<SubPacket> nearbyCharacters = new List<SubPacket>();
+                PositionsInBoundsPacket posInBoundsPacket = new PositionsInBoundsPacket(subPacket.data);
+                client.Character.SetCharacterCameraBounds(posInBoundsPacket.XMin, posInBoundsPacket.XMax, posInBoundsPacket.YMin, posInBoundsPacket.YMax);
                 bool foundNearby = false;
-                foreach (KeyValuePair<uint, Character> entry in WorldServer.mConnectedPlayerList)
+                List<SubPacket> nearbyCharacters = new List<SubPacket>();
+                var connectedPlayers = WorldServer.mConnectedPlayerList.Values.ToList();
+
+                foreach (var connectedPlayer in connectedPlayers)
                 {
-                    if ((entry.Key != subPacket.header.sourceId) && entry.Value.XPos > character.BoundsXMin &&
-                        entry.Value.XPos < character.BoundsXMax && entry.Value.YPos > character.BoundsYMin &&
-                        entry.Value.YPos < character.BoundsYMax)
+                    if ((connectedPlayer.CharacterId != client.Character.CharacterId) && connectedPlayer.XPos > client.Character.BoundsXMin &&
+                        connectedPlayer.XPos < client.Character.BoundsXMax && connectedPlayer.YPos > client.Character.BoundsYMin &&
+                        connectedPlayer.YPos < client.Character.BoundsYMax)
                     {
-                        Console.WriteLine("FOUND NEARBY PLAYER!");
                         foundNearby = true;
-                        PositionPacket packet = new PositionPacket(entry.Value.XPos, entry.Value.YPos, true, entry.Value.CharacterId);
-                        SubPacket sp = new SubPacket(GamePacketOpCode.NearbyActorsQuery, entry.Value.CharacterId, 0, packet.GetBytes(), SubPacketTypes.GamePacket);
+                        PositionPacket packet = new PositionPacket(connectedPlayer.XPos, connectedPlayer.YPos, true, connectedPlayer.CharacterId);
+                        SubPacket sp = new SubPacket(GamePacketOpCode.NearbyActorsQuery, 0, connectedPlayer.CharacterId, packet.GetBytes(), SubPacketTypes.GamePacket);
                         nearbyCharacters.Add(sp);
                     }
                 }
                 if (foundNearby)
                 {
+
                     client.QueuePacket(BasePacket.CreatePacket(nearbyCharacters, true, false));
                     client.FlushQueuedSendPackets();
-                }                
-            }
-            else
-            {
-                //DC player?
-            }
-
+                }
         }
 
         private void HandlePositionPacket(SubPacket subPacket)
         {
             PositionPacket packet = new PositionPacket(subPacket.data);
-            WorldServer.mConnectedPlayerList.TryGetValue(subPacket.header.sourceId, out Character character);
-            character.SavePositions(packet.XPos, packet.YPos);
-            //Console.WriteLine("Character position: " + character.XPos + "," + character.YPos);
+            client.Character.SavePositions(packet.XPos, packet.YPos);
         }
 
         private void ProcessConnectPackets(List<SubPacket> subPackets)
@@ -123,7 +147,7 @@ namespace MMOWorldServer
 
 
                     case (((ushort)GamePacketOpCode.Acknowledgement)):
-                        
+
                         AcknowledgePacket ack = new AcknowledgePacket(subPacket.data);
                         if (ack.AckSuccessful)
                         {
@@ -131,8 +155,9 @@ namespace MMOWorldServer
                             {
                                 client.Disconnect(); //this is 100% login server connection, don't doubt this
                                 client = character.WorldClientConnection;
-                                Console.WriteLine("Client looks legit: " + (ack.ClientAddress == client.GetIp()));    
-                                
+                                client.Character = character;
+                                Console.WriteLine("Client looks legit: " + (ack.ClientAddress == client.GetIp()));
+
                                 WorldDatabase.AddToOnlinePlayerList(character.CharacterId, ack.ClientAddress);
                                 client.SessionId = WorldDatabase.GetSessionId(character.CharacterId);
                                 Console.WriteLine("Sending ack received from login server back to: " + client.GetFullAddress());
@@ -150,7 +175,7 @@ namespace MMOWorldServer
                         else
                         {
                             Console.WriteLine("Ack not successful, removing from connected player list");
-                            WorldServer.mConnectedPlayerList.Remove(ack.CharacterId);
+                            WorldServer.mConnectedPlayerList.TryRemove(ack.CharacterId, out Character unsuccessfulAckCharacter);
                             client.Disconnect();
                         }
                         break;
@@ -159,7 +184,7 @@ namespace MMOWorldServer
                         DisconnectPacket dc = new DisconnectPacket(subPacket.data);
                         Console.WriteLine("Got DC packet");
                         WorldDatabase.RemoveFromOnlinePlayerList(dc.CharacterId);
-                        WorldServer.mConnectedPlayerList.Remove(dc.CharacterId);
+                        WorldServer.mConnectedPlayerList.TryRemove(dc.CharacterId, out Character characterToDc);
                         client.Disconnect();
                         break;
 
@@ -187,7 +212,11 @@ namespace MMOWorldServer
 
             if (!WorldServer.mConnectedPlayerList.ContainsKey(character.CharacterId))
             {
-                WorldServer.mConnectedPlayerList.Add(character.CharacterId, character);
+                Console.WriteLine("Trying to insert " + character.CharacterId);
+                if (WorldServer.mConnectedPlayerList.TryAdd(character.CharacterId, character))
+                {
+                    Console.WriteLine("Couldn't add player...");
+                }
             }
             else
             {

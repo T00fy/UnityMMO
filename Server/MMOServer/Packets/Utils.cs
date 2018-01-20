@@ -94,6 +94,13 @@ namespace MMOServer
             return unixTimeStamp;
         }
 
+        public static bool OpCodeNotPositionRelated(ushort opcode)
+        {
+            return opcode != (ushort)GamePacketOpCode.PositionPacket &&
+                opcode != (ushort)GamePacketOpCode.PositionQuery &&
+                opcode != (ushort)GamePacketOpCode.NearbyActorsQuery;
+        }
+
         public static ulong swapEndian(ulong input)
         {
             return ((0x00000000000000FF) & (input >> 56) |

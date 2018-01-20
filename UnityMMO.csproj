@@ -293,12 +293,15 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\Scripts\LoadPlayer.cs" />
     <Compile Include="Assets\Scripts\Actor.cs" />
     <Compile Include="Assets\Scripts\ActorDrawer.cs" />
     <Compile Include="Assets\Scripts\ActorWrapper.cs" />
     <Compile Include="Assets\Scripts\Boundary.cs" />
     <Compile Include="Assets\Scripts\CameraExtensions.cs" />
     <Compile Include="Assets\Scripts\CameraFollow.cs" />
+    <Compile Include="Assets\Scripts\CharacterMovement.cs" />
+    <Compile Include="Assets\Scripts\CharacterPositionPoller.cs" />
     <Compile Include="Assets\Scripts\LoginMenuScripts\AccountHandler.cs" />
     <Compile Include="Assets\Scripts\LoginMenuScripts\Character.cs" />
     <Compile Include="Assets\Scripts\LoginMenuScripts\CharacterCreateHandler.cs" />

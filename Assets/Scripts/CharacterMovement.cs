@@ -1,24 +1,30 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
+using System.Collections;
+using System;
 
-public class PlayerMovement : MonoBehaviour {
-
+[RequireComponent(typeof(CharacterPositionPoller))]
+[RequireComponent(typeof(Rigidbody2D))]
+[RequireComponent(typeof(Animator))]
+public class CharacterMovement : MonoBehaviour
+{
     private Rigidbody2D rb;
     private Animator animator;
-    public float speed;
-    [HideInInspector]
+    private CharacterPositionPoller poller;
+    public float speed = 7.5f;
     public bool IsMoving { get; set; }
 
-    // Use this for initialization
-    void Start () {
+    private void Start()
+    {
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
-	}
-	
-	// Update is called once per frame
-	void FixedUpdate () {
-        Vector2 movementVector = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
+        poller = GetComponent<CharacterPositionPoller>();
+    }
+
+    public void HandleMovement(float posX, float posY)
+    {
+        //This doesn't work properly.. just moves to the left jerkingly
+        Vector2 movementVector = Vector2.MoveTowards(transform.position, 
+            new Vector2(posX, posY), speed * Time.deltaTime);
 
         if (movementVector.x != 0)
         {
@@ -35,13 +41,13 @@ public class PlayerMovement : MonoBehaviour {
             animator.SetFloat("input_y", movementVector.y);
         }
 
-        if(movementVector == Vector2.zero)
+        if (movementVector == Vector2.zero)
         {
             IsMoving = false;
             animator.SetBool("isWalking", IsMoving);
         }
-        rb.MovePosition(rb.position + (speed * movementVector.normalized * Time.deltaTime));
+        rb.MovePosition(movementVector);
         //diagonal input fails at times
         //moving diagonally moves faster
-	}
+    }
 }

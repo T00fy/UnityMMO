@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MMOServer;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -23,6 +24,12 @@ public static class Utils
     public static void SetAccountName(string account)
     {
         accountName = account;
+    }
+
+    public static void ThrowDebugErrorToServer(Connection connection)
+    {
+        SubPacket sp = new SubPacket(GamePacketOpCode.DebugThrow, 0, 0, new byte[0], SubPacketTypes.ErrorPacket);
+        connection.Send(BasePacket.CreatePacket(sp, true, false));
     }
 
     public static T FindComponentInChildWithTag<T>(GameObject parent, string tag)where T:Component{

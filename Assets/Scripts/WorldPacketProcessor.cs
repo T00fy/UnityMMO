@@ -42,11 +42,15 @@ public class WorldPacketProcessor : Processor
                         GameEventManager.TriggerActorNeedsDrawing(new GameEventArgs { Actor = wrapper });
 
                         break;
+
+                    case ((ushort)GamePacketOpCode.PositionQuery):
+                        PositionPacket otherCharacterPos = new PositionPacket(subPacket.data);
+                        GameEventManager.TriggerPollerResponse(new GameEventArgs { PollerPositionPacket = otherCharacterPos });
+
+                        break;
+
                 }
-
             }
-
-
         }
     }
 
