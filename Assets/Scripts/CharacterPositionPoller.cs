@@ -19,12 +19,17 @@ public class CharacterPositionPoller : MonoBehaviour
         GameEventManager.PollerPositionPacket += new GameEventManager.GameEvent(PosPacketReceived);
         character = gameObject.GetComponent<Character>();
         movement = gameObject.GetComponent<CharacterMovement>();
+        InvokeRepeating("QueryForActor", 0.0f, 0.8f);
+    }
+
+    void QueryForActor()
+    {
+        SubPacket sp = new SubPacket(GamePacketOpCode.PositionQuery, Data.CHARACTER_ID, character.Id, new byte[0], SubPacketTypes.GamePacket);
+        connection.Send(BasePacket.CreatePacket(sp, PacketProcessor.isAuthenticated, false));
     }
 
     void Update()
     {
-        SubPacket sp = new SubPacket(GamePacketOpCode.PositionQuery, Data.CHARACTER_ID, character.Id, new byte[0], SubPacketTypes.GamePacket);
-        connection.Send(BasePacket.CreatePacket(sp, PacketProcessor.isAuthenticated, false));
         if (posPacketReceived)
         {
             HandlePosPacket();
