@@ -51,6 +51,7 @@
     <Compile Include="LoginMenuPackets\CharacterCreatePacket.cs" />
     <Compile Include="LoginMenuPackets\CharacterQueryPacket.cs" />
     <Compile Include="LoginMenuPackets\ErrorPacket.cs" />
+    <Compile Include="DualOut.cs" />
     <Compile Include="PacketTypes.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SubPacket.cs" />

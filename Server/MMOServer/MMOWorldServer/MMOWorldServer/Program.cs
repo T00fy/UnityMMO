@@ -13,6 +13,7 @@ namespace MMOWorldServer
     {
         static void Main(string[] args)
         {
+            DualOut.Init();
             Console.WriteLine("-----MMO World Server-----");
             Console.WriteLine("Checking DB connection");
             string databaseStatus = WorldDatabase.SetupConnection();
