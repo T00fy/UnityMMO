@@ -75,7 +75,8 @@ namespace MMOServer
                 {
                     PacketProcessor = new PacketProcessor(),
                     socket = s.EndAccept(ar),
-                    buffer = new byte[BUFFER_SIZE]
+                    buffer = new byte[BUFFER_SIZE],
+                    fullAddress = (s.RemoteEndPoint as IPEndPoint).Address + ":" + (s.RemoteEndPoint as IPEndPoint).Port
                 };
                 lock (mConnectionList)
                 {
