@@ -92,7 +92,7 @@ namespace MMOServer
 
             catch (Exception)
             {
-                if (client.socket == null)
+                if (client.socket != null)
                 {
                     client.socket.Close();
                     lock (mConnectionList)
