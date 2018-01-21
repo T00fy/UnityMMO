@@ -12,7 +12,7 @@ public class MovementRelayer : MonoBehaviour {
     private bool actorMoving;
     private PlayerMovement mover;
     private Connection connection;
-    public float networkTick = 0.6f;
+    public float networkTick = 0.01f;
 
     void Start()
     {

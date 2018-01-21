@@ -222,8 +222,8 @@ namespace MMOServer
         public void debugPrintSubPacket()
         {
 #if DEBUG
-            if (Utils.OpCodeNotPositionRelated(gameMessage.opcode))
-            {
+      //      if (Utils.OpCodeNotPositionRelated(gameMessage.opcode))
+     //       {
                 Console.BackgroundColor = ConsoleColor.DarkRed;
                 Console.WriteLine("Size: 0x{0:X}", header.subpacketSize);
                 Console.WriteLine("Packet Type: 0x{0:X}", header.type);
@@ -238,7 +238,7 @@ namespace MMOServer
                 Console.BackgroundColor = ConsoleColor.DarkMagenta;
                 Console.WriteLine("{0}", Utils.ByteArrayToHex(data));
                 Console.BackgroundColor = ConsoleColor.Black;
-            }
+      //      }
 #endif
         }
     }
