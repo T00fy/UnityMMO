@@ -75,8 +75,7 @@ namespace MMOServer
                 {
                     PacketProcessor = new PacketProcessor(),
                     socket = s.EndAccept(ar),
-                    buffer = new byte[BUFFER_SIZE],
-                    fullAddress = (s.RemoteEndPoint as IPEndPoint).Address + ":" + (s.RemoteEndPoint as IPEndPoint).Port
+                    buffer = new byte[BUFFER_SIZE]
                 };
                 lock (mConnectionList)
                 {
@@ -86,13 +85,14 @@ namespace MMOServer
                 client.socket.BeginReceive(client.buffer, 0, client.buffer.Length, SocketFlags.None, new AsyncCallback(ReceiveCallBack), client);
                 //start accepting connections again
                 listener.BeginAccept(new AsyncCallback(AcceptCallback), listener);
-                Console.WriteLine(string.Format("Connection {0}:{1} has connected.", (client.socket.RemoteEndPoint as IPEndPoint).Address, (client.socket.RemoteEndPoint as IPEndPoint).Port));
+                client.fullAddress = string.Format("{0}:{1}", (client.socket.RemoteEndPoint as IPEndPoint).Address, (client.socket.RemoteEndPoint as IPEndPoint).Port);
+                Console.WriteLine(client.GetFullAddress());
             }
 
 
             catch (Exception)
             {
-                if (client.socket != null)
+                if (client.socket == null)
                 {
                     client.socket.Close();
                     lock (mConnectionList)
