@@ -7,6 +7,7 @@
 [Ll]ibrary/
 sysinfo.txt
 *.stackdump
+config.cfg
 
 # ===================================== #
 # Visual Studio / MonoDevelop generated #
