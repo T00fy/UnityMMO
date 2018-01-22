@@ -31,6 +31,7 @@ namespace MMOServer
             // Create a TCP/IP socket.
             listener = new Socket(AddressFamily.InterNetworkV6,
                 SocketType.Stream, ProtocolType.Tcp);
+            listener.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.IPv6Only, false);
 
             // Bind the socket to the local endpoint and listen for incoming connections.
             try

@@ -8,11 +8,17 @@ public class WorldPacketProcessor : Processor
 {
     private bool isAuthenticated;
     private Connection connection;
+    private CharacterDestroyer destroyer;
 
     void Awake()
     {
         connection = GameObject.Find("WorldServerConnection").GetComponent<Connection>();
         connection.SetPacketProcessor(this);
+    }
+
+    void Start()
+    {
+        destroyer = GameObject.Find("CharacterDestroyer").GetComponent<CharacterDestroyer>();
     }
 
     public override void ProcessPacket(BasePacket receivedPacket)
@@ -46,6 +52,16 @@ public class WorldPacketProcessor : Processor
                         PositionPacket otherCharacterPos = new PositionPacket(subPacket.data);
                         GameEventManager.TriggerPollerResponse(new GameEventArgs { PollerPositionPacket = otherCharacterPos });
 
+                        break;
+
+                    case ((ushort)GamePacketOpCode.OtherPlayerDisconnected):
+                        DisconnectPacket dc = new DisconnectPacket(subPacket.data);
+                        Character playerToDisconnect;
+                        if (Data.drawnCharacters.TryGetValue(dc.CharacterId, out playerToDisconnect))
+                        {
+                            Data.drawnCharacters.Remove(dc.CharacterId);
+                            destroyer.AddCharacter(playerToDisconnect);
+                        }
                         break;
 
                 }

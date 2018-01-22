@@ -7,7 +7,7 @@ using MMOServer;
 [RequireComponent(typeof(CharacterMovement))]
 public class CharacterPositionPoller : MonoBehaviour
 {
-    public float framesPerQuery = 20;
+    public float framesPerQuery = 60;
     private Character character;
     private CharacterMovement movement;
     private PositionPacket posPacket;
@@ -19,7 +19,7 @@ public class CharacterPositionPoller : MonoBehaviour
         GameEventManager.PollerPositionPacket += new GameEventManager.GameEvent(PosPacketReceived);
         character = gameObject.GetComponent<Character>();
         movement = gameObject.GetComponent<CharacterMovement>();
-        InvokeRepeating("UpdateActorPosition", 0.0f, Time.deltaTime * 60);
+        InvokeRepeating("UpdateActorPosition", 0.0f, Time.deltaTime * framesPerQuery);
     }
 
     void UpdateActorPosition()
@@ -43,6 +43,9 @@ public class CharacterPositionPoller : MonoBehaviour
 
     private void PosPacketReceived(GameEventArgs eventArgs)
     {
-        posPacket = eventArgs.PollerPositionPacket;
+        if (eventArgs.PollerPositionPacket.ActorId == character.Id)
+        {
+            posPacket = eventArgs.PollerPositionPacket;
+        }
     }
 }

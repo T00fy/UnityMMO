@@ -4,7 +4,20 @@ using System.Collections;
 public class Actor : MonoBehaviour
 {
     [SerializeField]
-    public uint Id { get; set; }
+    private uint id;
+
+    public uint Id
+    {
+        get
+        {
+            return id;
+        }
+
+        set
+        {
+            id = value;
+        }
+    }
 
     // Use this for initialization
     void Start()
