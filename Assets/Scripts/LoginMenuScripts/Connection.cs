@@ -86,7 +86,7 @@ public class Connection : MonoBehaviour
     public void EstablishConnection(string ipAddress, int port)
     {
 
-        socket = new Socket(AddressFamily.InterNetworkV6, SocketType.Stream, ProtocolType.Tcp);
+        socket = new Socket(AddressFamily.Unspecified, SocketType.Stream, ProtocolType.Tcp);
         try
         {
             IPAddress[] ip = Dns.GetHostAddresses(ipAddress);
