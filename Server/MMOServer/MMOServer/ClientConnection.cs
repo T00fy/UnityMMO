@@ -20,6 +20,7 @@ namespace MMOServer
         private IPAddress clientIpAddress;
         private int clientPort;
         public PacketProcessor PacketProcessor{get;set;}
+        public string fullAddress { get; set; }
 
         public IPAddress ClientIpAddress
         {
@@ -92,7 +93,7 @@ namespace MMOServer
 
         public string GetFullAddress()
         {
-            return string.Format("{0}:{1}", (socket.RemoteEndPoint as IPEndPoint).Address, (socket.RemoteEndPoint as IPEndPoint).Port);
+            return fullAddress;
         }
 
         public string GetIp()

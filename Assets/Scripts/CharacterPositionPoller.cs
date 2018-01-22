@@ -7,11 +7,11 @@ using MMOServer;
 [RequireComponent(typeof(CharacterMovement))]
 public class CharacterPositionPoller : MonoBehaviour
 {
+    public float framesPerQuery = 20;
     private Character character;
     private CharacterMovement movement;
     private PositionPacket posPacket;
     private Connection connection;
-    private bool posPacketReceived;
     // Use this for initialization
     void Start()
     {
@@ -19,10 +19,10 @@ public class CharacterPositionPoller : MonoBehaviour
         GameEventManager.PollerPositionPacket += new GameEventManager.GameEvent(PosPacketReceived);
         character = gameObject.GetComponent<Character>();
         movement = gameObject.GetComponent<CharacterMovement>();
-        InvokeRepeating("QueryForActor", 0.0f, 0.8f);
+        InvokeRepeating("UpdateActorPosition", 0.0f, Time.deltaTime * 60);
     }
 
-    void QueryForActor()
+    void UpdateActorPosition()
     {
         SubPacket sp = new SubPacket(GamePacketOpCode.PositionQuery, Data.CHARACTER_ID, character.Id, new byte[0], SubPacketTypes.GamePacket);
         connection.Send(BasePacket.CreatePacket(sp, PacketProcessor.isAuthenticated, false));
@@ -30,26 +30,19 @@ public class CharacterPositionPoller : MonoBehaviour
 
     void Update()
     {
-        if (posPacketReceived)
+        if (posPacket != null)
         {
-            HandlePosPacket();
-            posPacketReceived = false;
+            if (posPacket.ActorId != character.Id)
+            {
+                Debug.Log("Actorid : " + posPacket.ActorId + " " + character.Id);
+                throw new Exception("Uh oh, server probably not configured properly");
+            }
+            movement.HandleMovement(posPacket.XPos, posPacket.YPos);
         }
     }
 
     private void PosPacketReceived(GameEventArgs eventArgs)
     {
         posPacket = eventArgs.PollerPositionPacket;
-        posPacketReceived = true;
-    }
-
-    private void HandlePosPacket()
-    {
-        if (posPacket.ActorId != character.Id)
-        {
-            Debug.Log("Actorid : " + posPacket.ActorId + " " + character.Id);
-            throw new Exception("Uh oh, server probably not configured properly");
-        }
-        movement.HandleMovement(posPacket.XPos, posPacket.YPos);
     }
 }

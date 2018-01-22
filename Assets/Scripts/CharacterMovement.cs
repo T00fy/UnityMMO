@@ -27,8 +27,8 @@ public class CharacterMovement : MonoBehaviour
 
     public void HandleMovement(float posX, float posY)
     {
-        Vector2 movementVector = Vector2.Lerp(transform.position, 
-           new Vector2(posX, posY), speed * Time.deltaTime);
+        Vector2 movementVector = Vector2.MoveTowards(transform.position, 
+           new Vector2(posX, posY), 6 * Time.deltaTime);
 
         if (movementVector.x != 0)
         {
