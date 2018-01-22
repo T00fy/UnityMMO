@@ -70,6 +70,7 @@ namespace MMOWorldServer
             try
             {
                 mServerSocket = new Socket(serverEndPoint.Address.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+                mServerSocket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.IPv6Only, false);
             }
             catch (Exception e)
             {

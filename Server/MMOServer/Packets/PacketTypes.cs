@@ -18,7 +18,7 @@ namespace MMOServer
     public enum GamePacketOpCode
     {
         AccountError,AccountSuccess,CreateCharacter,RegisterSuccess,CreateCharacterError,CreateCharacterSuccess,CharacterListQuery,CharacterDeleteQuery,CharacterDeleteSuccess,
-        Handshake,Acknowledgement,Disconnect,PositionPacket,NearbyActorsQuery,PositionQuery,DebugThrow
+        Handshake,Acknowledgement,Disconnect,PositionPacket,NearbyActorsQuery,PositionQuery,DebugThrow, OtherPlayerDisconnected
     }
 
     public enum ErrorCodes

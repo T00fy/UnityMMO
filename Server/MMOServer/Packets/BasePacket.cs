@@ -298,8 +298,6 @@ namespace MMOServer
         public void debugPrintPacket()
         {
 #if DEBUG
-            Console.BackgroundColor = ConsoleColor.DarkYellow;
-            Console.WriteLine("IsAuthed: {0}, IsEncrypted: {1}, Size: 0x{2:X}, Num Subpackets: {3}", header.isAuthenticated, header.isEncrypted, header.packetSize, header.numSubpackets);
             foreach (SubPacket sub in GetSubpackets())
                 sub.debugPrintSubPacket();
             Console.BackgroundColor = ConsoleColor.Black;

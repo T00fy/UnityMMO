@@ -87,7 +87,11 @@ namespace MMOWorldServer
             }
             else
             {
-                Console.WriteLine("Tell player to DC this target? Dunno yet");
+                Console.WriteLine("Sending info to {0} that character ID:{1} has disconnected", client.GetFullAddress(), targetActor);
+                DisconnectPacket disconnectedPlayer = new DisconnectPacket(targetActor);
+                SubPacket disconnectedPlayerPacket = new SubPacket(GamePacketOpCode.OtherPlayerDisconnected, 0, targetActor,
+                    disconnectedPlayer.GetBytes(), SubPacketTypes.GamePacket);
+                client.QueuePacket(disconnectedPlayerPacket,true,false);
             }
         }
 

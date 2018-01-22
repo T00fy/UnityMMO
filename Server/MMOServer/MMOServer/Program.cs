@@ -8,7 +8,6 @@ namespace MMOServer
     {
         public static void Main(string[] args)
         {
-            DualOut.Init();
             Console.WriteLine("-------Login Server-------");
             Console.WriteLine("Setting up server...");
             Console.WriteLine("Checking DB connection");
