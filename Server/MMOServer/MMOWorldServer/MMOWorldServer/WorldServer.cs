@@ -71,6 +71,7 @@ namespace MMOWorldServer
             {
                 mServerSocket = new Socket(serverEndPoint.Address.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
                 mServerSocket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.IPv6Only, false);
+                mServerSocket.DualMode = true;
             }
             catch (Exception e)
             {

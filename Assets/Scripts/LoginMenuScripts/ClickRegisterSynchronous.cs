@@ -72,7 +72,7 @@ public class ClickSubmitSynchronous : MonoBehaviour {
             CheckInputs(userName, password);
             IPAddress[] ip = Dns.GetHostAddresses(Data.LOGIN_ADDRESS);
             statusText = "FTP...";
-            Socket socket = new Socket(AddressFamily.InterNetworkV6, SocketType.Stream, ProtocolType.Tcp);
+            Socket socket = new Socket(AddressFamily.Unspecified, SocketType.Stream, ProtocolType.Tcp);
 
             socket.Connect(ip[0], 3425);
             byte[] sendCmd = Encoding.ASCII.GetBytes("register " + userName + " " + password);
