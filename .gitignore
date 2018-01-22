@@ -8,6 +8,7 @@
 sysinfo.txt
 *.stackdump
 config.cfg
+App.config
 
 # ===================================== #
 # Visual Studio / MonoDevelop generated #
