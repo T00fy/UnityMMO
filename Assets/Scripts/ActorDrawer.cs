@@ -81,12 +81,7 @@ public class ActorDrawer : MonoBehaviour
             }
 
         }
-        //Poll for nearby actors every x seconds
-        //add drawn actor to a list
-        //When character is out of bounds of the camera, set character gameobject to inactive
-        //When charcter enters bounds again, look up list first and set gameobject to active, if not there create them
-        //Poll periodically for the position of characters within the camera bounds and update their positions.
-        //Create some sort of AI that when given a new position from a current position, the character will animate movement to that location
+
     }
 
     /// <summary>

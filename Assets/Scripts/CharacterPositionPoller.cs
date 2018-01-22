@@ -43,6 +43,9 @@ public class CharacterPositionPoller : MonoBehaviour
 
     private void PosPacketReceived(GameEventArgs eventArgs)
     {
-        posPacket = eventArgs.PollerPositionPacket;
+        if (eventArgs.PollerPositionPacket.ActorId == character.Id)
+        {
+            posPacket = eventArgs.PollerPositionPacket;
+        }
     }
 }
