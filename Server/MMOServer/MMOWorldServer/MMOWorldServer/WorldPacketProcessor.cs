@@ -57,17 +57,16 @@ namespace MMOWorldServer
                 switch (subPacket.gameMessage.opcode)
                 {
                     case ((ushort)GamePacketOpCode.PositionPacket):
-                        HandlePositionPacket(subPacket);
+                        Task.Factory.StartNew(() => HandlePositionPacket(subPacket));
                         break;
 
                     case ((ushort)GamePacketOpCode.NearbyActorsQuery):
-                         HandleNearbyActorsQuery(subPacket);
+                        Task.Factory.StartNew(() => HandleNearbyActorsQuery(subPacket));
                          break;
 
 
                     case ((ushort)GamePacketOpCode.PositionQuery):
-                        HandlePositionQuery(subPacket);
-
+                        Task.Factory.StartNew(() => HandlePositionQuery(subPacket));
                         break;
                 }
             }

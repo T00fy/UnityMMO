@@ -18,7 +18,7 @@ public class MovementRelayer : MonoBehaviour {
     {
         connection = GameObject.Find("WorldServerConnection").GetComponent<Connection>();
         mover = gameObject.GetComponent<PlayerMovement>();
-        InvokeRepeating("RelayMovement", 0.0f, 1.0f);
+        InvokeRepeating("RelayMovement", 0.0f, Time.deltaTime * 25);
 
     }
 
