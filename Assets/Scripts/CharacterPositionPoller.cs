@@ -7,7 +7,7 @@ using MMOServer;
 [RequireComponent(typeof(CharacterMovement))]
 public class CharacterPositionPoller : MonoBehaviour
 {
-    public float framesPerQuery = 60;
+    public float framesPerQuery = 10;
     private Character character;
     private CharacterMovement movement;
     private PositionPacket posPacket;

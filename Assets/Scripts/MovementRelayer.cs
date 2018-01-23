@@ -18,38 +18,14 @@ public class MovementRelayer : MonoBehaviour {
     {
         connection = GameObject.Find("WorldServerConnection").GetComponent<Connection>();
         mover = gameObject.GetComponent<PlayerMovement>();
-        InvokeRepeating("RelayMovement", 0.0f, Time.deltaTime * 25);
+        InvokeRepeating("RelayMovement", 0.0f, Time.deltaTime * 5);
 
     }
 
     void RelayMovement()
     {
-     /*   if (mover.IsMoving)
-        {
-            var packets = connection.GetQueue();
-            PositionPacket posPacket = new PositionPacket(gameObject.transform.position.x, gameObject.transform.position.y, true, Data.CHARACTER_ID);
-            if (packets.Any())
-            {
-                PositionPacket lastPacket = new PositionPacket(packets.Last().data);
-                if (posPacket.XPos != lastPacket.XPos || posPacket.YPos != lastPacket.YPos)
-                {
-                    SubPacket sp = new SubPacket(GamePacketOpCode.PositionPacket, Data.CHARACTER_ID, 0, posPacket.GetBytes(), SubPacketTypes.GamePacket);
-                    connection.QueuePacket(sp);
-                }
-            }
-            else
-            {
-
-            }*/
             PositionPacket posPacket = new PositionPacket(gameObject.transform.position.x, gameObject.transform.position.y, true, Data.CHARACTER_ID);
             SubPacket sp = new SubPacket(GamePacketOpCode.PositionPacket, Data.CHARACTER_ID, 0, posPacket.GetBytes(), SubPacketTypes.GamePacket);
             connection.Send(BasePacket.CreatePacket(sp,true,false));
         }
     }
-
-
-/*    //this whole queue stuff might be unnecessary, it's only the latest position set that really matters
-    public void Flush()
-    {
-        connection.FlushQueuedSendPackets();
-    }*/
