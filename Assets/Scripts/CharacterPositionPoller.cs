@@ -19,7 +19,7 @@ public class CharacterPositionPoller : MonoBehaviour
         GameEventManager.PollerPositionPacket += new GameEventManager.GameEvent(PosPacketReceived);
         character = gameObject.GetComponent<Character>();
         movement = gameObject.GetComponent<CharacterMovement>();
-        InvokeRepeating("UpdateActorPosition", 0.0f, Time.deltaTime * framesPerQuery);
+       // InvokeRepeating("UpdateActorPosition", 0.0f, Time.deltaTime * framesPerQuery);
     }
 
     void UpdateActorPosition()
@@ -39,6 +39,7 @@ public class CharacterPositionPoller : MonoBehaviour
             }
             movement.HandleMovement(posPacket.XPos, posPacket.YPos);
         }
+        UpdateActorPosition();
     }
 
     private void PosPacketReceived(GameEventArgs eventArgs)

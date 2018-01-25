@@ -199,7 +199,7 @@ namespace MMOWorldServer
                     int offset = 0;
 
                     //Build packets until can no longer or out of data
-                    while (true)
+                    while (conn.IsConnected())
                     {
                         BasePacket basePacket = BasePacket.CreatePacket(ref offset, conn.buffer, bytesRead);
 
