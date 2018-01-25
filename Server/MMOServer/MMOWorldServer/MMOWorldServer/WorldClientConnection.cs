@@ -125,11 +125,6 @@ namespace MMOWorldServer
             return (socket.RemoteEndPoint as IPEndPoint).Port;
         }
 
-        public bool IsConnected()
-        {
-            return (socket.Poll(1, SelectMode.SelectRead) && socket.Available == 0);
-        }
-
         public void Disconnect()
         {
             if (socket.Connected)

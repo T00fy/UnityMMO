@@ -10,7 +10,7 @@ public class CharacterMovement : MonoBehaviour
     private Rigidbody2D rb;
     private Animator animator;
     private CharacterPositionPoller poller;
-    public float speed = 7.5f;
+    public float networkMovement = 9.1f;
     public bool IsMoving { get; set; }
 
     private void Start()
@@ -23,7 +23,7 @@ public class CharacterMovement : MonoBehaviour
     public void HandleMovement(float posX, float posY)
     {
         Vector2 movementVector = Vector2.MoveTowards(transform.position, 
-           new Vector2(posX, posY), 6 * Time.deltaTime);
+           new Vector2(posX, posY), networkMovement * Time.deltaTime);
 
         var direction = movementVector - new Vector2(transform.position.x,transform.position.y);
         direction.Normalize();

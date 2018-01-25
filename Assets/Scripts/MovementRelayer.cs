@@ -12,19 +12,14 @@ public class MovementRelayer : MonoBehaviour {
     private bool actorMoving;
     private PlayerMovement mover;
     private Connection connection;
-    public float networkTick = 0.01f;
+    public float framesPerQuery = 4f;
 
     void Start()
     {
         connection = GameObject.Find("WorldServerConnection").GetComponent<Connection>();
         mover = gameObject.GetComponent<PlayerMovement>();
-   //     InvokeRepeating("RelayMovement", 0.0f, Time.deltaTime * 5);
+        InvokeRepeating("RelayMovement", 0.0f, Time.deltaTime * framesPerQuery);
 
-    }
-
-    void Update()
-    {
-        RelayMovement();
     }
 
     void RelayMovement()

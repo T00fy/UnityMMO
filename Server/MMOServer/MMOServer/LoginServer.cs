@@ -29,15 +29,14 @@ namespace MMOServer
             // running the listener is "host.contoso.com".
 
             // Create a TCP/IP socket.
-            listener = new Socket(AddressFamily.InterNetworkV6,
-                SocketType.Stream, ProtocolType.Tcp);
-            listener.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.IPv6Only, false);
+            IPEndPoint serverEndPoint = new IPEndPoint(IPAddress.IPv6Any, 3425);
+            listener = new Socket(serverEndPoint.Address.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
             listener.DualMode = true;
 
             // Bind the socket to the local endpoint and listen for incoming connections.
             try
             {
-                listener.Bind(new IPEndPoint(IPAddress.IPv6Any, 3425));
+                listener.Bind(serverEndPoint);
                 listener.Listen(100);
 
                 while (true)
