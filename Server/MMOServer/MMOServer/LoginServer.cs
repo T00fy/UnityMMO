@@ -126,7 +126,7 @@ namespace MMOServer
                     int offset = 0;
 
                     //build/compile packets until can no longer or data is finished
-                    while (true)
+                    while (client.socket.Connected)
                     {
                         BasePacket basePacket = BuildPacket(ref offset, client.buffer, bytesRead);
                         if (basePacket == null)
