@@ -67,6 +67,7 @@
     <Compile Include="Actors\Character.cs" />
     <Compile Include="Actors\Npc.cs" />
     <Compile Include="Actors\Player.cs" />
+    <Compile Include="Database\TableWrappers\CharacterPositionsWrapper.cs" />
     <Compile Include="Database\WorldDatabase.cs" />
     <Compile Include="WorldClientConnection.cs" />
     <Compile Include="Data\Items\AccessoryItem.cs" />

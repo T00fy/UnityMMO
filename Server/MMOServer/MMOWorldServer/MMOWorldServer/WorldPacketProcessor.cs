@@ -159,6 +159,10 @@ namespace MMOWorldServer
                                 client.Disconnect(); //this is 100% login server connection, don't doubt this
                                 client = character.WorldClientConnection;
                                 client.Character = character;
+                                CharacterPositionsWrapper posDbWrapper = WorldDatabase.GetCharacterPosition(client.Character.CharacterId);
+                                client.Character.XPos = posDbWrapper.XPos;
+                                client.Character.YPos = posDbWrapper.YPos;
+                                client.Character.Zone = posDbWrapper.Zone;
                                 Console.WriteLine("Client looks legit: " + (ack.ClientAddress == client.GetIp()));
 
                                 WorldDatabase.AddToOnlinePlayerList(character.CharacterId, ack.ClientAddress);

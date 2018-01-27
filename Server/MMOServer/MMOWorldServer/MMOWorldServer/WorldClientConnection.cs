@@ -127,6 +127,9 @@ namespace MMOWorldServer
 
         public void Disconnect()
         {
+            if(Character != null) {
+                WorldDatabase.RemoveFromOnlinePlayerList(Character.CharacterId);
+            }
             if (socket.Connected)
                 socket.Disconnect(false);
         }

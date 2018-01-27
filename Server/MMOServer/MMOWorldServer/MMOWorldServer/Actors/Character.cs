@@ -21,9 +21,12 @@ namespace MMOWorldServer.Actors
         public float BoundsYMin { get; set; }
         public float BoundsYMax { get; set; }
 
+        public string Zone { get; set; }
+
         public Character(uint actorID) : base(actorID)
         {
             CharacterId = actorID;
+            Zone = "test"; //create a zone class later when there are more zones available
         }
 
         public void SavePositions(float xPos, float yPos)

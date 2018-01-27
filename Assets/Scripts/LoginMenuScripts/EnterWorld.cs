@@ -14,7 +14,7 @@ public class EnterWorld : MonoBehaviour
     public StatusBoxHandler statusBoxHandler;
     private bool? handShakeSuccessful;
     private bool clientActivatedEnterWorld;
-    public float handshakeTimeoutWait = 30.0f;
+    public float handshakeTimeoutWait = 15.0f;
     private CharacterSelect characterSelect;
     private Character characterEntering;
 

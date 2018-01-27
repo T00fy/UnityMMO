@@ -33,11 +33,11 @@ namespace MMOWorldServer
             return status;
         }
 
-        public static void RemoveFromOnlinePlayerList(uint sessionId)
+        public static void RemoveFromOnlinePlayerList(uint characterId)
         {
             MySqlCommand command = conn.CreateCommand();
-            command.CommandText = "DELETE FROM online_players where sessionId=@sessionId";
-            command.Parameters.AddWithValue("@sessionId", sessionId);
+            command.CommandText = "DELETE FROM online_players where charId=@charId";
+            command.Parameters.AddWithValue("@charId", characterId);
             command.ExecuteNonQuery();
         }
 
@@ -68,6 +68,47 @@ namespace MMOWorldServer
             command.Parameters.AddWithValue("@characterId", characterId);
             command.Parameters.AddWithValue("@ipAddress", clientAddress);
             command.ExecuteNonQuery();
+        }
+
+        public static void UpdateCharacterPosition(uint characterId, float xPos, float yPos, string zone)
+        {
+            MySqlCommand command = conn.CreateCommand();
+            command.CommandText = "UPDATE `character_positions` set`xPos`=@xPos,`yPos`=@yPos,`zone`=@zone WHERE `characterId`=@characterId";
+            command.Parameters.AddWithValue("@characterId", characterId);
+            command.Parameters.AddWithValue("@xPos", xPos);
+            command.Parameters.AddWithValue("@yPos", yPos);
+            command.Parameters.AddWithValue("@zone", zone);
+            command.ExecuteNonQuery();
+        }
+
+        public static CharacterPositionsWrapper GetCharacterPosition(uint characterId)
+        {
+            CharacterPositionsWrapper wrapper = new CharacterPositionsWrapper()
+            {
+                CharacterId = characterId
+            };
+            MySqlCommand command = conn.CreateCommand();
+            command.CommandText = "SELECT * from character_positions where characterId=@characterId";
+            command.Parameters.AddWithValue("@characterId", characterId);
+            MySqlDataReader rdr = command.ExecuteReader();
+            rdr.Read();
+            if (rdr.HasRows)
+            {
+                if (rdr.GetUInt32(0) != characterId)
+                {
+                    throw new Exception("Weird case, found record but does not match");
+                }
+                wrapper.XPos = rdr.GetFloat(1);
+                wrapper.YPos = rdr.GetFloat(2);
+                wrapper.Zone = rdr.GetString(3);
+                rdr.Close();
+
+                return wrapper;
+            }
+            else
+            {
+                throw new Exception("Could not find character_positions record for character id: " + characterId);
+            }
         }
     }
 }

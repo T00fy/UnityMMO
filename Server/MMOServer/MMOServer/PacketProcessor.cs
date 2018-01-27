@@ -81,7 +81,7 @@ namespace MMOServer
                     return;
                 }
             }
-            AcknowledgePacket ackFailure = new AcknowledgePacket(true, received.ClientAddress, (uint)received.CharacterId);
+            AcknowledgePacket ackFailure = new AcknowledgePacket(false, received.ClientAddress, (uint)received.CharacterId);
             SubPacket fail = new SubPacket(GamePacketOpCode.Acknowledgement, 0, 0, ackFailure.GetBytes(), SubPacketTypes.GamePacket);
             BasePacket failPacketToSend = BasePacket.CreatePacket(fail, true, false);
             AckResponseToWorldServer(failPacketToSend);
