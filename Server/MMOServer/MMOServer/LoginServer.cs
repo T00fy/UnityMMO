@@ -181,6 +181,7 @@ namespace MMOServer
             {
                 if (client.socket != null)
                 {
+                    client.socket.Disconnect(false);
                     Console.WriteLine("Client at {0} has disconnected", client.GetFullAddress());
 
                     lock (mConnectionList)

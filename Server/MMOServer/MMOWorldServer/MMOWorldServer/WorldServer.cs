@@ -241,7 +241,7 @@ namespace MMOWorldServer
             {
                 if (conn.socket != null)
                 {
-
+                    conn.socket.Disconnect(false);
                     lock (mConnectionList)
                     {
                         mConnectionList.Remove(conn);
