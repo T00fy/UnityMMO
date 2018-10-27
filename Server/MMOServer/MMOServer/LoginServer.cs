@@ -17,6 +17,7 @@ namespace MMOServer
         public static List<ClientConnection> mConnectionList = new List<ClientConnection>();
         public static ManualResetEvent allDone = new ManualResetEvent(false);
         public const int BUFFER_SIZE = 65535;
+        public int serverPort { get; set; } = 3425;
         private Socket listener;
 
         public void StartListening()
@@ -29,7 +30,7 @@ namespace MMOServer
             // running the listener is "host.contoso.com".
 
             // Create a TCP/IP socket.
-            IPEndPoint serverEndPoint = new IPEndPoint(IPAddress.IPv6Any, 3425);
+            IPEndPoint serverEndPoint = new IPEndPoint(IPAddress.IPv6Any, serverPort);
             listener = new Socket(serverEndPoint.Address.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
             listener.DualMode = true;
 
