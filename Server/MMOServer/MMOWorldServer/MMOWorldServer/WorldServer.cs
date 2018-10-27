@@ -32,6 +32,8 @@ namespace MMOWorldServer
         private Thread mConnectionHealthThread;
         private bool killHealthThread = false;
 
+        public int serverPort { get; set; } = 3435;
+
 /*        private void ConnectionHealth()
         {
             Console.WriteLine("Connection Health thread started; it will run every {0} seconds.", HEALTH_THREAD_SLEEP_TIME);
@@ -65,7 +67,7 @@ namespace MMOWorldServer
 
         public bool StartServer()
         {
-            IPEndPoint serverEndPoint = new IPEndPoint(IPAddress.IPv6Any, 3435);
+            IPEndPoint serverEndPoint = new IPEndPoint(IPAddress.IPv6Any, serverPort);
 
             try
             {
