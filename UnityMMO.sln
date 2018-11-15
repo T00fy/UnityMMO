@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2017
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnityMMO", "UnityMMO.csproj", "{AA2D4040-DD77-6ED2-3A1C-D3243A6C19C4}"
+# Visual Studio 15
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Assembly-CSharp", "Assembly-CSharp.csproj", "{250B2058-F1FA-3E72-CB3A-BBF743BA902F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -9,10 +9,10 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{AA2D4040-DD77-6ED2-3A1C-D3243A6C19C4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{AA2D4040-DD77-6ED2-3A1C-D3243A6C19C4}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{AA2D4040-DD77-6ED2-3A1C-D3243A6C19C4}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{AA2D4040-DD77-6ED2-3A1C-D3243A6C19C4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{250B2058-F1FA-3E72-CB3A-BBF743BA902F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{250B2058-F1FA-3E72-CB3A-BBF743BA902F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{250B2058-F1FA-3E72-CB3A-BBF743BA902F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{250B2058-F1FA-3E72-CB3A-BBF743BA902F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

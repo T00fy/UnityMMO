@@ -1,17 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.24720.0
+# Visual Studio 15
+VisualStudioVersion = 15.0.28306.52
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MMOServer", "MMOServer\MMOServer.csproj", "{ABDC82C5-A40E-4170-B446-8872B8E535B1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MMOWorldServer", "MMOWorldServer\MMOWorldServer.csproj", "{A25A2422-AE5D-45A7-AAAB-FE1837678296}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Packets", "Packets\Packets.csproj", "{A6560A9E-9A19-4DF8-9311-D894FD0CEB0A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Packets", "Packets\Packets.csproj", "{1F8F81FA-0CD3-4C22-B14B-6E385A886FA8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MMOWorldServer", "MMOWorldServer\MMOWorldServer\MMOWorldServer.csproj", "{546BD421-26AF-4E9A-B33B-3CB42DCD5ACA}"
-	ProjectSection(ProjectDependencies) = postProject
-		{A6560A9E-9A19-4DF8-9311-D894FD0CEB0A} = {A6560A9E-9A19-4DF8-9311-D894FD0CEB0A}
-		{ABDC82C5-A40E-4170-B446-8872B8E535B1} = {ABDC82C5-A40E-4170-B446-8872B8E535B1}
-	EndProjectSection
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MMOServer", "MMOServer\MMOServer.csproj", "{9BFCE1A3-FF6D-4192-994F-F6C2DDF1D4EF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -19,20 +15,23 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{ABDC82C5-A40E-4170-B446-8872B8E535B1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{ABDC82C5-A40E-4170-B446-8872B8E535B1}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{ABDC82C5-A40E-4170-B446-8872B8E535B1}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{ABDC82C5-A40E-4170-B446-8872B8E535B1}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A6560A9E-9A19-4DF8-9311-D894FD0CEB0A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A6560A9E-9A19-4DF8-9311-D894FD0CEB0A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A6560A9E-9A19-4DF8-9311-D894FD0CEB0A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A6560A9E-9A19-4DF8-9311-D894FD0CEB0A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{546BD421-26AF-4E9A-B33B-3CB42DCD5ACA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{546BD421-26AF-4E9A-B33B-3CB42DCD5ACA}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{546BD421-26AF-4E9A-B33B-3CB42DCD5ACA}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{546BD421-26AF-4E9A-B33B-3CB42DCD5ACA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A25A2422-AE5D-45A7-AAAB-FE1837678296}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A25A2422-AE5D-45A7-AAAB-FE1837678296}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A25A2422-AE5D-45A7-AAAB-FE1837678296}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A25A2422-AE5D-45A7-AAAB-FE1837678296}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1F8F81FA-0CD3-4C22-B14B-6E385A886FA8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1F8F81FA-0CD3-4C22-B14B-6E385A886FA8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1F8F81FA-0CD3-4C22-B14B-6E385A886FA8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1F8F81FA-0CD3-4C22-B14B-6E385A886FA8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9BFCE1A3-FF6D-4192-994F-F6C2DDF1D4EF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9BFCE1A3-FF6D-4192-994F-F6C2DDF1D4EF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9BFCE1A3-FF6D-4192-994F-F6C2DDF1D4EF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9BFCE1A3-FF6D-4192-994F-F6C2DDF1D4EF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {EB480892-DDAC-4818-AB7A-992985BEA194}
 	EndGlobalSection
 EndGlobal

@@ -15,6 +15,7 @@ namespace MMOServer
 
         public LoginDatabase()
         {
+            ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString.ToString();
             conn = new MySqlConnection(connString);
         }
 
