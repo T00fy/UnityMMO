@@ -24,6 +24,8 @@ App.config
 bin
 obj
 packages
+.vscode
+
 
 # ============ #
 # OS generated #

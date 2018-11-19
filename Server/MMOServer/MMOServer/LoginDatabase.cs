@@ -128,6 +128,7 @@ namespace MMOServer
             catch (MySqlException e)
             {
                 status = e.Message.ToString();
+                Console.WriteLine(e.Message.ToString());
             }
             finally
             {
