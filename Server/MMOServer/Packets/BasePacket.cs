@@ -12,10 +12,10 @@ namespace MMOServer
     [StructLayout(LayoutKind.Sequential)]
     public struct BasePacketHeader
     {
+        public ushort packetSize; //Packet Size: The total size of the packet including header.
         public byte isAuthenticated;
         public byte isEncrypted;
-        public ushort connectionType;
-        public ushort packetSize; //Packet Size: The total size of the packet including header.
+        public ushort connectionType;        
         public ushort numSubpackets;
         public ulong timestamp; //Miliseconds
     }
